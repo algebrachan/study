@@ -22,3 +22,14 @@ git remote add origin git@xxxx.com:xx/xx.git
 # 删除远程分支
 git push origin --delete 分支名称
 ```
+
+### 1.1 配置ssh多个git免密登录
+
+```shell
+ssh keygen -t rsa -C "xxx@xxx.com" -f ~/.ssh/id_rsa
+# 将 id_rsa.pub 添加到remote的仓库中
+# 在./ssh目录下 新建config文件配置如下：
+Host github.com                                       HostName github.com                                 PreferredAuthentications publickey
+  IdentityFile ~/.ssh/id_rsa
+  User algebrachan
+```
