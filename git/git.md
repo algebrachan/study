@@ -33,3 +33,10 @@ Host github.com                                       HostName github.com       
   IdentityFile ~/.ssh/id_rsa
   User algebrachan
 ```
+
+### 1.2 git其他操作
+```shell
+ # git更新版本
+ git update-git-for-windows # 速度很慢 不推荐
+
+```
