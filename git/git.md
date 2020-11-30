@@ -40,3 +40,5 @@ Host github.com                                       HostName github.com       
  git update-git-for-windows # 速度很慢 不推荐
 
 ```
+
+- [git淘宝镜像](https://npm.taobao.org/mirrors/git-for-windows/)
