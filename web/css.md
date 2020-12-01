@@ -279,7 +279,82 @@
 - 注意
 
   - before和after必须有content属性
+  
   - before在内容前，after在内容后
+  
   - before和after创建一个元素，但是属于行内元素
+  
   - 因为在dom里面看不见刚才创建的元素，所以我们成为伪元素
+  
   - 伪元素和标签选择器一样，权重为1
+  
+### 2.2 2D转换
+
+- transform:
+
+  - translate(x,y) x、y轴上移动的距离 translate不会改变元素在页面中的位置
+
+  - translateX(xx%) 百分比是盒子自身的百分比
+
+  - rotate(xxdeg)
+
+    ```css
+    /*水平垂直居中*/
+    p { 
+        position:absolute;
+        top:50%;
+        left:50%;
+        width:200px;
+        height:200px;
+        transform:translate(-50%,50%);
+    }
+    /*旋转*/
+    img {
+        width:150px;
+        border-radius:50%;
+        border:5px solid pink;
+        /*过渡写到本身上，谁做动画给谁加*/
+    }
+    /* 综合写法 将位移放前，旋转之后会改变坐标 缩放 */
+    transform:translate() rotate() scale() 
+    ```
+
+- animation动画
+
+  - 先定义动画keyframes，再使用动画 
+
+  - 动画简写：animation:动画名称 持续时间 运动曲线 何时开始 播放次数 是否反方向 动画起始或者结束状态
+
+    |           属性            | 描述                                                 |
+    | :-----------------------: | :--------------------------------------------------- |
+    |        @keyframes         | 规定动画                                             |
+    |         animation         | 所有动画属性的简写属性，除了animation-play-state属性 |
+    |      animation-name       | 规定keyframes的名称                                  |
+    |    animation-duration     | 规定动画完成一个周期的时间 默认0                     |
+    | animation-timing-function | 速度曲线 ease                                        |
+    |      animation-delay      | 何时开始 0                                           |
+    | animation-iteration-count | 播放次数 1 infinite                                  |
+    |    animation-direction    | 逆向播放 normal                                      |
+    |   animation-play-state    | 是否正在运行或暂停                                   |
+    |    animation-fill-mode    | 结束后状态 forwards、 backwards                      |
+
+### 2.3 3D转换
+- 坐标系
+  - x轴：水平向右
+  - y轴：垂直向下
+  - z轴：垂直屏幕
+- 内容
+  - 3D位移：translate3(x,y,z)
+  - 3D旋转：rotate(x,y,z,deg)
+  - 透视：perspective d视距，z轴，物体到屏幕距离 z值越大看到的图片越大
+  - 3D呈现：transform-style：perserve-3d 开启3D空间，给父空间(案例，反转盒子)
+- 私有前缀
+  - -moz-：代表firefox浏览器私有属性
+  - -ms-：代表ie浏览器私有属性
+  - -webkit-：代表safari、chrome私有属性
+  - -o-：代表Opera私有属性
+
+
+
+## 3 流式布局flex
+
