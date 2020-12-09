@@ -356,5 +356,160 @@
 
 
 
-## 3 流式布局flex
+## 3 移动布局
 
+### 3.1 流式布局flex
+
+- 移动端调试方法，Chrome DevTools、搭建本地web服务器、使用外网服务器直接使用IP域名
+
+- 视口：屏幕区域
+
+  - Layout viewport布局视口
+
+  - Visual viewport 视觉视口
+
+  - Ideal viewport 理想视口：手动添加meta视口标签，视口宽度与设备宽度一致
+
+    ```html
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0"/>
+    ```
+
+- 二倍图：物理像素&物理像素比、视网膜屏技术
+
+  - 需要某个图片，先放一个长宽大两倍的，再手动把图片缩小
+  - background-size： cover覆盖整个盒子 contain宽度和高度自适应最大区域 xx% xxpx
+  - 多倍图切图 cutterman
+
+- 移动端开发选择
+
+  - 单独制作页面
+  - 响应式页面兼容
+
+- 移动端技术解决方案：
+
+  - 移动端浏览器webkit
+
+  - css初始化 normalize.css 用npm下载
+
+  - css3盒子模型 box-sizing：border-box padding和border不再撑开盒子
+
+  - 常见布局：流式布局(百分比)、flex弹性布局、less+rem+媒体查询布局、混合布局、bootstrap
+
+  - 流式布局需要设置 max-width，min-width
+
+  - 常用初始化样式
+
+    ```css
+    body{
+        margin:0 auto;
+        min-width:320px;
+        max-width:640px;
+        background:#fff;
+        font-size:14px;
+        font-family:-apple-system,helvetica,sans-serif;
+        color:#666;
+    }
+    ```
+
+- **flex布局**：
+
+  - 采用flex布局的元素，称为容器，它的所有子元素称为项目
+
+  - 通过给父盒子添加flex属性 display:flex 来控制子盒子的位置和排列方式
+
+  - 父项属性
+
+    |      属性       |                     说明                      |                           实例                            |
+    | :-------------: | :-------------------------------------------: | :-------------------------------------------------------: |
+    | flex-direction  |                 设置主轴方向                  |        row row-reverse column(y轴) column-reverse         |
+    | justify-content |          设置主轴上的子元素排列方式           | flex-start、flex-end、center、space-around、space-between |
+    |    flex-wrap    |              设置子元素是否换行               |                                                           |
+    |  align-content  |       设置侧轴上子元素的排列方式(多行)        |                                                           |
+    |   align-items   | 设置侧轴上的子元素排列方式(单行)多一个stretch |                                                           |
+    |    flex-flow    |      同时设置了flex-direction和flex-wrap      |                                                           |
+
+  - 子项属性
+
+    - flex：1
+    - align-self控制子项自己在侧轴的排列方式
+    - order属性定义子项的排列顺序 数字越小越靠前
+
+### 3.2 rem适配布局
+
+- rem基础：
+
+  - em是相对于父元素字体大小
+  - rem相对于html元素的字体大小font-size
+  - rem优点：可以通过修改html的文字大小来改变页面中元素的大小
+
+- 媒体查询 media query
+
+  - 功能：可以根据不同的屏幕尺寸设置不同的样式
+
+    ```css
+    @media screen and(max-width:800px){
+    	//在屏幕上 并且最大宽度是800像素
+    }
+    ```
+
+  - 引入资源，根据不同的媒体引入不同的css文件
+
+    ```html
+    <link rel="stylesheet" herf="style320.css" media="screen and(min-width:320px)">
+    <link rel="stylesheet" herf="style640.css" media="screen and(min-width:640px)">
+    ```
+
+- rem适配方案
+
+  - rem+媒体查询+less技术
+    - 元素大小取值方法：rem值=页面元素值/(屏幕宽度/划分的份数)
+    - 首选一套标准尺寸，750位准；用屏幕尺寸 除以 划分的份数 得到html里面的文字大小；页面元素的rem值 =750像素下的px/html里面的文字大小
+    - 15等份
+  - rem+flexible.js
+    - 不用写媒体查询 10等份 剩余让flexible去做
+    - https://github.com/amfe/lib-flexable
+    - VSCode px转换成rem的插件 cssrem，插件默认文字大小为 16px
+
+
+
+### Less基础
+
+- 维护css的弊端：不利于复用，css没有很好的计算能力，不易维护
+- less是css预处理器，引入变量、运算、函数、Mixin
+- 中文网址 http://lesscss.cn/
+- 使用less：@变量 再使用
+- 编译less：vscode中的easyless插件
+- 嵌套less，子元素样式可以直接写到父元素里面，如果是伪类、交集、伪元素选择器，需要加&
+- less运算：运算符写法-空格隔开，两个不同单位以第一个单位为准
+
+
+
+### 3.3 响应式布局(bootstrap框架)
+
+- 响应式开发原理，根据媒体查询针对不同宽度的设备进行布局和样式设置
+
+  - 手机：<768px 宽度100%
+  - 平板：>=768px~<992px 750px
+  - 桌面显示器：>=992px~<1200px 970px
+  - 超大屏：>=1200px 1170px
+
+- bootstrap
+
+  - https://v3.bootcss.com/
+
+  - 套用现成的组件
+
+  - bootstrap使用：创建文件夹结构、创建html骨架结构、引入相关样式文件、书写内容
+
+  - 布局容器：container类，不用写媒体查询；container-fluid类
+
+  - 栅格系统：把页面内容划分若干个等份，最多12份，类前缀 row>col，每一列都有左右padding值
+
+    ```
+    多类名写法：col-lg-3 col-md-4，不用媒体查询
+    列嵌套最好加一个行row，这样可以去掉父元素的padding值，高度自动和父级一样高
+    列偏移，.col-md-offset-*
+    列排序，.col-md-push-*,col-md-pull-*
+    响应式工具，hidden-xs,hidden-sm,hidden-md,hidden-lg,在该条件下隐藏
+    清除浮动类 clearfix
+    ```
