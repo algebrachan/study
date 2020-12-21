@@ -1,6 +1,6 @@
 # VSCode工具
 
-### 使用过程存在的问题
+### 1. 使用过程存在的问题
 - 内置终端没有管理员权限
 	```shell
 	Set-ExecutionPolicy -Scope CurrentUser
@@ -17,4 +17,4 @@
 
   ```
   
-  ​	
+- 如何使用远程开发
