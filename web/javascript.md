@@ -314,8 +314,89 @@
 
 ### 1.12 网页特效
 
-- offset：偏移量，动态的得到该元素的偏移、大小 offsetTop Left Parent Height Width
+- offset：偏移量，动态的得到该元素的偏移、大小 offset Top Left Parent Height Width
+  
+  - 只读属性，获取元素使用offset，更改元素属性使用style.
   - offsetparent和parentNode，前一个是返回有定位的父级、后一个是返回最近一级的父级
   - 获取图片在盒子中的坐标
-  - mousemove事件
+  - mousemove事件    
+  
+- client：与offset一样，但是不包含边框
+
+- 立即执行函数：不需要调用，立马能够自己执行
+
+  ```javascript
+  // 写法
+  (function(){})();
+  (function(){}());
+  ```
+
+- scroll：滚动距离 
+
+  - overflow:auto 显示滚动条
+
+- 总结：
+
+  - offset经常用于获得元素位置	offsetLeft offsetTop
+  
+  - client用于获取元素大小  	clientWidth clientHeight
+  
+  - scroll经常用于获取滚动距离 	scrollTop scrollLeft
+  
+  - 页面滚动的距离通过 window.pageXOffset 获得
+  
+    
+  
+- 动画使用 setInterval
+
+- 缓动动画公式:(目标值-现在的位置)/10
+
+  ```javascript
+  function animate(obj,target){
+  	//先清除以前的定时器，只保留当前的一个定时器执行
+  	clearInterval(obj.timer);
+  	obj.timer = setInterval(function(){
+  		//步长值写到定时器的里面
+  		vat step = (target-obj.offsetLeft)/10;
+  		if(obj.offsetLeft>=target){
+  			//停止动画 本质是停止定时器
+  			clearInterval(obj.timer);
+  		}
+  		// 把每次加1 这个步长值改为一个慢慢变小的值 步长公式
+  		obj.style.left = obj.offsetLeft + 1 +'px';
+  	},30)
+  }
+  
+  animate(span,500)
+  ```
+
+- 案例
+
+  - 轮播图
+  - 节流阀，等前一张图片加载了再继续加载
+  - 返回顶部
+  - 筋斗云
+
+
+
+- 移动端网页特效
+  - 触屏事件
+  - 移动端拖动元素
+  - [Swiper插件](https://swiper.com.cn)
+
+
+
+- 本地储存
+
+  | sessionStorage           | localStorage                   |
+  | ------------------------ | ------------------------------ |
+  | 生命周期为关闭浏览器窗口 | 生命周期永久生效，除非手动删除 |
+  | 同一个窗口下数据可以共享 | 可以多窗口共享                 |
+  | 以键值对的形式存储使用   | 以键值对的形式存储使用         |
+
+  保存用户名，存在localStorage中
+
+
+
+## 2. jQuery
 
