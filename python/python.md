@@ -180,4 +180,24 @@ deactivate
   query.order_by(desc(Usser_ID)).first()
   ```
 
+
+### 2.4 语法小计
+
+- 通用语法区别
+
+  ```python
+  # 异常处理语法
+  try:
+      ...
+      pass
+  except Exception as e:
+      pass
+  
+  finally:
+      pass
+  # 三目运算
+  a=(x if (x>y) else y)
+  
+  ```
+
   
