@@ -201,3 +201,67 @@ deactivate
   ```
 
   
+
+## 3. python模块使用说明
+
+### 3.1 requests
+
+- 报Max retries exceeded with url错误
+
+  ```python
+  # 原因http连接太多未关闭
+  import requests
+  requests.adapters.DEFAULT_RETRIES = 5 # 增加重连次数
+  s = requests.session()
+  s.keep_alive = False # 链接不保活
+  s.get('url')
+  ```
+
+
+
+### 3.2 logging
+
+- 通用日志输入 控制台和文件格式
+
+  ```python
+  import logging  # 日志模块
+  from logging.handlers import TimedRotatingFileHandler
+  import os
+  
+  # 设置日志存放路径 可变
+  path = '/home/wangchen/log/'
+  if(not os.path.exists(path)):
+      os.mkdir(path)
+  class Logger(object):
+      level_relations = {
+          'debug': logging.DEBUG,
+          'info': logging.INFO,
+          'warning': logging.WARNING,
+          'error': logging.ERROR,
+          'crit': logging.CRITICAL
+      }  # 日志级别关系映射
+  
+      def __init__(self, filename, level='info', when='D', interval=1, backCount=5, fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s'):
+          self.logger = logging.getLogger()
+          formaat_str = logging.Formatter(fmt)  # 设置日志格式
+          self.logger.setLevel(self.level_relations.get(level))  # 设置日志级别
+          sh = logging.StreamHandler()
+          sh.setFormatter(formaat_str)
+          th = TimedRotatingFileHandler(
+              filename=filename, interval=interval, when=when, backupCount=backCount, encoding='utf-8')
+          # interval是时间间隔，backupCount是备份文件的个数，如果超过这个个数，就会自动删除，when是间隔的时间单位，单位有以下几种：
+          # S 秒
+          # M 分
+          # H 小时、
+          # D 天、
+          # W 每星期（interval==0时代表星期一）
+          # midnight 每天凌晨
+          th.setFormatter(formaat_str)
+          self.logger.addHandler(sh)
+          self.logger.addHandler(th)
+  
+  logger = Logger(path+'server.log', when='D').logger
+  ```
+
+  
+

@@ -93,6 +93,8 @@ rm -rf .git/
     ```shell
     # 方法一 丢到dev/null 不需要输出日志 风险高需要工程内部处理日志
     nohup command >/dev/null 2>&1 &
+    # 后台运行
+nohup uvicorn main:app --host '0.0.0.0' --port 8065 >/dev/null 2>&1 &
     ```
-
+    
     
