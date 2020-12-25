@@ -400,3 +400,67 @@
 
 ## 2. jQuery
 
+### 2.1 jQuery概述
+
+- 优点：
+
+  - 轻量级，跨浏览器兼容
+  - 链式编程、隐式迭代
+  - 对事件、样式、动画支持，简化DOM操作
+  - 支持插件扩展开发
+  - 免费开源
+
+- [下载](https://jquery.com)
+
+  ```html
+  // 标签引入
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+  ```
+
+### 2.2 基本使用
+
+- 入口函数
+
+  ```javascript
+  // $是jQuery的别称 顶级对象
+  //等dom加载完毕执行js 代码
+  $(function(){
+  	$('div').hide()
+  })
+  // DOM对象转化为jQuery对象
+  $(DOM对象)
+  // JQuery对象转化为 DOM对象
+  $('div')[0]
+  ```
+
+- 常用API
+
+  ```javascript
+  // 选择器 同css选择器
+  $("选择器")
+  // 鼠标经过 隐式迭代
+  $(".nav>li").mouseover(function(){
+      $(this).children("ul").show();
+  })
+  $(".nav>li").mouseover(function(){
+      $(this).children("ul").hide();
+  })
+  // 排他思想
+  $("button").click(function(){
+      // 点击当前button样式
+      $(this).css("background","pink");
+      // 兄弟button样式
+      $(this).siblings("button").css("background","")
+  })
+  // 添加类
+  $(this).addClass("current");
+  .removeClass()
+  .toggleClass()
+  ```
+
+- 动画效果
+
+  - 显示隐藏：show()	hide()	toggle()
+  - 滑动：slideDown()   slideUp()  slideToggle()
+  - 淡入淡出：fadeIn()  fadeOut()  fadeToggle()  fadeTo()
+  - 自定义动画：animate()
