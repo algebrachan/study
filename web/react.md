@@ -8,6 +8,8 @@
 
 - 创建React应用(官方脚手架)
 
+  [官方脚手架说明文档](https://create-react-app.dev/)
+
   ```shell
   npx create-react-app my-app
   cd my-app
@@ -80,8 +82,9 @@
   
 - 事件处理
   
+
 推荐使用箭头函数 ()=>{} 这样不用 .bind(this)
-  
+
 - 条件渲染
 
   - &&的使用
@@ -178,7 +181,92 @@
     <MyContext.Provider value={/* 某个值 */}>
     ```
 
-    
+- 错误边界(Error Boundarires)
+
+  作用：可以捕获并打印发生在其子组件树任何位置的 JavaScript 错误，并且，它会渲染出备用 UI
+
+  错误边界的工作方式类似于 JavaScript 的 `catch {}`，不同的地方在于错误边界只针对 React 组件。只有 class 组件才可以成为错误边界组件。
+
+  ```javascript
+  class ErrorBoundary extends React.Component {
+    constructor(props) {
+      super(props);
+      this.state = { hasError: false };
+    }
+  
+    static getDerivedStateFromError(error) {
+      // 更新 state 使下一次渲染能够显示降级后的 UI
+      return { hasError: true };
+    }
+  
+    componentDidCatch(error, errorInfo) {
+      // 你同样可以将错误日志上报给服务器
+      logErrorToMyService(error, errorInfo);
+    }
+  
+    render() {
+      if (this.state.hasError) {
+        // 你可以自定义降级后的 UI 并渲染
+        return <h1>Something went wrong.</h1>;
+      }
+  
+      return this.props.children; 
+    }
+  }
+  // 使用
+  <ErrorBoundary>
+    <MyWidget />
+  </ErrorBoundary>
+  ```
+
+- - [ ] Refs转发 
+
+  Ref 转发是一项将 ref自动地通过组件传递到其一子组件的技巧
+
+  ```typescript
+  const FancyButton = React.forwardRef((props, ref) => (
+    <button ref={ref} className="FancyButton">
+      {props.children}
+    </button>
+  ));
+  
+  // 你可以直接获取 DOM button 的 ref：
+  const ref = React.createRef();
+  <FancyButton ref={ref}>Click me!</FancyButton>;
+  ```
+
+- Fragments
+
+  Fragments 允许你将子列表分组，而无需向 DOM 添加额外节点,可设置key
+
+- - [ ] 高阶组件(HOC)
+
+  它是一种基于 React 的组合特性而形成的设计模式
+  
+  具体而言，**高阶组件是参数为组件，返回值为新组件的函数**
+  
+- 与第三方库协同
+  
+  在React中使用其他的插件`jQuery`等
+  
+  ```javascript
+  class SomePlugin extends React.Component {
+    componentDidMount() {
+      this.$el = $(this.el);
+      this.$el.somePlugin();
+    }
+  
+    componentWillUnmount() {
+      this.$el.somePlugin('destroy');
+    }
+  
+    render() {
+      return <div ref={el => this.el = el} />;
+    }
+  }
+  ```
+  
+  
 
 ## 2. 进阶用法
 
