@@ -249,9 +249,18 @@ plot.getStates();
 
   1. 分析原因：div组件中设置了子孙元素选择器，ul
   2. 解决方案：css样式中所有下一级的ul样式都 固定为子元素选择器 >ul>li
+  
 - 图表legend中修改item文字样式问题？
   1. legend: {itemName:{style:{fill:'color'}}}
-2. 文字颜色统一使用fill属性
+  2. 文字颜色统一使用fill属性
+
+- 设置间距
+
+  ```
+  xAxis: {
+  	tickCount: 5,
+  },
+  ```
   
   
 
