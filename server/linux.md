@@ -26,6 +26,9 @@ kill-9 PID
 ps -ef |grep uvicorn |awk '{print $2}'|xargs kill -9
 # 查看端口占用情况
 lsof -i:端口号
+
+# 内存占用
+free -h / free -m
 ```
 
 - 文件操作
