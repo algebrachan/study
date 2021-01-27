@@ -43,9 +43,41 @@ workon [虚拟环境名称]
 deactivate
 ```
 
-## 2.fastapi使用说明
+## 2.python基本语法
 
-### 2.1 [官网地址](https://fastapi.tiangolo.com/project-generation/)
+### 2.1 逻辑语言
+
+```python
+# 异常处理语法
+try:
+    ...
+    pass
+except Exception as e:
+    pass
+
+finally:
+    pass
+# 三目运算
+a=(x if (x>y) else y)
+# 逻辑语言
+or #逻辑或
+not #逻辑非
+and #逻辑与
+```
+
+## 2.2 基本语法
+
+```python
+# 基本语法
+any(data) # 判断一个data是否为空 数据存在 返回true
+
+```
+
+
+
+## 3.fastapi使用说明
+
+### 3.1 [官网地址](https://fastapi.tiangolo.com/project-generation/)
 
 轻量级webapi 使用python编写：快速，直观，简易
 
@@ -59,14 +91,14 @@ deactivate
 
 - 详细代码编写参照官网案例
 
-### 2.2 持久层选型
+### 3.2 持久层选型
 - 使用SQLALchemy 连接MySql数据库 [案例参考](https://www.jianshu.com/p/aaadf6e7d688)
 
 - sqlalchemy表设计[参考文档](https://zhuanlan.zhihu.com/p/270623816)
 
 
 
-### 2.3 sqlalchemy通用说明
+### 3.3 sqlalchemy通用说明
 
 - 常用字段类型
 
@@ -180,7 +212,7 @@ deactivate
   query.order_by(desc(Usser_ID)).first()
   ```
 
-### 2.4 websocket
+### 3.4 websocket
 
 websocket应用于长连接场景，减少资源的调用
 
@@ -228,7 +260,7 @@ websocket应用于长连接场景，减少资源的调用
 
 
 
-### 2.x 语法小计
+### 3.x 语法小计
 
 - 通用语法区别
 
@@ -249,9 +281,9 @@ websocket应用于长连接场景，减少资源的调用
 
   
 
-## 3. python模块使用说明
+## 4. python模块使用说明
 
-### 3.1 requests
+### 4.1 requests
 
 - 报Max retries exceeded with url错误
 
@@ -266,7 +298,7 @@ websocket应用于长连接场景，减少资源的调用
 
 
 
-### 3.2 logging
+### 4.2 logging
 
 - 通用日志输入 控制台和文件格式
 
@@ -310,5 +342,122 @@ websocket应用于长连接场景，减少资源的调用
   logger = Logger(path+'server.log', when='D').logger
   ```
 
+### 4.3 json
+
+  ```python
+  import json
   
+  data = [ { 'a' : 1, 'b' : 2, 'c' : 3, 'd' : 4, 'e' : 5 } ]
+  
+  data2 = json.dumps(data) # 对象转 json字符串
+  print(data2)
+  jsonData = '{"a":1,"b":2,"c":3,"d":4,"e":5}';
+  
+  text = json.loads(jsonData)# json字符串转 python对象
+  print(text)
+  ```
+
+  
+
+## 5. redis作为临时内存数据库
+
+- 存储方案，使用hash存储对象，其中运用到json和python对象互转
+
+- 可以事先定义好class对象，使用无参构造
+
+  ```python
+  import redis
+  import json
+  
+  # json转化存储方法 hset 传入的是__dict__ 对象
+  def hash2obj(obj: object, name: str):
+      resp = r.hgetall(name)
+      try:
+          if any(resp):
+              for key in obj:
+                  obj[key] = json.loads(resp[key])
+      except print(0):
+          pass
+      return obj
+  
+  # 对象转json hset 传入的是__dict__ obj
+  def obj2hash(obj: object, name: str):
+      try:
+          for key in obj:
+              r.hset(name,key,json.dumps(obj[key]))
+          return True
+      except print(0):
+          pass
+      return False
+  
+  
+  ```
+
+
+
+
+## 6. python应用消息队列
+
+### 6.1 rabbitMq
+
+```python
+import pika
+import json
+
+class RabbitMq:
+    def __init__(self, user, pwd, host, port):
+        credentials = pika.PlainCredentials(user, pwd)  # mq用户名和密码
+        self.connection = pika.BlockingConnection(
+            pika.ConnectionParameters(host=host, port=port, credentials=credentials, heartbeat=0)
+        )
+        self.channel = self.connection.channel()
+        self.channel.basic_qos(prefetch_count=1)
+
+    def __create_queue(self, routing_keys):
+        # 创建队列。有就不管，没有就自动创建
+        if not isinstance(routing_keys, list):
+            routing_keys = [routing_keys]
+        for _, v in enumerate(routing_keys):
+            self.channel.queue_declare(queue=v)
+
+    '''单向发送消息'''
+    def send(self, routing_key, body):
+        # 使用默认的交换机发送消息。exchange为空就使用默认的
+        self.__create_queue(routing_keys=routing_key)
+        msg_props = pika.BasicProperties()
+        msg_props.content_type = "application/json"
+        if isinstance(body, dict):
+            body = json.dumps(body)
+        self.channel.basic_publish(exchange='', properties=msg_props, routing_key=routing_key, body=body)
+
+    def received(self, routing_key, fun):
+        self.__create_queue(routing_keys=routing_key)
+        self.channel.basic_consume(routing_key, fun, True)
+
+    #  传入k-fun，可以实现topic到函数路由功能
+    def received_dict(self, fun_dict):
+        for i, v in fun_dict.items():
+            self.received(routing_key=i, fun=v)
+
+    def consume(self):
+        self.channel.start_consuming()
+
+    def close(self):
+        self.connection.close()
+
+
+if __name__ == '__main__':
+    mq = RabbitMq(user='furnance', pwd='123456', host='127.0.0.1', port=5672)
+    queue = 'test'
+    # mq.send(routing_key=queue, body={'test': 'json格式'})
+
+    def callback(ch, method, properties, body):
+        # print(ch)
+        # print(method)
+        # print(properties)
+        # print(" [x] Received %r" % (body,))
+        print(json.loads(body))
+    mq.received(routing_key=queue, fun=callback)
+    mq.consume()
+```
 
