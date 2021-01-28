@@ -63,14 +63,117 @@ a=(x if (x>y) else y)
 or #逻辑或
 not #逻辑非
 and #逻辑与
+
+# 全局变量
+global 
+# lambda表达式
+lambda 参数:操作(参数)
 ```
 
-## 2.2 基本语法
+### 2.2 基本语法
 
 ```python
 # 基本语法
 any(data) # 判断一个data是否为空 数据存在 返回true
+# *args 不定量的参数
+# **kwargs 不定量的键值对
+# 使用顺序
+some_func(fargs, *args, **kwargs)
 
+# map的使用
+items = [1, 2, 3, 4, 5]
+squared = list(map(lambda x: x**2, items))
+
+# filter的使用
+number_list = range(-5, 5)
+less_than_zero = filter(lambda x: x < 0, number_list)
+
+# reduce的使用
+from functools import reduce
+product = reduce( (lambda x, y: x * y), [1, 2, 3, 4] )
+
+# Output: 24
+# __slots__来告诉Python不要使用字典，而且只给一个固定集合的属性分配空间
+class MyClass(object):
+    __slots__ = ['name', 'identifier'] # 节约内存空间
+    def __init__(self, name, identifier):
+        self.name = name
+        self.identifier = identifier
+        self.set_up()
+
+# collections defaultdict 与dict不同，不需要检查key是否存在
+from collections import defaultdict
+
+colours = (
+    ('Yasoob', 'Yellow'),
+    ('Ali', 'Blue'),
+    ('Arham', 'Green'),
+    ('Ali', 'Black'),
+    ('Yasoob', 'Red'),
+    ('Ahmed', 'Silver'),
+)
+
+favourite_colours = defaultdict(list)
+
+for name, colour in colours:
+    favourite_colours[name].append(colour)
+# 多个key嵌套
+import collections
+tree = lambda: collections.defaultdict(tree)
+some_dict = tree()
+some_dict['colours']['favourite'] = "yellow"
+
+#enumerate
+my_list = ['apple', 'banana', 'grapes', 'pear']
+for c, value in enumerate(my_list, 1):
+    print(c, value)
+
+# 输出:
+(1, 'apple')
+(2, 'banana')
+(3, 'grapes')
+(4, 'pear')
+
+# dir 对象自省， 返回该对象的所有属性
+
+```
+
+
+
+### 2.3 调试
+
+```python
+python -m pdb my_script.py
+# c: 继续执行
+# w: 显示当前正在执行的代码行的上下文信息
+# a: 打印当前函数的参数列表
+# s: 执行当前代码行，并停在第一个能停的地方（相当于单步进入）
+# n: 继续执行到当前函数的下一行，或者当前行直接返回（单步跳过）
+```
+
+### 2.4 装饰者
+
+```python
+from functools import wraps
+def decorator_name(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not can_run:
+            return "Function will not run"
+        return f(*args, **kwargs)
+    return decorated
+
+@decorator_name
+def func():
+    return("Function is running")
+
+can_run = True
+print(func())
+# Output: Function is running
+
+can_run = False
+print(func())
+# Output: Function will not run
 ```
 
 
