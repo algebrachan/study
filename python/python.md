@@ -45,6 +45,8 @@ deactivate
 
 ## 2.python基本语法
 
+- [python3中文手册](https://docs.pythontab.com/python/python3.5/appetite.html)
+
 ### 2.1 逻辑语言
 
 ```python
@@ -123,11 +125,21 @@ tree = lambda: collections.defaultdict(tree)
 some_dict = tree()
 some_dict['colours']['favourite'] = "yellow"
 
-#enumerate
+# 循环技巧
+#enumerate 应用在list中
 my_list = ['apple', 'banana', 'grapes', 'pear']
 for c, value in enumerate(my_list, 1):
     print(c, value)
-
+# dict循环
+knights = {'gallahad': 'the pure', 'robin': 'the brave'}
+for k, v in knights.items():
+	print(k, v)
+# 循环多个序列 zip
+questions = ['name', 'quest', 'favorite color']
+answers = ['lancelot', 'the holy grail', 'blue']
+for q, a in zip(questions, answers):
+	print('What is your {0}?  It is {1}.'.format(q, a))
+    
 # 输出:
 (1, 'apple')
 (2, 'banana')
@@ -136,9 +148,13 @@ for c, value in enumerate(my_list, 1):
 
 # dir 对象自省， 返回该对象的所有属性
 
+# str.format 字符串格式化
+print('{0} and {1}'.format('spam', 'eggs'))
+spam and eggs
+
 ```
 
-
+- 其他说明：为了让 Python 将目录当做内容包，目录中必须包含 `__init__.py` 文件
 
 ### 2.3 调试
 
@@ -174,6 +190,17 @@ print(func())
 can_run = False
 print(func())
 # Output: Function will not run
+```
+
+### 2.5 数据结构
+
+```python
+# 列表推导式 中尽量少用 for循环
+squares = list(map(lambda x: x**2, range(10)))
+# 等价于
+squares = [x**2 for x in range(10)]
+# 转置
+list(zip(*matrix))
 ```
 
 
@@ -385,6 +412,20 @@ websocket应用于长连接场景，减少资源的调用
   
 
 ## 4. python模块使用说明
+
+### 4.0 python标准库
+
+```python
+# 操作系统接口
+import os
+os.getcwd() # return the current working directory
+os.chdir('/../') # change current working directory
+os.system('mkdir today') # run the command mkdir in the system shell
+
+
+```
+
+
 
 ### 4.1 requests
 
