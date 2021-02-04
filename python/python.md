@@ -422,6 +422,112 @@ os.getcwd() # return the current working directory
 os.chdir('/../') # change current working directory
 os.system('mkdir today') # run the command mkdir in the system shell
 
+# 文件通配符
+import glob
+glob.glob('*.py') # ['primes.py', 'random.py', 'quote.py']
+
+# 命令行参数
+import sys 
+print(sys.argv) # ['demo.py', 'one', 'two', 'three']
+sys.exit() # 终止脚本
+
+# 字符串正则匹配 冗余 
+import re
+ re.findall(r'\bf[a-z]*', 'which foot or hand fell fastest') # ['foot', 'fell', 'fastest']
+re.sub(r'(\b[a-z]+) \1', r'\1', 'cat in the the hat')# 'cat in the hat'
+
+# 数字
+import math
+import random
+math.cos(math.pi/4.0)
+math.log(1024,2)
+random.choice(['apple', 'pear', 'banana']) # 'apple'
+random.sample(range(100),10) # sampling without replacement
+random.random() # random float
+random.randrange(6) # random integer chosen from range(6)
+
+# 互联网访问
+from urllib.request import urlopen
+import smtplib # 发送邮件
+server = smtplib.SMTP('localhost')
+server.sendmail('soothsayer@example.org', 'jcaesar@example.org',
+"""To: jcaesar@example.org
+From: soothsayer@example.org
+Beware the Ides of March.
+""")
+server.quit()
+
+# 时间和日期
+from datetime import date
+now = date.today()
+now.strftime("%m-%d-%y. %d %b %Y is a %A on the %d day of %B.")
+
+# 数据压缩  打包和压缩格式：zlib， gzip， bz2， lzma， zipfile 以及 tarfile
+import zlib
+s = b'witch which has which witches wrist watch'
+t = zlib.compress(s)
+zlib.decompress(t)
+zlib.crc32(s)
+
+# 性能度量
+from timeit import Timer
+Timer('具体语法').timeit()
+
+# 质量控制 测试
+
+class TestStatisticalFunctions(unittest.TestCase):
+    def test_average(self):
+        self.assertEqual(average([20, 30, 70]), 40.0)
+        self.assertEqual(round(average([1, 5, 7]), 1), 4.3)
+        with self.assertRaises(ZeroDivisionError):
+            average([])
+        with self.assertRaises(TypeError):
+            average(20, 30, 70)
+unittest.main() # Calling from the command line invokes all tests
+
+```
+
+- 标准库2
+
+```python
+# 输出格式
+import reprlib
+reprlib.repr()
+import pprint # 美化输出
+import textwrap # 模块格式化文本段落以适应设定的屏宽:
+import locale # 国家信息数据库
+
+# 模板
+from string import Template
+t = Template('${village}folk send $$10 to $cause.')
+t.substitute(village='Nottingham', cause='the ditch fund') # 'Nottinghamfolk send $10 to the ditch fund.'
+safe_substitute # 数据不完整不会抛出异常
+
+# 多线程
+import threading, zipfile
+
+class AsyncZip(threading.Thread):
+    def __init__(self, infile, outfile):
+        threading.Thread.__init__(self)
+        self.infile = infile
+        self.outfile = outfile
+    def run(self):
+        f = zipfile.ZipFile(self.outfile, 'w', zipfile.ZIP_DEFLATED)
+        f.write(self.infile)
+        f.close()
+        print('Finished background zip of:', self.infile)
+
+background = AsyncZip('mydata.txt', 'myarchive.zip')
+background.start()
+print('The main program continues to run in foreground.')
+
+background.join()    # Wait for the background task to finish
+print('Main program waited until background was done.')
+
+# 弱引用
+
+# 列表工具
+
 
 ```
 
@@ -429,7 +535,7 @@ os.system('mkdir today') # run the command mkdir in the system shell
 
 ### 4.1 requests
 
-- 报Max retries exceeded with url错误
+- ~~报Max retries exceeded with url错误
 
   ```python
   # 原因http连接太多未关闭
