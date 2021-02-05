@@ -9,7 +9,9 @@
 
 ## 1. 版本介绍
 
-
+- ubuntu
+- centOS
+- Redhat
 
 
 
@@ -36,6 +38,10 @@ free -h / free -m
 ```shell
 # 删除目录
 rm -rf .git/
+# 查看
+ls
+tree / # 目录树结构
+pwd # 路径结构
 ```
 
 
