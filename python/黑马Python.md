@@ -98,6 +98,7 @@
       
   # 字典推导式
   my_dict = {f"name{i}":i for i in range(3)}
+  ```
 ```
   
 
@@ -111,7 +112,7 @@
   def get_age(num):
       age = get_age(num-1)+2
       return age
-  ```
+```
 
 - 匿名函数
 
@@ -158,7 +159,7 @@
   
   ```
 
-### 3 面向对象
+### 2 面向对象
 
 - 操作属性
 
@@ -166,6 +167,14 @@
   class 类名(object):
   	def 函数名(self): # self为该对象本身
           pass
+  # 私有属性
+  # 在方法和属性前加两个下划线，就变为私有
+  # 实例对象.__dict__ 可以查看对象具有的属性信息
+  # 定义共有方法提供接口去修改私有属性
+  
+  @staticmethod # 定义静态方法
+  
+  
   ```
 
 - 魔法方法
@@ -177,12 +186,191 @@
   __str__()
   # 输出打印的结果
   
-  
   __del__()
   # 析构函数
   # 对象销毁的时候调用
   # 引用计数：一块内存有多少个变量在引用
+  
+  __repr__()
+  # 类似于 __str__()
+  ```
+  ```
+  
+  ```
+  
+- 继承：单继承、多继承、多层继承
+
+  ```python
+  # 重写：子类使用和父类同样的方法
+  class Dog(object):
+      def __init__(self,name)
+      	self.age = 0
+          self.name = name 
+      def bark(self):
+          print('汪汪汪叫....')
+  
+  class XTQ(Dog):
+      def __init__(self,name,color):
+          super().__init__(name)
+          self.color = color
+      def bark(self):
+          print('嗷嗷嗷叫....')
+          
+      def see_host(self):
+          print('看见主人了,',end=',')
+          Dog.bark(self) # 对象.方法() 不需要传self 类名.方法 需要传self
+          super(XTQ,self).bark()
+          super().bark()
+          pass
+  # 继承中的init掌握
+  
+  print(XTQ.__mro__) # 查看当前类的继承顺序
   ```
 
-  
+- 异常
 
+  ```python
+  try:
+      # 可能发生异常的代码
+  except Err:
+      print('发生异常')
+  # 捕获多个异常 使用多个except
+  else:
+      # 代码没有发生异常执行
+  finally:
+      # 不管有没有异常都会执行
+      
+  # 捕获所有异常
+  try:
+      
+  except Exception as e:
+      print(e)
+      pass
+  
+  # 抛出异常
+  raise ErrObject # 当程序遇到 raise的时候，程序报错
+  
+  
+  ```
+
+- 模块
+
+  ```python
+  # 方法一
+  # import 模块名
+  # 模块名.功能名
+  
+  # 方法二
+  # from 模块名 import 功能名1，功能名2 
+  # 如果存在相同的方法名，则会覆盖
+  
+  as
+  # as 起别名
+  
+  __all__ = ['name']
+  # 如果定义了__all__ 则只能导入变量中定义的内容
+  
+  if __name__ == '__main__': # 主程序运行
+  ```
+
+
+
+## 进阶教程
+
+- 进程
+
+  ```python
+  # 多进程
+  import multiprocessing
+  import os
+  def dance():
+      pass
+  def sing():
+      pass
+  if __name__ == '__main__'
+  	print('主进程id',os.getpid())
+  	my_dance = multiprocessing.Process(target=dance,name='跳舞')
+      my_sing = multiprocessing.Process(target=sing,args-(5,),kwargs={"num":5})
+      my_dance.start()
+      my_sing.start()
+      
+     
+  # 守护进程
+  子进程对象.daemon = True # 守护
+  子进程对象.terminate() # 销毁
+  ```
+
+- 线程
+
+  ```python
+  # 线程之间是无序的
+  my_func = threading.Thread(target=func,daemon=True)
+  
+  # 守护线程 让子线程随着主线程的结束而结束
+  my_func.setDaemon(True)
+  my_func.start()
+  # 线程之间共享全局变量
+  # 线程间会争夺资源，需要使用互斥锁
+  # 1.线程等待 thread.join()让主线程进行等待
+  # 2.互斥锁
+  mutex = threading.Lock()
+
+  # 上锁
+  mutex.acquire()
+  # 解锁
+  mutex.release()
+  ```
+  
+- 通讯
+
+  - ip地址：网络中设备的地址
+
+    ```shell
+    ipconfig 
+    ping:ip地址
+    # 端口号有65536个
+    ```
+    
+  - tcp：三次握手
+  
+  - socket：是进程之间通信
+  
+  - 客户端
+  
+  ```python
+  import socket
+  # 1.创建客户端套接字对象
+  # 参数1 ipv4
+  # 参数2 选择协议 SOCK_STREAM:tcp
+  tcp_client_socket = socket.soceket(socket.AF_INET,socket.SOCK_STREAM)
+  # 2.和服务器套接字建立连接
+  # 参数：元组 (服务器IP地址,服务器端口号)
+  tcp_client_socket.connect("127.0.0.1",8080)
+  # 3.发送数据
+  data = "123"
+  data = data.encode("utf8")
+  
+  # 4.接收数据
+  # recv会阻塞数据的到来
+  recv_data = tcp_client_socket.recv(1024)
+  recv_data = recv_data.decode()
+  print(recv_data)
+  
+  # 5.关闭客户端套接字
+  tcp_client_socket.close()
+  ```
+  
+  - 服务端
+  
+  ```python
+  # 1.创建服务器套接字对象
+  # 2.绑定端口号
+  # 3.设置监听
+  # 4.等待接受客户端的连接请求
+  # 5.接收数据
+  # 6.发送数据
+  # 7.关闭套接字
+  
+  ```
+  
+  
