@@ -277,6 +277,8 @@
 
 ## 进阶教程
 
+### 服务端编程
+
 - 进程
 
   ```python
@@ -335,7 +337,7 @@
   
   - socket：是进程之间通信
   
-  - 客户端
+  - tcp客户端
   
   ```python
   import socket
@@ -360,17 +362,136 @@
   tcp_client_socket.close()
   ```
   
-  - 服务端
+  - tcp服务端
   
   ```python
+  import socket
+  import multprocessing
+  
+  def handler_client_request(client_socket):
+      """处理客户端请求"""
+      
+      while True:   
+      # 5.接收数据
+      # 参数：接受数据的大小（字节）
+      client_data = client_socket.recv(1024)
+      
+      # 如果接受到的数据长度为0 则证明客户端关闭
+      if len(client_data) == 0:
+          print("客户端关闭了")
+          break
+          
+      # 对二进制解码
+      client_data = client_data.decode()
+      print(client_data)
+  
+      # 6.发送数据
+      send_data = "123".encode()
+      client_socket.send(send_data)
+  
+  
+  def main():
   # 1.创建服务器套接字对象
+  # 参数1 ipv4
+  # 参数2 选择协议 SOCK_STREAM:tcp
+  tcp_server_socket = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+  
+  # 端口复用设置: 一旦服务端关闭 端口立马释放
+  # setsocketopt: 设置socket选项
+  # 参数1：socket选项列表（SQL）
+  # 参数2：地址复用
+  # 参数3：True开启选项 False(默认不开启)
+  tcp_server_socket.setsocketopt(socket.SQL_SOCKET,socket.SO_REUSEADDR,True)
+  
   # 2.绑定端口号
+  # 参数：元组（两个元素）元素1：IP地址 元素2：端口号
+  # 不写默认就是本机ip地址
+  tcp_server_socket.bind(("192.168.144.28",8080))
+  
   # 3.设置监听
-  # 4.等待接受客户端的连接请求
-  # 5.接收数据
-  # 6.发送数据
+  # 参数：最大监听个数
+  # 从主动套接字变成被动套接字
+  tcp_server_socket.listen(128)
+  
+  while True:
+      # 4.等待接受客户端的连接请求
+      # 返回值是一个元组：元素1 和客户端进行通讯的socket 元素2 客户端的地址信息
+      # 拆包语法，元组拆包
+      client_socket,client_addr = tcp_server_socket.accept()
+  
+      # 创建一个子进程
+      sub_process = multprocessing.Process(target=handler_client_request,args=(client_socket,))
+      
+      sub_process.start()
+  
   # 7.关闭套接字
+  client_socket.close()
+  tcp_server_socket.close()
+  
+  if __name__ == '__main__':
+      main()
   
   ```
   
+  - 动态绑定端口
+  
+  ```python
+  import sys
+  print(sys.argv[1])# 获取命令行输入参数
+  ```
+
+
+
+### 数据库sql
+
+- 普通查询
+
+  ```sql
+  -- 条件查询
+  select * from students where age>18;
+  select * from students where age>18 and gender=2;
+  
+  -- 模糊查询 %任意多个 _一个空
+  select * from students where name like "小%"
+  
+  -- 范围查询 
+  select name from students where not age in (18,34);
+  select * from students where age between 18 and 34;
+  select * from students where height (not) is null;
+  
+  -- 排序查询
+  select * from students where (age between 18 and 34) and gender=1 order by age asc; 
+  select * from students where (age between 18 and 34) and gender=1 order by height desc; 
+  
+  -- 聚合函数 count max min sum
+  select count(*) from students where gender=1;
+  
+  -- 分页查询 limit 页数-1 每页数量
+  select * from students limit 0,5;
+  
+  -- 分组查询
+  select gender,group_concat(name) from students group by gender;
+  
+  -- 子查询
+  select * from students where height>(select avg(height) from students);
+   
+  ```
+
+- 连接查询
+
+  ```sql
+  -- 内连接 ？应用场景 
+  -- 语法
+  select 字段 from 表1 inner join 表2 on 表1.字段1 = 表2.字段2
+  select * from students inner join classes on students.cls_id=classes.id;
+  
+  -- 外连接
+  -- 左连接：查询的结果为两个表匹配到的数据和左表特有的数据，以左表为主表
+  select * from students left join classes on students.cls_id=classes.id where classes.name is null;
+  
+  -- 自连接
+  select c.* from areas as c inner join areas as p on c.pid = p.id where p.title='陕西省';
+  
+  ```
+
   
