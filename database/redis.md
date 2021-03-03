@@ -59,6 +59,20 @@ CONFIG SET appendonly yes
 - redis默认支持16个数据库，对外都是从0开始的递增数字命名
 - 客户端与redis建立连接后悔自动选择0号数据库，可用select 1来切换
 
+
+
+### 1.3 redis远程连接配置
+
+- 为了开发方便，开放redis的连接权限，
+
+  ```shell
+  vi redis.conf
+  # bind 127.0.0.1
+  protected-mode no
+  ```
+
+  
+
 ## 2. 数据类型
 
 ###  2.1 字符串
@@ -176,6 +190,7 @@ expireat key timestamp # unix时间戳
 persist key # 移除过期时间
 renamenx key newkey # 修改key的名称
 type key # 返回储存类型
+# 127.0.0.1 ::1
 ```
 
 ### 3.2 发布订阅

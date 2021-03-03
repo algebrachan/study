@@ -13,6 +13,11 @@
 
  # 显示当前正在执行的mysql连接
  show processlist
+ 
+ 
+create user username identified by 'password'; 
+grant all on 你的数据库名称.* to 'username'@'%'; 
+flush privileges;
 ```
 
 ### 遇到的问题

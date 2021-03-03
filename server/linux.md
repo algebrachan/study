@@ -106,4 +106,33 @@ pwd # 路径结构
 nohup uvicorn main:app --host '0.0.0.0' --port 8065 >/dev/null 2>&1 &
     ```
     
-    
+
+### 3.3 配置mysql数据库
+
+- 创建用户
+
+  ```shell
+  create user furnace identified by 'furnace123456';
+  # 配置用户权限，%为任意的ip地址 furnancedb为数据库的表
+  grant all on furnacedb.* to 'furnace'@'%';
+  # 刷新权限
+  flush privileges;
+  
+  # 修改用户密码规则
+   alter user 'furnace'@'%' identified by 'furnace123456' password expire never;
+  alter user 'furnace'@'%' identified with mysql_native_password by 'furnace123456';
+  flush privileges;
+  ```
+
+- 创建数据库
+
+  ```shell
+  create database furnacedb; #创建数据库
+  
+  # 添加唯一索引
+  alter table t_aa add unique index(aa,bb);
+  ```
+
+
+
+### 3.4 配置redis数据库

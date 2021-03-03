@@ -494,4 +494,65 @@
   
   ```
 
+- pymysql
+
+  ```python
+  import pymysql
+  # 1 建立连接
+  conn = pymysql.connect(host='localhost',port=3306,user='root',password='mysql')
   
+  # 2 创建游标
+  cur = conn.cursor()
+  
+  # 3 执行sql
+  sql = "select * from goods where name=%s;"
+  cur.excute(sql,[good_name]) # 防止sql注入的写法
+  
+  # 4 获取数据
+  data = cur.fechall()
+  print(data) # 元组类型 元组中的每一个元素都是一个数据库中的数据
+  # 只要对数据库中的数据进行修改，就需要进行提交操作
+  conn.commit()
+  
+  # 5 关闭
+  cur.close()
+  conn.close()
+  ```
+
+- 事务
+
+  - 原子性：不可分割
+
+  - 一致性：要么成功，要么失败
+
+  - 隔离性：同时只能一个事务操作
+
+  - 持久性：事务一旦提交，所有都保存
+
+- 索引
+
+  alter table test_index add index(title)
+
+### 高级编程
+
+- 拷贝
+
+  ```python
+  # 普通赋值
+  b = a # 地址的复制
+  # 浅拷贝 地址不同 没有嵌套的时候安全
+  b = copy.copy(a)
+  
+  # 深拷贝 安全
+  b = copy.deepcopy(a)
+  
+  
+  ```
+
+  
+
+
+
+
+
+
