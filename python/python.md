@@ -43,9 +43,171 @@ workon [虚拟环境名称]
 deactivate
 ```
 
-## 2.fastapi使用说明
+## 2.python基本语法
 
-### 2.1 [官网地址](https://fastapi.tiangolo.com/project-generation/)
+- [python3中文手册](https://docs.pythontab.com/python/python3.5/appetite.html)
+
+### 2.1 逻辑语言
+
+```python
+# 异常处理语法
+try:
+    ...
+    pass
+except Exception as e:
+    pass
+
+finally:
+    pass
+# 三目运算
+a=(x if (x>y) else y)
+# 逻辑语言
+or #逻辑或
+not #逻辑非
+and #逻辑与
+
+# 全局变量
+global 
+# lambda表达式
+lambda 参数:操作(参数)
+```
+
+### 2.2 基本语法
+
+```python
+# 基本语法
+any(data) # 判断一个data是否为空 数据存在 返回true
+# *args 不定量的参数
+# **kwargs 不定量的键值对
+# 使用顺序
+some_func(fargs, *args, **kwargs)
+
+# map的使用
+items = [1, 2, 3, 4, 5]
+squared = list(map(lambda x: x**2, items))
+
+# filter的使用
+number_list = range(-5, 5)
+less_than_zero = filter(lambda x: x < 0, number_list)
+
+# reduce的使用
+from functools import reduce
+product = reduce( (lambda x, y: x * y), [1, 2, 3, 4] )
+
+# Output: 24
+# __slots__来告诉Python不要使用字典，而且只给一个固定集合的属性分配空间
+class MyClass(object):
+    __slots__ = ['name', 'identifier'] # 节约内存空间
+    def __init__(self, name, identifier):
+        self.name = name
+        self.identifier = identifier
+        self.set_up()
+
+# collections defaultdict 与dict不同，不需要检查key是否存在
+from collections import defaultdict
+
+colours = (
+    ('Yasoob', 'Yellow'),
+    ('Ali', 'Blue'),
+    ('Arham', 'Green'),
+    ('Ali', 'Black'),
+    ('Yasoob', 'Red'),
+    ('Ahmed', 'Silver'),
+)
+
+favourite_colours = defaultdict(list)
+
+for name, colour in colours:
+    favourite_colours[name].append(colour)
+# 多个key嵌套
+import collections
+tree = lambda: collections.defaultdict(tree)
+some_dict = tree()
+some_dict['colours']['favourite'] = "yellow"
+
+# 循环技巧
+#enumerate 应用在list中
+my_list = ['apple', 'banana', 'grapes', 'pear']
+for c, value in enumerate(my_list, 1):
+    print(c, value)
+# dict循环
+knights = {'gallahad': 'the pure', 'robin': 'the brave'}
+for k, v in knights.items():
+	print(k, v)
+# 循环多个序列 zip
+questions = ['name', 'quest', 'favorite color']
+answers = ['lancelot', 'the holy grail', 'blue']
+for q, a in zip(questions, answers):
+	print('What is your {0}?  It is {1}.'.format(q, a))
+    
+# 输出:
+(1, 'apple')
+(2, 'banana')
+(3, 'grapes')
+(4, 'pear')
+
+# dir 对象自省， 返回该对象的所有属性
+
+# str.format 字符串格式化
+print('{0} and {1}'.format('spam', 'eggs'))
+spam and eggs
+
+```
+
+- 其他说明：为了让 Python 将目录当做内容包，目录中必须包含 `__init__.py` 文件
+
+### 2.3 调试
+
+```python
+python -m pdb my_script.py
+# c: 继续执行
+# w: 显示当前正在执行的代码行的上下文信息
+# a: 打印当前函数的参数列表
+# s: 执行当前代码行，并停在第一个能停的地方（相当于单步进入）
+# n: 继续执行到当前函数的下一行，或者当前行直接返回（单步跳过）
+```
+
+### 2.4 装饰者
+
+```python
+from functools import wraps
+def decorator_name(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if not can_run:
+            return "Function will not run"
+        return f(*args, **kwargs)
+    return decorated
+
+@decorator_name
+def func():
+    return("Function is running")
+
+can_run = True
+print(func())
+# Output: Function is running
+
+can_run = False
+print(func())
+# Output: Function will not run
+```
+
+### 2.5 数据结构
+
+```python
+# 列表推导式 中尽量少用 for循环
+squares = list(map(lambda x: x**2, range(10)))
+# 等价于
+squares = [x**2 for x in range(10)]
+# 转置
+list(zip(*matrix))
+```
+
+
+
+## 3.fastapi使用说明
+
+### 3.1 [官网地址](https://fastapi.tiangolo.com/project-generation/)
 
 轻量级webapi 使用python编写：快速，直观，简易
 
@@ -59,14 +221,14 @@ deactivate
 
 - 详细代码编写参照官网案例
 
-### 2.2 持久层选型
+### 3.2 持久层选型
 - 使用SQLALchemy 连接MySql数据库 [案例参考](https://www.jianshu.com/p/aaadf6e7d688)
 
 - sqlalchemy表设计[参考文档](https://zhuanlan.zhihu.com/p/270623816)
 
 
 
-### 2.3 sqlalchemy通用说明
+### 3.3 sqlalchemy通用说明
 
 - 常用字段类型
 
@@ -180,8 +342,55 @@ deactivate
   query.order_by(desc(Usser_ID)).first()
   ```
 
+### 3.4 websocket
 
-### 2.4 语法小计
+websocket应用于长连接场景，减少资源的调用
+
+- fastapi内集成websocket用法
+
+  ```python
+  from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+  
+  app = FastAPI()
+  class ConnectionManager:
+      def __init__(self):
+          self.active_connections: List[WebSocket] = []
+  
+      async def connect(self, websocket: WebSocket):
+          await websocket.accept()
+          self.active_connections.append(websocket)
+  
+      def disconnect(self, websocket: WebSocket):
+          self.active_connections.remove(websocket)
+  
+      async def send_personal_message(self, message: str, websocket: WebSocket):
+          await websocket.send_text(message)
+  
+      async def broadcast(self, message: str):
+          for connection in self.active_connections:
+              await connection.send_text(message)
+  
+  manager = ConnectionManager()
+  
+  @app.websocket("/ws")
+  async def websocket_endpoint(websocket: WebSocket):
+      await manager.connect(websocket)
+      print('ws连接')
+      try:
+          while True:
+              data = await websocket.receive_text()
+              await manager.broadcast(f"Client #1 says: {data}")
+      except WebSocketDisconnect:
+          manager.disconnect(websocket)
+          await manager.broadcast("Client #1} left the chat")
+  ```
+
+  
+
+
+
+
+### 3.x 语法小计
 
 - 通用语法区别
 
@@ -200,4 +409,310 @@ deactivate
   
   ```
 
+
+### 3.6 fastapi相关问题
+
+- post请求参数验证问题
+
+  https://blog.csdn.net/wgPython/article/details/107525950
+
+## 4. python模块使用说明
+
+### 4.0 python标准库
+
+```python
+# 操作系统接口
+import os
+os.getcwd() # return the current working directory
+os.chdir('/../') # change current working directory
+os.system('mkdir today') # run the command mkdir in the system shell
+
+# 文件通配符
+import glob
+glob.glob('*.py') # ['primes.py', 'random.py', 'quote.py']
+
+# 命令行参数
+import sys 
+print(sys.argv) # ['demo.py', 'one', 'two', 'three']
+sys.exit() # 终止脚本
+
+# 字符串正则匹配 冗余 
+import re
+ re.findall(r'\bf[a-z]*', 'which foot or hand fell fastest') # ['foot', 'fell', 'fastest']
+re.sub(r'(\b[a-z]+) \1', r'\1', 'cat in the the hat')# 'cat in the hat'
+
+# 数字
+import math
+import random
+math.cos(math.pi/4.0)
+math.log(1024,2)
+random.choice(['apple', 'pear', 'banana']) # 'apple'
+random.sample(range(100),10) # sampling without replacement
+random.random() # random float
+random.randrange(6) # random integer chosen from range(6)
+
+# 互联网访问
+from urllib.request import urlopen
+import smtplib # 发送邮件
+server = smtplib.SMTP('localhost')
+server.sendmail('soothsayer@example.org', 'jcaesar@example.org',
+"""To: jcaesar@example.org
+From: soothsayer@example.org
+Beware the Ides of March.
+""")
+server.quit()
+
+# 时间和日期
+from datetime import date
+now = date.today()
+now.strftime("%m-%d-%y. %d %b %Y is a %A on the %d day of %B.")
+
+# 数据压缩  打包和压缩格式：zlib， gzip， bz2， lzma， zipfile 以及 tarfile
+import zlib
+s = b'witch which has which witches wrist watch'
+t = zlib.compress(s)
+zlib.decompress(t)
+zlib.crc32(s)
+
+# 性能度量
+from timeit import Timer
+Timer('具体语法').timeit()
+
+# 质量控制 测试
+
+class TestStatisticalFunctions(unittest.TestCase):
+    def test_average(self):
+        self.assertEqual(average([20, 30, 70]), 40.0)
+        self.assertEqual(round(average([1, 5, 7]), 1), 4.3)
+        with self.assertRaises(ZeroDivisionError):
+            average([])
+        with self.assertRaises(TypeError):
+            average(20, 30, 70)
+unittest.main() # Calling from the command line invokes all tests
+
+```
+
+- 标准库2
+
+```python
+# 输出格式
+import reprlib
+reprlib.repr()
+import pprint # 美化输出
+import textwrap # 模块格式化文本段落以适应设定的屏宽:
+import locale # 国家信息数据库
+
+# 模板
+from string import Template
+t = Template('${village}folk send $$10 to $cause.')
+t.substitute(village='Nottingham', cause='the ditch fund') # 'Nottinghamfolk send $10 to the ditch fund.'
+safe_substitute # 数据不完整不会抛出异常
+
+# 多线程
+import threading, zipfile
+
+class AsyncZip(threading.Thread):
+    def __init__(self, infile, outfile):
+        threading.Thread.__init__(self)
+        self.infile = infile
+        self.outfile = outfile
+    def run(self):
+        f = zipfile.ZipFile(self.outfile, 'w', zipfile.ZIP_DEFLATED)
+        f.write(self.infile)
+        f.close()
+        print('Finished background zip of:', self.infile)
+
+background = AsyncZip('mydata.txt', 'myarchive.zip')
+background.start()
+print('The main program continues to run in foreground.')
+
+background.join()    # Wait for the background task to finish
+print('Main program waited until background was done.')
+
+# 弱引用
+
+# 列表工具
+
+
+```
+
+
+
+### 4.1 requests
+
+- ~~报Max retries exceeded with url错误
+
+  ```python
+  # 原因http连接太多未关闭
+  import requests
+  requests.adapters.DEFAULT_RETRIES = 5 # 增加重连次数
+  s = requests.session()
+  s.keep_alive = False # 链接不保活
+  s.get('url')
+  ```
+
+
+
+### 4.2 logging
+
+- 通用日志输入 控制台和文件格式
+
+  ```python
+  import logging  # 日志模块
+  from logging.handlers import TimedRotatingFileHandler
+  import os
   
+  # 设置日志存放路径 可变
+  path = '/home/wangchen/log/'
+  if(not os.path.exists(path)):
+      os.mkdir(path)
+  class Logger(object):
+      level_relations = {
+          'debug': logging.DEBUG,
+          'info': logging.INFO,
+          'warning': logging.WARNING,
+          'error': logging.ERROR,
+          'crit': logging.CRITICAL
+      }  # 日志级别关系映射
+  
+      def __init__(self, filename, level='info', when='D', interval=1, backCount=5, fmt='%(asctime)s - %(name)s - %(levelname)s - %(message)s'):
+          self.logger = logging.getLogger()
+          formaat_str = logging.Formatter(fmt)  # 设置日志格式
+          self.logger.setLevel(self.level_relations.get(level))  # 设置日志级别
+          sh = logging.StreamHandler()
+          sh.setFormatter(formaat_str)
+          th = TimedRotatingFileHandler(
+              filename=filename, interval=interval, when=when, backupCount=backCount, encoding='utf-8')
+          # interval是时间间隔，backupCount是备份文件的个数，如果超过这个个数，就会自动删除，when是间隔的时间单位，单位有以下几种：
+          # S 秒
+          # M 分
+          # H 小时、
+          # D 天、
+          # W 每星期（interval==0时代表星期一）
+          # midnight 每天凌晨
+          th.setFormatter(formaat_str)
+          self.logger.addHandler(sh)
+          self.logger.addHandler(th)
+  
+  logger = Logger(path+'server.log', when='D').logger
+  ```
+
+### 4.3 json
+
+  ```python
+  import json
+  
+  data = [ { 'a' : 1, 'b' : 2, 'c' : 3, 'd' : 4, 'e' : 5 } ]
+  
+  data2 = json.dumps(data) # 对象转 json字符串
+  print(data2)
+  jsonData = '{"a":1,"b":2,"c":3,"d":4,"e":5}';
+  
+  text = json.loads(jsonData)# json字符串转 python对象
+  print(text)
+  ```
+
+  
+
+## 5. redis作为临时内存数据库
+
+- 存储方案，使用hash存储对象，其中运用到json和python对象互转
+
+- 可以事先定义好class对象，使用无参构造
+
+  ```python
+  import redis
+  import json
+  
+  # json转化存储方法 hset 传入的是__dict__ 对象
+  def hash2obj(obj: object, name: str):
+      resp = r.hgetall(name)
+      try:
+          if any(resp):
+              for key in obj:
+                  obj[key] = json.loads(resp[key])
+      except print(0):
+          pass
+      return obj
+  
+  # 对象转json hset 传入的是__dict__ obj
+  def obj2hash(obj: object, name: str):
+      try:
+          for key in obj:
+              r.hset(name,key,json.dumps(obj[key]))
+          return True
+      except print(0):
+          pass
+      return False
+  
+  
+  ```
+
+
+
+
+## 6. python应用消息队列
+
+### 6.1 rabbitMq
+
+```python
+import pika
+import json
+
+class RabbitMq:
+    def __init__(self, user, pwd, host, port):
+        credentials = pika.PlainCredentials(user, pwd)  # mq用户名和密码
+        self.connection = pika.BlockingConnection(
+            pika.ConnectionParameters(host=host, port=port, credentials=credentials, heartbeat=0)
+        )
+        self.channel = self.connection.channel()
+        self.channel.basic_qos(prefetch_count=1)
+
+    def __create_queue(self, routing_keys):
+        # 创建队列。有就不管，没有就自动创建
+        if not isinstance(routing_keys, list):
+            routing_keys = [routing_keys]
+        for _, v in enumerate(routing_keys):
+            self.channel.queue_declare(queue=v)
+
+    '''单向发送消息'''
+    def send(self, routing_key, body):
+        # 使用默认的交换机发送消息。exchange为空就使用默认的
+        self.__create_queue(routing_keys=routing_key)
+        msg_props = pika.BasicProperties()
+        msg_props.content_type = "application/json"
+        if isinstance(body, dict):
+            body = json.dumps(body)
+        self.channel.basic_publish(exchange='', properties=msg_props, routing_key=routing_key, body=body)
+
+    def received(self, routing_key, fun):
+        self.__create_queue(routing_keys=routing_key)
+        self.channel.basic_consume(routing_key, fun, True)
+
+    #  传入k-fun，可以实现topic到函数路由功能
+    def received_dict(self, fun_dict):
+        for i, v in fun_dict.items():
+            self.received(routing_key=i, fun=v)
+
+    def consume(self):
+        self.channel.start_consuming()
+
+    def close(self):
+        self.connection.close()
+
+
+if __name__ == '__main__':
+    mq = RabbitMq(user='furnance', pwd='123456', host='127.0.0.1', port=5672)
+    queue = 'test'
+    # mq.send(routing_key=queue, body={'test': 'json格式'})
+
+    def callback(ch, method, properties, body):
+        # print(ch)
+        # print(method)
+        # print(properties)
+        # print(" [x] Received %r" % (body,))
+        print(json.loads(body))
+    mq.received(routing_key=queue, fun=callback)
+    mq.consume()
+```
+

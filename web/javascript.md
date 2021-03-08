@@ -464,3 +464,18 @@
   - 滑动：slideDown()   slideUp()  slideToggle()
   - 淡入淡出：fadeIn()  fadeOut()  fadeToggle()  fadeTo()
   - 自定义动画：animate()
+
+
+
+## 3. 其他用法（临时）
+
+### 3.1 websocket
+
+```javascript
+ ws = new WebSocket('ws://127.0.0.1:8065/ws');
+ ws.onmessage = (e) => { //接受数据回调
+ 	console.log('ws', e);
+ }
+ ws.send("123");
+```
+
