@@ -409,7 +409,12 @@ websocket应用于长连接场景，减少资源的调用
   
   ```
 
-  
+
+### 3.6 fastapi相关问题
+
+- post请求参数验证问题
+
+  https://blog.csdn.net/wgPython/article/details/107525950
 
 ## 4. python模块使用说明
 
