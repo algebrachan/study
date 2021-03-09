@@ -230,6 +230,8 @@ list(zip(*matrix))
 
 ### 3.3 sqlalchemy通用说明
 
+- 参考链接：https://blog.csdn.net/qq_29730101/article/details/81660999
+
 - 常用字段类型
 
   | 类型名       | python中类型      | 说明             |
