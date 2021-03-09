@@ -41,3 +41,4 @@ $ sudo vim /etc/mysql/mysql.conf.d/mysqld.cnf
 user里面的 Host 字段设置为 %
 ```
 
+- mysql忘记密码
