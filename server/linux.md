@@ -42,13 +42,33 @@ rm -rf .git/
 ls
 tree / # 目录树结构
 pwd # 路径结构
+tar -zxvf # 解压缩文件
 ```
 
+### 2.1服务器离线下载环境
 
+- python环境
+
+  ```python
+  # 下载安装包
+  pip download -d /home/wangchen/packages fastapi[all]
+  # 拷贝
+  scp -r wangchen@10.50.63.63:/home/wangchen/packages D:\work\packages
+  # 安装
+  pip install --no-index --find-links=D:\work\packages fastapi[all]
+  
+  # 判断是否安装成功
+pip list
+  ```
+  
+  
 
 ## 3. 实操问题
 
 ### 3.1 部署前端项目
+
+- [离线安装nodejs](https://blog.csdn.net/topswim/article/details/79200936)
+
 -  **复制工程打包文件到服务器**
 
    ```shell
@@ -106,6 +126,27 @@ pwd # 路径结构
 nohup uvicorn main:app --host '0.0.0.0' --port 8065 >/dev/null 2>&1 &
     ```
     
+  
+- **使用 nginx+superviosr+uvicorn 来配置fastapi项目**
+
+  ```shell
+  sudo vim /ect/nginx/sites-enabled/web_server
+  server{
+      listen 8050;
+      location / {
+        proxy_pass http://127.0.0.1:8065;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+      }
+      location /static {
+      alias  /home/wangchen/static;  #静态文件路径
+      }
+  }
+  ```
+
+  
 
 ### 3.3 配置mysql数据库
 
@@ -136,3 +177,66 @@ nohup uvicorn main:app --host '0.0.0.0' --port 8065 >/dev/null 2>&1 &
 
 
 ### 3.4 配置redis数据库
+
+- [手动安装redis](https://www.cnblogs.com/wanglijun/p/8796135.html)
+
+  ```shell
+  wget http://download.redis.io/releases/redis-6.0.8.tar.gz
+  ```
+
+
+
+
+### 3.5 配置Supervisor
+
+- [参考文档地址](https://www.cnblogs.com/Yang-Sen/p/13360229.html)
+
+- 安装
+
+  ```shell
+  # 安装
+  pip install supervisor
+  
+  # 生成配置文件
+  echo_supervisord_conf > supervisord.conf
+  ```
+
+- 配置文件
+
+  ```shell
+  vim /etc/supervisor/supervisord.conf
+  
+  [program:furnace_api]
+  directory=/home/wangchen/fastapi
+  command=uvicorn main:app --host 127.0.0.1 --port 8065 --workers 2
+  autostart=true
+  autorestart=true
+  startsecs=10
+  #stopsignal=KILL
+  stopasgroup=true
+  killasgroup=true
+  stdout_logfile=/home/wangchen/supervisorlog/stdout.log
+  stdout_logfile_maxbytes=10MB
+  stdout_logfile_backups=10
+  stdout_capture_maxbytes=10MB
+  stderr_logfile=/home/wangchen/supervisorlog/stderr.log
+  stderr_logfile_maxbytes=10MB
+  stderr_logfile_backups=10
+  stderr_capture_maxbytes=10MB
+  user = wangchen
+  environment = PYTHONPATH="/home/wangchen/.local/lib/python3.8/site-packages/", USER="wangchen"
+  
+  ```
+
+- 常见操作命令
+
+  ```shell
+  supervisorctl status        #查看所有进程的状态
+  supervisorctl stop es       #停止es
+  supervisorctl start es      #启动es
+  supervisorctl restart      #重启es
+  supervisorctl update        #配置文件修改后使用该命令加载新的配置
+  supervisorctl reload        #重新启动配置中的所有程序
+  ```
+
+  
