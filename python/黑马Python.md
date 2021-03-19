@@ -546,7 +546,34 @@
   # 深拷贝 安全
   b = copy.deepcopy(a)
   
+  ```
   
+- 闭包
+
+  ```python
+  def func_out(data):
+      def func_in():
+          print(data)
+      return func_in
+  func = func_out(10)
+  func() # 10
+  ```
+
+- 装饰器
+
+  ```python
+  # 装饰器：在不改变原有的函数代码的前提下， 给函数增加新的功能
+  def func_out(func):
+      def func_in():
+          print('验证')
+          func()
+      return func_in
+  
+  @func_out
+  def login():
+      print('登陆')
+      
+  login() # 验证 登陆
   ```
 
   
