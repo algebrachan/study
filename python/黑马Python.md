@@ -564,22 +564,122 @@
   ```python
   # 装饰器：在不改变原有的函数代码的前提下， 给函数增加新的功能
   def func_out(func):
-      def func_in():
+      def func_in(a):
           print('验证')
-          func()
+          func(a)
       return func_in
   
-  @func_out
-  def login():
-      print('登陆')
+  @func_out #login = func_out(login) 包装的纸
+  def login(a):
+      print('登陆',a)
       
-  login() # 验证 登陆
+  login(a) # 验证 登陆
+  # 结论1：调用login() 相当于 ===> func_in()
+#		调用被装饰者的函数就相当于调用闭包中的内层函数
+  # 结论2：外层函数的参数 func ==> 原始的login
+  
+  # 通用版本的装饰器 装饰器只能装饰函数
+  def func_out(func):
+      def func_in(*args,**kwargs):
+  		ret = func(*args,**kwargs)
+          return ret   
+      return func_in
+  
+  @func_out('+') #装饰器参数 外套一个装饰器
+  def my_test():
+      return 100
+  
+  a = my_test()
+  print(a)
+  
+  # 类装饰器
+  class Func:
+      def __init__(self,fn):
+          # fn就是用来保存原始的被装饰的函数
+          self.__fn = fn # __私有属性
+          
+      # 让我们的对象() 就可以直接调用这个call方法
+      def __call__(self): # 可调用对象
+          print("this is call")
+          self.__fn()
+          
+  @Func # my_test = Func(my_test)
+  def my_test():
+      print("登陆")
+      
+  my_test()  
+  ```
+  
+- property属性
+
+  ```python
+  # 把方法当做属性一样去使用
+  # 这个方法一定有返回值
+  class Person:
+      def __init__(self,age):
+          self.__age = age #私有属性
+      
+      @property
+      def age(self):
+          return self.__age
+      @age.setter
+      def age(self,new_age):
+          if new_age > 200:
+              print("错误")
+          else:
+              self.__age = new_age
+      # 在已有的基础上修改
+      age = property(get_age,set_age)
+      
+      
+  p = Person(100)
+  print(p.age) # 100
+  p.age = 200
+  print(p.age) # 200
   ```
 
-  
+- 生成器：
+
+  - 节省内存空间
+  - 记录函数执行状态
+
+  ```python
+  # 生长器可以记录代码的执行状态
+  # 节省空间资源
+  def func():
+      for i in range(5):
+          print("start")
+          yeild i
+          print("end")
+  a = func() # 创建了生成器a
+  ret = next(a) # 执行生成器 next一旦超出范围会报异常，（异常处理）
+  for i in a:
+      print(i)
+  ```
+
+- 正则表达式
+
+  ```python
+  import re 
+  # 匹配
+  result = re.match(正则表达式,要匹配的字符串)、
+  # 提取数据
+  result.group() 
+  ```
 
 
 
 
+
+## python企业级开发
+
+### redis相关
+
+- [github-py-redis](https://github.com/andymccurdy/redis-py)
+- [redis总结](..\database\redis.md)
+
+### git相关
+
+- [git总结](..\git\git.md)
 
 

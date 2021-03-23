@@ -28,6 +28,8 @@ https://blog.csdn.net/erlian1992/article/details/54382443
   sudo apt install redis-server
   # 启动
   redis-server
+  
+  sudo vi /etc/redis/redis.conf # 配置文件
   ```
 
 ### 1.1 启动问题
