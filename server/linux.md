@@ -42,7 +42,9 @@ rm -rf .git/
 ls
 tree / # 目录树结构
 pwd # 路径结构
-tar -zxvf # 解压缩文件
+tar -zxvf # 解压缩文件 .gz后缀
+tar -xvf # 解压缩文件 .tar后缀
+> access.log #清空文件
 ```
 
 ### 2.1服务器离线下载环境

@@ -591,8 +591,7 @@
   
   a = my_test()
   print(a)
-  
-  # 类装饰器
+  ## 类装饰器
   class Func:
       def __init__(self,fn):
           # fn就是用来保存原始的被装饰的函数
