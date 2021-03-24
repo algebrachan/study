@@ -29,7 +29,7 @@ virtualenv envname
 # 安装 虚拟环境配置
 pip install virtualenvwrapper-win
 # 新的方法新建虚拟环境
-mkvirtualenv envname
+mkvirtualenv -p python3 envname
 
 # 配置环境安装为指定目录
 # 编辑系统变量 WORKON_HOME
@@ -37,6 +37,8 @@ mkvirtualenv envname
 workon 
 # 新建虚拟环境
 mkvirtualenv [虚拟环境名称] 
+# 删除虚拟环境
+rmvirtualenv [虚拟环境名称]
 # 启动/切换虚拟环境
 workon [虚拟环境名称]
 # 离开虚拟环境

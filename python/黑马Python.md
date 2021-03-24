@@ -575,40 +575,39 @@
       
   login(a) # 验证 登陆
   # 结论1：调用login() 相当于 ===> func_in()
-#		调用被装饰者的函数就相当于调用闭包中的内层函数
+  #		调用被装饰者的函数就相当于调用闭包中的内层函数
   # 结论2：外层函数的参数 func ==> 原始的login
   
   # 通用版本的装饰器 装饰器只能装饰函数
   def func_out(func):
-      def func_in(*args,**kwargs):
-  		ret = func(*args,**kwargs)
-          return ret   
-      return func_in
+        def func_in(*args,**kwargs):
+    		ret = func(*args,**kwargs)
+            return ret   
+        return func_in
   
   @func_out('+') #装饰器参数 外套一个装饰器
   def my_test():
-      return 100
+  	return 100
   
   a = my_test()
   print(a)
-  ## 类装饰器
+  
+  # 类装饰器
+  
   class Func:
-      def __init__(self,fn):
-          # fn就是用来保存原始的被装饰的函数
+  	def __init__(self,fn):# fn就是用来保存原始的被装饰的函数      
           self.__fn = fn # __私有属性
-          
-      # 让我们的对象() 就可以直接调用这个call方法
-      def __call__(self): # 可调用对象
-          print("this is call")
-          self.__fn()
-          
+    	# 让我们的对象() 就可以直接调用这个call方法
+   	def __call__(self): # 可调用对象
+        print("this is call")
+        self.__fn()
   @Func # my_test = Func(my_test)
   def my_test():
-      print("登陆")
-      
-  my_test()  
+  	print("登陆")
+    
+  my_test()
   ```
-  
+
 - property属性
 
   ```python
@@ -661,12 +660,10 @@
   ```python
   import re 
   # 匹配
-  result = re.match(正则表达式,要匹配的字符串)、
+  result = re.match(正则表达式,要匹配的字符串)
   # 提取数据
   result.group() 
   ```
-
-
 
 
 
@@ -680,5 +677,104 @@
 ### git相关
 
 - [git总结](..\git\git.md)
+
+### Django
+
+- [官方说明文档](https://docs.djangoproject.com/en/3.1/)
+
+```python
+# 创建项目
+django-admin startproject name
+# 创建子应用
+python manage.py startapp book
+# 运行
+python manage.py runserver
+# 迁移数据库
+python manage.py migrate
+# 创建超级管理员
+python manage.py createsuperuser
+```
+
+#### ORM
+
+- 定义模型类
+
+```python
+""" models.py 
+"""
+from django.db import models
+
+class BookInfo(models.Model):
+    #id
+    name=models.CharField(max_length=10)
+    def __str__(self):
+    	return self.name
+    
+class PeopleInfo(models.Model):
+    name=models.CharField(max_length=10)
+    gender=models.BooleanField()
+    book=models.ForeignKey(BookInfo,on_delete=models.CASCADE)
+
+```
+
+- 模型迁移
+
+```python
+# 生成迁移文件
+python manage.py makemigrations 
+# 进行迁移
+python manage.py migrate
+
+```
+
+- 数据库配置
+
+```python
+# 默认的sqllite3配置
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+# mysql配置
+DATABASES = {
+    'default': {
+        'ENGINE':'django.db.backends.mysql',
+        'HOST':'127.0.0.1',
+        'PORT':3306,
+        'USER':'root',
+        'PASSWORD':'123456',
+        'NAME':'db_name'
+    }
+}
+# 下载mysqlclient 驱动
+pip install mysqlclient
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -1,6 +1,21 @@
 # git版本管理
 
-## 1.基本操作
+### 1. 基本概念
+
+- 工作区
+
+- 版本库
+
+  - 暂存区
+  - 仓库区
+
+- 服务器 、 github
+
+  
+
+
+
+## 2.基本操作
 ```shell
 # 设置用户名和邮箱
 git config (--global) user.name xxxx
@@ -24,7 +39,7 @@ git remote add origin git@xxxx.com:xx/xx.git
 git push origin --delete 分支名称
 ```
 
-### 1.1 配置ssh多个git免密登录
+### 2.1 配置ssh多个git免密登录
 
 ```shell
 ssh keygen -t rsa -C "xxx@xxx.com" -f ~/.ssh/id_rsa
@@ -35,12 +50,13 @@ Host github.com                                       HostName github.com       
   User algebrachan
 ```
 
-### 1.2 git其他操作
+### 2.2 git其他操作
 ```shell
  # git更新版本
  git update-git-for-windows # 速度很慢 不推荐
  # 版本回退 
  git log --pretty=oneline
+ git reflog
  git reset --hard HEAD^ # ^代表上一个版本 ~100：上100个版本
  git reset --hard a4e37 # commit id
  git commit # [master 318ee13] test 2 [分支 commit id] commit说明
@@ -54,7 +70,7 @@ Host github.com                                       HostName github.com       
 
 - [git淘宝镜像](https://npm.taobao.org/mirrors/git-for-windows/)
 
-### 1.3 分支管理
+### 2.3 分支管理
 
 - 分支可以理解为平行时空
 - master为主线，其他为分线，需要增加、合并、删除
@@ -99,7 +115,8 @@ Host github.com                                       HostName github.com       
  git tag -d <tagname>
  git push origin :refs/tags/<tagname>
 ```
-### 1.4 参考资料
+### 2.4 参考资料
 - [廖雪峰Git教程](https://www.liaoxuefeng.com/wiki/896043488029600)
 
-## 2 问题记录及操作方案
+## 3 问题记录及操作方案
+
