@@ -2,14 +2,16 @@
 
 ### 1. 基本概念
 
-- 工作区
+分布式版本控制系统
+
+- Workspace：工作区
 
 - 版本库
 
-  - 暂存区
-  - 仓库区
+  - Index/Stages：暂存区
+  - Repository：仓库区（本地仓库）
 
-- 服务器 、 github
+- Remote：远程仓库 、 github
 
   
 
@@ -117,6 +119,7 @@ Host github.com                                       HostName github.com       
 ```
 ### 2.4 参考资料
 - [廖雪峰Git教程](https://www.liaoxuefeng.com/wiki/896043488029600)
+- [git简易教程](https://mp.weixin.qq.com/s/G7Nz0aMnbBzo6aDi9JNZrw)
 
 ## 3 问题记录及操作方案
 

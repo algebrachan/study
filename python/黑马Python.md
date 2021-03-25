@@ -706,13 +706,31 @@ from django.db import models
 
 class BookInfo(models.Model):
     #id
-    name=models.CharField(max_length=10)
+    name=models.CharField(max_length=10,unique=True)
+    pub_date=models.DateField(null=True)
+    readcount=models.IntegerField(default=0)
+    commentcount=models.IntegerField(default=0)
+    is_delete=models.BooleanField(default=False)
+    
+    class Meta:
+        db_table='bookinfo' # 修改表的名字  默认为类名的小写下划线格式
+        varbose_name='名字' # 站点使用
+    
     def __str__(self):
     	return self.name
     
 class PeopleInfo(models.Model):
+    
+    #定义一个有序字典
+    GENDER_CHOICE={
+        (1,'male'),
+        (2,'female')
+    }
     name=models.CharField(max_length=10)
-    gender=models.BooleanField()
+    gender=models.BooleanField(choices=GENDER_CHOICE,default=1)
+    description=models.CharField(max_length=100,null=True)
+    id_delete=models.Boolean(default=False)
+    # 外键
     book=models.ForeignKey(BookInfo,on_delete=models.CASCADE)
 
 ```
@@ -750,21 +768,178 @@ DATABASES = {
 }
 # 下载mysqlclient 驱动
 pip install mysqlclient
+
+- 数据操作
+
+​```python
+from book.models import BookInfo
+# 新增数据
+# 方式1
+book = BookInfo(
+	name='Django',
+	pub_date='2020-1-1',
+	readcount=10
+)
+book.save()
+# 方式2
+BookInfo.objects.create(
+	name='Django',
+	pub_date='2020-1-1',
+	readcount=10
+)
+
+# 修改数据
+book=BookInfo.objects.get(id=6)
+book.name='运维开发'
+book.save()
+BookInfo.objects.filter(id=6).update(name='爬虫入门',commentcount=666)
+book.delete()
+
+# 查询
+BookInfo.objects.get(id=1) # 获取一个
+BookInfo.objects.all() # 获取所有
+BookInfo.objects.count()
+BookInfo.objects.filter() #得到的是列表
+
+# 两个属性补交 F对象
+# objects.filter(readcount_gte=F('commentcount'))
+# Q对象 | 或 & 并 ~ 非
+BookInfo.objects.filter(readcount_gt=20,id_lt=3)
+BookInfo.objects.filter(Q(readcount_gt=20)|Q(id_lt=3))
+
+# 聚合函数 Sum Max Min Avg Count
+# objects.aggregate(Xxx('字段名'))
+# order_by('字段名')
+
+# 管理查询，存在外键
+book=BookInfo.objects.get(id=1)
+book.peopleinfo_set.all()
+
+# 关联查询 模型类名.objects.(关联模型类名小写__字段名__运算符=值)
+BookInfo.objects.filter(peopleinfo__name__exact='郭靖')
+BookInfo.objects.filter(peopleinfo__name='郭靖')
 ```
 
+#### http
 
+```python
+from django.urls import converters
 
+# url 路径参数
+urlpatterns = [
+    path('<int:cat_id>/<goods_id>/',goods)
+]
 
+from django.http import HttpResponse,JsonResponse
 
+def index(request):
+    print('path',request.path)
+    print('GET',request.GET) # QueryDict对象
+    print('POST',request.POST) # 先注释验证     # 'django.middleware.csrf.CsrfViewMiddleware',
+    body = request.body.decode()
+    print('body',body) # 获得json形式字符串
+    json.loads(body)
+    print('META',request.META) # dict
+	# 获取服务端ip
+    if request.META.has_key('HTTP_X_FORWARDED_FOR'):
+		ip =  request.META['HTTP_X_FORWARDED_FOR']
+	else:
+		ip = request.META['REMOTE_ADDR']
 
+    res = {'name':'wc','item':123}
+    # return HttpResponse(json.dumps(res))
+    return JsonResponse(data=res,safe=False)
 
+	
+```
 
+- 跨域问题
 
+```python
+# settings文件中设置如下
+INSTALLED_APPS = [
+    ...
+    'corsheaders',
+	...
+]
+MIDDLEWARE_CLASSES = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware', # 注意顺序
+]
+#跨域增加忽略
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+ALLOWED_HOSTS=['*']
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+    'VIEW',
+]
+CORS_ALLOW_HEADERS = [
+    'XMLHttpRequest',
+    'X_FILENAME',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'Pragma',
+]
+```
 
+#### 状态
 
+```python
+# cookie
+def set_cookie(request):
+    username = request.GET.get("username")
+    request.session['user_id']=1
+    request.session['user_name']=username
+    response=HttpResponse('set_cookie')
+    response.set_cookie('name',username)
+    return response
 
+def get_session(request):
+    user_id = request.session.get('user_id')
+    user_name = request.session.get('user_name')
+    content = '{},{}'.format(user_id,user_name)
+    return HttpResponse(content)
 
+session.clear() #删除值 v
+session.flush() #删除k-v
+session.set_expriy(value)
 
+```
+
+- 中间件
+
+```python
+# 视图处理前 从上到下 视图处理后 从下到上
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+from django.utils.deprecation import MiddlewareMixin
+class TestMiddleWare(MiddlewareMixin):
+    def process_request(self,request):
+        print('请求前 处理')
+        
+    def process_response(self,request,response):
+        print('响应前 处理')
+        return response
+```
 
 
 
