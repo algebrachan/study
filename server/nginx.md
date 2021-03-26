@@ -184,7 +184,7 @@ http {
 
 
 
-### 3.2 Https 反向代理
+### Https 反向代理
 
 一些对安全性要求比较高的站点，可能会使用 HTTPS（一种使用 ssl 通信标准的安全 HTTP 协议）。
 
@@ -222,6 +222,34 @@ http {
       }
   }
 ```
+
+### 3.2 普通stream服务代理
+
+```shell
+# 代理redis
+stream {    # stream 模块配置和 http 模块在相同级别
+    upstream redis {
+        server 127.0.0.1:6379 max_fails=3 fail_timeout=30s;
+    }
+    server {
+        listen 16379;
+        proxy_connect_timeout 1s;
+        proxy_timeout 3s;
+        proxy_pass redis;
+    }
+    
+    upstream mysql{
+    	server 127.0.0.1:3306 max_fails=3 fail_timeout=30s;
+    }
+    server {
+    	listen 13306;
+    	proxy_pass mysql
+    }
+}
+
+```
+
+
 
 ### 3.3 负载均衡
 

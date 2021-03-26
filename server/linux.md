@@ -186,7 +186,24 @@ nohup uvicorn main:app --host '0.0.0.0' --port 8065 >/dev/null 2>&1 &
   wget http://download.redis.io/releases/redis-6.0.8.tar.gz
   ```
 
+- 外部访问，可以通过nginx代理访问
 
+  ```shell
+  # 在nginx.conf 代理中设置
+  stream {    # stream 模块配置和 http 模块在相同级别
+      upstream redis {
+          server 127.0.0.1:6379 max_fails=3 fail_timeout=30s;
+      }
+      server {
+          listen 16379;
+          proxy_connect_timeout 1s;
+          proxy_timeout 3s;
+          proxy_pass redis;
+      }
+  }
+  ```
+
+  
 
 
 ### 3.5 配置Supervisor
