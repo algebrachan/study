@@ -65,12 +65,31 @@ CONFIG SET appendonly yes
 
 ### 1.3 redis远程连接配置
 
-- 为了开发方便，开放redis的连接权限，
+- 为了开发方便，开放redis的连接权限，不推荐
 
   ```shell
   vi redis.conf
   # bind 127.0.0.1
   protected-mode no
+  ```
+
+- 使用nginx代理
+
+  ```shell
+  # 在nginx.conf 代理中设置
+  stream {    # stream 模块配置和 http 模块在相同级别
+      upstream redis {
+          server 127.0.0.1:6379 max_fails=3 fail_timeout=30s;
+      }
+      server {
+          listen 16379;
+          proxy_connect_timeout 1s;
+          proxy_timeout 3s;
+          proxy_pass redis;
+      }
+  }
+  
+  $ sudo service nginx reload
   ```
 
   

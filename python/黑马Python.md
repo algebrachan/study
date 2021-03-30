@@ -941,9 +941,111 @@ class TestMiddleWare(MiddlewareMixin):
         return response
 ```
 
+#### 项目实战
 
+- 目录结构
 
+  - apps：子应用包
+  - libs：第三方库包
+  - utils：公共类包
+  - templates：模板包
 
+- 实例
+
+  ```python
+  from django.views import View
+  from django.http import JsonResponse
+  
+  class UsernameCountView(View):
+      def get(self,request,usename):
+          count = User.objects.filter(username=username).count()
+          return JsonResponse('code':1)
+      def post(self,request):
+          return 1
+      def put(self,request):
+          return 2
+      def delete(self,request):
+          return 3
+      
+  # 短信验证码生成随机6位数字
+  from random import randint
+  sms_code = '%06d'%randint(0,999999)
+  ```
+
+- 管道技术--pipeline
+
+  ```python
+  r = redis.Redis(...)
+  pipe = r.pipeline()# 创建一个管道
+  pipe.set('foo','bar')
+  pipe.execute()
+  ```
+
+- [Celery](https://docs.celeryproject.org/en/master/django/first-steps-with-django.html#using-celery-with-django)
+
+  ```python
+  pip install -u celery
+  import os
+  
+  from celery import Celery
+  os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'proj.settings')
+  app = Celery('proj')
+  app.config_from_object('django.conf:settings', namespace='CELERY')
+  app.autodiscover_tasks()
+  
+  @app.task(bind=True)
+  def debug_task(self):
+      print(f'Request: {self.request!r}')
+      
+  # proj/proj/__init__.py:
+  from .celery import app as celery_app
+  
+  __all__ = ('celery_app',)
+  
+  # settings.py
+  CELERY_TIMEZONE = "Australia/Tasmania"
+  CELERY_TASK_TRACK_STARTED = True
+  CELERY_TASK_TIME_LIMIT = 30 * 60
+  
+  # demoapp/tasks.py:
+  # Create your tasks here
+  from celery import shared_task
+  from demoapp.models import Widget
+  
+  @shared_task
+  def add(x, y):
+      return x + y
+  
+  ```
+  
+- 数据加密
+
+  ```python
+  # 使用itsdangerous 加密
+  from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+  s = Serializer(secret_key='',expires_in=3600)
+  s.dumps('openid':'123456') # 加密
+  s.loads(token) # 解密
+  
+  ```
+
+### Docker
+
+- 镜像Image：虚拟环境
+- 容器Container：没有可视化界面的虚拟机，运行在虚拟环境的项目
+- 仓库Repository
+
+#### 镜像操作
+
+```shell
+sudo docker image ls
+sudo docker image pull redis
+sudo docker save -o redis.rar redis
+
+sudo docker container ls -a
+sudo docker rm -f $(sudo docker ps -a -q)
+sudo docker run [选项] 镜像名 
+```
 
 
 
