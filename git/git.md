@@ -123,3 +123,16 @@ Host github.com                                       HostName github.com       
 
 ## 3 问题记录及操作方案
 
+### 3.1 ubuntu个人服务器相关
+
+购买云服务器，ubuntu
+
+安装相关软件
+
+使用xshell7进行服务器连接
+
+```shell
+# 安装 mysql
+
+```
+

@@ -15,7 +15,7 @@
  show processlist
  
  
-create user username identified by 'password'; 
+create user username identified with mysql_native_password by 'password'; 
 grant all on 你的数据库名称.* to 'username'@'%'; 
 flush privileges;
 ```
@@ -27,10 +27,10 @@ MySQL8.0.11版本默认的认证方式是caching_sha2_password
 navicat连接不支持该认证方式 Navicat支持mysql_native_password
 解决方案，修改加密规则
 # 修改账户密码加密规则并更新用户密码
-ALTER USER 'root'@'localhost' IDENTIFIED BY 'password' PASSWORD EXPIRE NEVER;
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password'; 
+ALTER USER 'root'@'localhost' IDENTIFIED BY '123456' PASSWORD EXPIRE NEVER;
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '123456'; 
 FLUSH PRIVILEGES;   #刷新权限 
-alter user 'root'@'localhost' identified by '123456'; #重置密码
+alter user 'root'@'%' identified by '123456'; #重置密码
 ```
 
 - ERROR 2003 (HY000): Can't connect to MySQL server on '10.50.63.63' (10061)
