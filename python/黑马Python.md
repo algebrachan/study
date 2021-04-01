@@ -953,10 +953,10 @@ class TestMiddleWare(MiddlewareMixin):
 - 实例
 
   ```python
-  from django.views import View
+  from django.views import View,APIView
   from django.http import JsonResponse
   
-  class UsernameCountView(View):
+  class UsernameCountView(View): # 或者继承APIView
       def get(self,request,usename):
           count = User.objects.filter(username=username).count()
           return JsonResponse('code':1)
@@ -1077,6 +1077,39 @@ cd mysql_slave
 mkdir data
 cp -r /etc/mysql/mysql.conf.d ./
 
+# 编辑 ~/mysql_slave/mysql.conf.d/mysqld.cnf
+# 从机端口号
+port = 8306
+# 关闭日志
+general_log = 0
+# 从机唯一编号
+server-id = 2
+
+# 安装从机mysql
+sudo docker run --name mysql-slave -e MYSQL_ROOT_PASSWORD=mysql -d --network=host -v /home/ubuntu/mysql_slave/data:/var/lib/mysql -v /home/ubuntu/mysql_slave/mysql.conf.d:/etc/mysql/mysql.conf.d mysql:5.7.30
+
+# 从服务器访问
+mysql -uroot -pmysql -h 127.0.0.1 --port=8306
+
+# 主从同步实现
+# 开启日志
+general_log_file = /var/log/mysql/mysql.log
+general_log = 1
+server_id = 1
+log_bin = /var/log/mysql/mysql-bin.log
+# 从机备份主机原有数据
+mysqldump -uroot -pmysql --all-databases --lock-all-tables > ~/master_db.sql
+mysql -uroot -h127.0.0.1 --port=8306 < ~/master_db.sql
+# 主从同步实现
+mysql -uroot -pmysql
+GRANT REPLICATION SLAVE ON *.* TO 'slave'@'%' identified by 'slave';
+FLUSH PRIVILEGES;
+SHOW MASTER STATUS;
+# docker 中的 mysql 连接主机mysql
+mysql -uroot -pmysql -h127.0.0.1 --port=8036
+change master to master_host='127.0.0.1',master_user='slave',master_password='slave',master_log_file='mysql-bin.xxx',master_log_pos=xxxx;
+start slave;
+show slave status \G
 ```
 
 
@@ -1098,7 +1131,7 @@ cp -r /etc/mysql/mysql.conf.d ./
 
 ### 性能优化
 
-- 数据库主从搭建
+- 数据库主从搭建，读写分离（主机用来写，从机用来读）
 
   
 
