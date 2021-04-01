@@ -1032,7 +1032,7 @@ class TestMiddleWare(MiddlewareMixin):
 ### Docker
 
 - 镜像Image：虚拟环境
-- 容器Container：没有可视化界面的虚拟机，运行在虚拟环境的项目
+- 容器Container：没有可视化界面的虚拟机，运行在虚拟环境的项目，运行的镜像就是容器
 - 仓库Repository
 
 #### 镜像操作
@@ -1040,14 +1040,69 @@ class TestMiddleWare(MiddlewareMixin):
 ```shell
 sudo docker image ls
 sudo docker image pull redis
-sudo docker save -o redis.rar redis
+sudo docker save -o redis.rar redzis
 
-sudo docker container ls -a
+sudo docker container ls -a # 正在运行的容器
 sudo docker rm -f $(sudo docker ps -a -q)
-sudo docker run [选项] 镜像名 
+sudo docker run [选项] 镜像名 [指令]
+
+# sudo docker run -it ubuntu
+# 守护进程的方式运行
+sudo docker run -dit --name=myubuntu ubuntu:latest
+sudo docker exec -it 容器id /bin/bash # 进入终端 只能进入正在运行的容器
+
+# 关闭
+sudo docker container stop myubuntu
+
+
+```
+
+#### Fastdfs 分布式文件系统
+
+- [介绍](https://www.jianshu.com/p/b7c330a87855)
+- [下载](https://sourceforge.net/projects/fastdfs/)
+
+#### docker搭建mysql主从
+
+```shell
+# 下载
+sudo docker image mysql:版本号
+# 或者
+sudo docker -i 文件路径/mysql_docker_5370.tar
+
+# 指定MySQL从机配置文件
+cd ~
+mkdir mysql_slave
+cd mysql_slave
+mkdir data
+cp -r /etc/mysql/mysql.conf.d ./
+
 ```
 
 
+
+### 数据操作
+
+- base64加密
+
+  ```python
+  import pickle
+  import base64
+  dict = {'a':1}
+  b = pickle.dumps(dict) # dict转 byte
+  b1 = base64.b64encode(b) # byte转 base64
+  b2 = base64.b64decode(b1) # base64解码 byte
+  d = pickle.loads(b2) # byte 转 dict
+  
+  ```
+
+### 性能优化
+
+- 数据库主从搭建
+
+  
+
+  
 
 
 
