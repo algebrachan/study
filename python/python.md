@@ -45,6 +45,22 @@ workon [虚拟环境名称]
 deactivate
 ```
 
+### 1.3 安装包
+
+```shell
+# 启动虚拟环境
+
+# 在安装包的时候 使用如下 形式安装
+
+pip install fastapi[all] 
+
+pip freeze > requirements.txt
+
+# 当 clone一个项目的时候 只需安装 配置文件中的包
+
+pip install -r requirements.txt
+```
+
 ## 2.python基本语法
 
 - [python3中文手册](https://docs.pythontab.com/python/python3.5/appetite.html)
