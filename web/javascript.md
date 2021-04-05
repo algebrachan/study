@@ -464,12 +464,119 @@
   - 滑动：slideDown()   slideUp()  slideToggle()
   - 淡入淡出：fadeIn()  fadeOut()  fadeToggle()  fadeTo()
   - 自定义动画：animate()
+  
+- 属性操作
+
+  ```javascript
+// 获取固有属性
+  prop("属性")
+prop("属性","属性值")
+  // 获取自定义属性
+  attr("属性")
+  attr("属性","属性值")
+  // 数据缓存 data()
+  data("name","value")
+  // 获取元素内容 相当于原生innerHTML
+  html()
+  html("设置的内容")
+  // 获取文本内容
+  text()
+  text("设置的文本")
+  // 兄弟选择器
+  siblings(".p-price") 
+  ```
+  
+- 元素操作
+
+  ```javascript
+  // 遍历元素
+  $("div").each(function(index,domEle){
+  	$(domEle).css("color","blue")
+  })
+  // 内部添加
+  .append()
+  .prepend()
+  // 外部添加
+  .after()
+  .before()
+  // 添加类名
+  .addClass("classname")
+  .removeClass("classname")
+  ```
+
+
+### 2.3 事件
+
+- 事件注册
+
+  ```javascript
+  // 1.单个事件注册
+  element.事件(function(){})
+  // click mouseover mouseout blur focus change keyup resize scroll
+  
+  // 2.事件处理on 可绑定动态事件
+  $("div").on({
+      mouseenter:function(){
+          $(this).css("background","skyblue");
+      }
+      click:funciton(){
+  		$(this).css("background","purple");    
+  	}
+  	mouseleave:function(){}
+  })
+  // 解绑事件 off()
+  $("div").off("click")
+  // 只触发一次
+  $("p").one("click",function(){alert("h1")})
+  // 自动触发
+  $("div").click()
+  $("div").trigger("click")
+  $("div").triggerHandler("click")
+  ```
+
+- 其他方法
+
+  ```javascript
+  // 对象拷贝 deep为true深拷贝，target拷贝目标 object1待拷贝到第一对象的对象
+  $.extend([deep],target,object1,[objectN])
+  // 多库共存 $符号冲突
+  // $ 换成 jQuery
+  // 自定义
+  var diy = $.noConflict();
+  diy("span") // diy相当于$
+  ```
+
+### 2.4 插件
+
+[jQuery插件库](https://www.jq22.com/)
+
+[jQuery之家](http://www.htmleaf.com/)
 
 
 
-## 3. 其他用法（临时）
+## 3.JavaScript高级
 
-### 3.1 websocket
+### 3.1面向对象编程
+
+封装性、继承性、多态性
+
+```javascript
+// 1.创建类
+class Star{
+    constructor(uname){
+        this.uname = uname
+    }
+}
+// 2.利用类创建对象
+var ldh = new Star('刘德华')
+console.log(ldh.uname)
+```
+
+
+
+##  其他用法（临时）
+
+### websocket
 
 ```javascript
  ws = new WebSocket('ws://127.0.0.1:8065/ws');
