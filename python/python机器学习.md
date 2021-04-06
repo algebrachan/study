@@ -138,7 +138,7 @@
   
 - 数据预处理
   
-  归一化、标准化：量纲化
+  归一化、标准化：无量纲化
   
     ```python
   from sklearn.preprocessing import MinMaxScaler,StandardScaler
@@ -161,15 +161,196 @@
     
     ```python
     from sklearn.feature_selection import VarianceThreshold
+    from scipy.stats import pearsonr
     
     def variance_demo():
     	data = pd.read_csv("xx.csv")
         data = data.iloc[:,1:-2]
-    	transfer = VarianceThreshold()
+    	transfer = VarianceThreshold(threshold=10)
         data_new = transfer.fit_transform(data)
         print("data_new:\n",data_new,data_new.shape)
-        
-        
+        # 计算相关系数
+        r = pearsonr(data["pe_ratio"],data["pb_ratio"])  
     ```
     
-    
+
+### 3.分类算法
+
+#### 3.1 转换器和估计器
+
+- 转换器是特征工程的父类：实例化transformer类；调用fit_transfrom()
+
+- 估计器estimator是算法的父类：实例化estimator；调用fit(x_train,y_train)特征值
+
+- 模型评估：
+
+```python
+# 直接比对真实值和预测值
+y_predict = estimator.predict(x_test)
+y_test == y_predict
+# 计算准确率
+accuracy = estimator.score(x_test,y_test)
+```
+
+#### 3.2 KNN算法 (k-近邻算法)
+
+- 定义
+
+  如果一个样本在特征空间中的k个最相似(即特征空间中最邻近)的样本中的大多数属于某一个类别,则该样本也属于这个类别。
+
+  需要用到距离公式
+
+- 距离公式
+
+  欧式距离，曼哈顿距离
+
+- k值取得过小，容易收到异常点的影响；k值取得过大，样本不均衡的影响
+
+- 总结：
+
+  - 优点：简单易于理解，易于实现，无需训练
+  - 缺点：懒惰算法，内存开销大；必须确定k值
+  - 使用场景：小数据场景，几千~几万样本
+
+#### 3.3 模型选择与调优
+
+交叉验证（cross validation）
+
+超参数搜索-网格搜索（Grid Search）
+
+```python
+def knn_iris_gscv():
+    """
+    用knn算法对鸢尾花进行分类,添加网格搜索和交叉验证
+    """
+    # 1.获取数据
+    iris = load_iris()
+
+    # 2.划分数据集
+    x_train, x_test, y_train, y_test = train_test_split(iris.data,iris.target,random_state=6)
+    # 3.特征工程：标准化
+    transfer = StandardScaler()
+    x_train = transfer.fit_transform(x_train)
+    x_test = transfer.transform(x_test)
+
+    # 4.KNN算法预估器
+    estimator = KNeighborsClassifier()
+    # 加入网格搜索与交叉验证
+    param_dict = {"n_neighbors": [1,3,5,7,9,11]}
+    estimator = GridSearchCV(estimator,param_grid=param_dict,cv=10)
+
+    estimator.fit(x_train,y_train)
+
+    # 5.模型评估
+    # 比对真实值和预测值
+    y_predict = estimator.predict(x_test)
+    print("y_predict:\n",y_predict)
+    print("直接比对真实值和预测值：\n",y_test == y_predict)
+    # 计算准确率
+    score = estimator.score(x_test,y_test)
+    print("准确率为：\n",score)
+
+    print("最佳参数：\n",estimator.best_params_)
+    print("最佳结果: \n",estimator.best_score_)
+    print("最佳估计器: \n",estimator.best_estimator_)
+    print("交叉验证结果: \n",estimator.cv_results_)
+    return None
+```
+
+
+
+#### 3.4 朴素贝叶斯算法
+
+朴素：假定特征与特征之间是相互独立的
+
+贝叶斯公式
+
+- 优点：
+
+  - 来源于古典数学理论，有稳定的分类效率
+  - 对缺失数据不太敏感、算法比较简单、常用于文本分类
+  - 分类准确度高，速度快
+
+- 缺点：
+
+  - 由于使用样本属性独立性的假设，所以如果特征属性有关联时其效果不好
+
+  ```python
+  def nb_news():
+      """
+      用朴素贝叶斯算法对新闻进行分类
+      """
+      # 1.获取数据
+      news = fetch_20newsgroups(subset="all")
+  
+      # 2.划分数据集
+      x_train, x_test, y_train, y_test = train_test_split(news.data,news.target)
+  
+      # 3.特征工程：文本特征抽取
+      transfer = TfidfVectorizer()
+      x_train = transfer.fit_transform(x_train)
+      x_test = transfer.transform(x_test)
+  
+      # 4.朴素贝叶斯算法预估
+      estimator = MultinomialNB()
+      estimator.fit(x_train,y_train)
+  
+      # 5.模型评估
+      y_predict = estimator.predict(x_test)
+      print("y_predict:\n",y_predict)
+      print("直接比对真实值和预测值：\n",y_test == y_predict)
+  
+      score = estimator.score(x_test,y_test)
+      print("准确率为：\n",score)
+      return None
+  ```
+
+#### 3.5 决策树
+
+- 高效进行决策：特征的先后顺序
+- 信息论基础
+
+  - 信息熵
+
+  - 信息增益：
+- 优点：可解释能力强
+- 缺点：不能推广到过于复杂的数，容易产生过拟合
+- 改进：减枝cart算法，随机森林
+
+#### 3.6 随机森林
+
+森林：包含多个决策树的分类器
+
+训练集：特征值、目标值
+
+​	训练集随机 bootstrap 随机有放回抽样
+
+​	特征随机
+
+```python
+param ={"n_estimators":[120,200,300,500,800,1200],"max_depth":[5,8,15,25,30]}
+# 超参数调优
+gc = GridSearchCV(rf,param_grid=param,cv=2)
+gc.fit(x_train,y_train)
+
+```
+
+- 总结
+  - 在当前所有算法中，具有极好的准确率
+  - 能够有效的运行在大数据集上，处理具有高维特征的输入样本，而且不需要降维
+  - 能够评估各个特征在分类问题上的重要性
+
+### 4 回归与聚类算法
+
+#### 4.1 线性回归
+
+- 定义：利用回归方程(函数)对一个或多个自变量(特征值)和因变量(目标值)之间关系进行建模的一种分析方式
+- 广义线性模型： y=kx+b 线性关系、非线性关系
+- 线性回归的损失和优化原理
+  - 目标：求模型参数，(系数矩阵)
+  - 真实关系: ...
+  - 假定关系: Y=AX+B
+  - 损失函数/cost/成本函数/目标函数：最小二乘法
+- 优化方法-正规方程
+- 优化方法-梯度下降
+
