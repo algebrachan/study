@@ -566,10 +566,60 @@ class Star{
     constructor(uname){
         this.uname = uname
     }
+    sing(song){
+		console.log(this.uname + song)
+    }
 }
 // 2.利用类创建对象
 var ldh = new Star('刘德华')
 console.log(ldh.uname)
+ldh.sing('忘情水')
+
+// 类的继承
+class Father{
+    constructor(x,y){
+        this.x = x;
+        this.y = y;
+    }
+    sum(){
+        console.log(this.x+this.y);
+    }
+    say(){
+        return '我是爸爸'
+    }
+}
+class Son extends Father{
+    constructor(x,y){
+        super(x,y);// 调用了父类中的构造函数
+    }
+    say(){
+        console.log(super.say()+'的儿子')
+    }
+}
+var son = new Son(1,2);
+son.sum();
+
+// 实例成员只能通过实例化对象访问，静态成员只能通过构造函数访问
+```
+
+- 原型
+  - prototype原型对象
+  - 作用是共享方法，节约内存
+
+```javascript
+Star.prototype.sing() // 原型对象
+ldh = new Star()
+ldh.__proto__ //对象原型
+
+Star.prototype = {
+    constructor:Star,
+    sing:function(){
+        console.log('唱歌')
+    },
+    movie:function(){
+        console.log('电影')
+    }
+}
 ```
 
 
