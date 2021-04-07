@@ -620,9 +620,198 @@ Star.prototype = {
         console.log('电影')
     }
 }
+// 扩展内置对象
+Array.prototype.sum = function(){
+	var sum =0;
+    for(var i=0;i<this.length;i++){
+		sum += this[i];
+    }
+    return sum;
+}
+var arr = [1,2,3]
+arr.sum()
 ```
 
+- call()
 
+```javascript
+function fn(x,y){
+	console.log('我想喝手磨咖啡')
+    console.log(this)
+}
+var o = {name:'andy'}
+fn.call() // 1. 可以调用函数
+fn.call(o,1,2) // 2. 改变这个函数的this指向
+
+// 借用构造函数继承父类属性
+function Father(uname,age){
+    this.uname = uname;
+    this.age = age;
+}
+Father.prototype.money = function(){
+    console.log(10000)
+}
+function Son(uname,age){
+    Father.call(this,uname,age);// 继承Father构造函数
+}
+Son.prototype = new Father();
+Son.prototype.constructor = Son;
+var son = new Son('刘德华',18);
+console.log(son)
+```
+
+- 数组方法(ES5新增)
+
+```javascript
+//遍历
+array.forEach(function(currentValue,index,arr))
+//迭代过滤 返回一个 新数组
+array.filter(function(currentValue,index,arr)) 
+//some 查找数组中是否有满足条件的元素 返回bool值
+array.some(function(currentValue,index,arr))
+
+array.map
+```
+
+- 字符串方法(ES5新增)
+
+```javascript
+// 删除空白字符
+str.trim()
+```
+
+- 对象方法(ES5新增)
+
+```javascript
+// 用于获取对象所有属性
+var arr = Object.keys(obj)
+// 定义对象中新属性或修改原有的属性
+Object.defineProperty(obj,prop,descriptor)
+// descriptor: value、writable、enumerable、configurable
+
+```
+
+### 3.2 函数进阶
+
+- 函数定义与调用
+
+  ```javascript
+  // 1.命名函数
+  function fn(){}
+  // 2.匿名函数
+  var fun = function(){}
+  // 3.new Function
+  var fn = new Function('param1','param2',...,'函数体')
+  
+  // 函数调用
+  // 1.普通函数
+  function fn(){
+      console.log('人生的巅峰')
+  }
+  fn()
+  fn.call()
+  // 2.对象方法
+  var o = {
+      sayHi:function(){
+          console.log('人生的巅峰')
+      }
+  }
+  o.sayHi()
+  // 3.构造函数
+  function Star(){};
+  new Star();
+  // 4.绑定事件函数
+  btn.onclick = function(){};
+  // 5.定时器函数
+  setInterval(function(){},1000) // 定时1s调用函数
+  // 6.立即执行函数
+  (function(){
+  	console.log('人生的巅峰')
+  })();
+  ```
+  
+- this指向
+
+  | 调用方式     | this指向       |
+  | ------------ | -------------- |
+  | 普通函数调用 | window         |
+  | 构造函数调用 | 实例对象       |
+  | 对象方法调用 | 该方法所属对象 |
+  | 事件绑定调用 | 绑定事件对象   |
+  | 定时器函数   | window         |
+  | 立即执行函数 | window         |
+
+- 改变函数内部this指向
+
+  - call(o)
+  - apply(o,['pink'])
+    - var max = Math.max.apply(Math,arr)
+  - bind(this)
+
+- 严格模式：在严格模式下，全局作用域中函数中的this是undefined
+
+- 高阶函数：接收函数作为参数或者将函数作为返回值输出
+
+  ```javascript
+  // 闭包函数
+  function fn(){
+  	var num = 10;
+      function fun(){
+          console.log(num)
+      }
+      return fun;
+  }
+  var f = fn() // 函数声明
+  f() // 调用
+  
+  // 递归函数
+  var num = 1;
+  function fn(){
+      console.log('我要打印6句话')
+      if(num == 6){
+          return;
+      }
+      num++;
+      fn()
+  }
+  fn();
+  ```
+  
+- 拷贝
+
+  ```javascript
+  // 浅拷贝
+  var obj = {
+      id:1,
+      name:'andy',
+      msg:{
+          age:18
+      }
+  }
+  var o = {}
+  for (var k in obj){
+  	o[k] = obj[k];
+  }
+  Object.assign(o,obj)
+  
+  // 深拷贝
+  function deepCopy(newobj,oldobj){
+      for(var k in oldobj){
+          var item = oldobj[k];
+          if(item instanceof Array){
+              newobj[k]=[];
+              deepCopy(newobj[k],item)
+          }else if(item instanceof Object){
+              newobj[k]={};
+              deepCopy(newobj[k],item);
+          }else{
+              newobj[k]=item;
+          }
+      }
+  }
+  ```
+  
+  ​	
 
 ##  其他用法（临时）
 
