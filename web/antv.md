@@ -262,5 +262,11 @@ plot.getStates();
   },
   ```
   
+- 渐变色
+
+  ```javascript
+  fill:'l(270) 0:#ffffff 0.5:#7ec2f3 1:#1890ff';
+  ```
+
   
 

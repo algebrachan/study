@@ -351,6 +351,98 @@ gc.fit(x_train,y_train)
   - 真实关系: ...
   - 假定关系: Y=AX+B
   - 损失函数/cost/成本函数/目标函数：最小二乘法
-- 优化方法-正规方程
-- 优化方法-梯度下降
+- 优化方法-正规方程：不需要学习率，一次运算得出，需要计算方程（转置求解）
+- 优化方法-梯度下降：需要选择学习率，需要迭代求解，特征数量较大可以使用
+
+#### 4.2 过拟合和欠拟合
+
+- 过拟合：原始特征过多，存在一些嘈杂特征，模型过于复杂
+  - 解决：正则化
+    - L1 损失函数+λ惩罚项 LASSO回归
+    - L2 损失函数+λ惩罚项 Ridge回归
+- 欠拟合：学习到数据的特征过少
+  - 解决：增加数据的特征数量
+
+#### 4.3 岭回归
+
+- 带有L2正则化的线性回归-岭回归
+  - alpha：正则化力度=惩罚项系数，λ
+    - 取值：0~1,1~10
+  - solver：会根据数据自动选择优化方法
+    - sag：如果数据集、特征都比较大，选择随机梯度下降优化
+- 正则化力度越大，权重系数越小；正则化力度越小，权重系数越大
+
+#### 4.4 逻辑回归与二分类
+
+- 线性回归的输出 就是 逻辑回归的输入
+
+  ```python
+  sklearn.linear_model.LogisticRegression(solver='liblinear',penalty='l2',C=1.0)
+  # solver:优化求解方式
+  # penalty:正则化种类
+  # C:正则化力度
+  ```
+
+- sigmoid函数
+
+- 混淆矩阵：
+
+- 精确率与召回率
+
+  ```python
+  sklearn.metrics.classification_report(y_true,y_pred,lables=[],target_names=None)
+  # y_true:真实值
+  # y_pred:估计器预测目标值
+  # labels:指定类别对应的数字
+  # target_names:目标类别名称
+  # return:每个类别精确率与召回率
+  ```
+
+- ROC曲线和AUC指标
+
+  ```python
+  sklearn.metrics.roc_auc_score(y_true,y_score)
+  # y_true:每个样本的真实类别 0,1
+  # y_score:预测得分，
+  ```
+
+#### 4.5 模型保存与加载
+
+- ```python
+  import joblib
+  # 保存
+  joblib.dump(rf,'test.pkl')
+  # 加载
+  estimator = joblib.load('test.pkl')
+  ```
+
+#### 4.6 无监督学习 K-means算法
+
+- 步骤：
+
+  - 随机设置k个特征空间内的点作为初始的聚类中心
+  - 对于其他每个点计算到k个中心的距离，未知的点选择最近的一个聚类中心点作为标记
+  - 接着对着标记的聚类中心之后，重新计算出每个聚类的新中心点（平均值）
+  - 如果计算得出的新中心点与原中心点一样，那么结束，否则重新进行第二步
+
+- ```python
+  sklearn.cluster.KMeans(n_clusters=8,init='k-means++')
+  # n_clusters:开始的聚类中心数量
+  # init:初始化方法
+  # labels_:默认标记的类型，可以和真实值比较
+  ```
+
+- 无监督学习包含算法
+
+  - 聚类
+  - k-means
+  - 降维
+  - PCA
+
+- 流程分析
+
+  - 降维
+  - 预估器流程
+  - 看结果
+  - 模型评估
 
