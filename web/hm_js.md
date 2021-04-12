@@ -860,12 +860,129 @@ Object.defineProperty(obj,prop,descriptor)
   "y".repeat(5)
   // Set数据结构
   const s5 = new Set(['a','b','c'])
-  
   ```
   
   
 
 ## 4.前后端交互
+
+#### 4.1 node.js
+
+- 模块化开发
+
+  - exports 对象导出
+  - require 导入
+
+  ```javascript
+  let a = require('./b.js')
+  module.exports.version = version; // 导出成员对象
+  module.exports = {
+  	name:'wc',
+  }
+  // fs模块
+  const fs = require('fs')
+  fs.readFile('文件路径/文件名称','文件编码',callback);
+  fs.writeFile('文件路径/名称','数据',callback);
+  
+  // path模块
+  const path = require('path');
+  const finalPath = path.join('public','uploads','avatar');
+  
+  // 使用 nodemon替代node执行文件
+  npm install nodemon -g
+  // 切换模块源文件
+  npm install nrm -g
+  nrm use xxx 
+  ```
+
+#### 4.2 Gulp
+
+基于node平台开发的前端构建工具
+
+[官方文档](https://www.gulpjs.com.cn/docs/getting-started/quick-start/)
+
+- gulp使用
+
+  - 使用 npm install gulp 下载
+  - 在项目根目录下建立gulpfile.js文件
+  - 重构项目的文件夹结构src目录放置源代码文件dist目录放置构建后文件
+  - 在gulpfile.js文件中编写任务
+  - 在命令行工具中执行gulp任务 npm install gulp-cli
+
+  ```javascript
+  gulp.src()		// 获取任务要处理的文件
+  gulp.dest()		// 输出文件
+  gulp.task()		// 建立gulp任务
+  gulp.watch()	// 监控文件的变化
+  
+  const gulp = require('gulp')
+  // 1.名称 2.callback
+  gulp.task('first',()=>{
+      gulp.src('./src/css/base.css')
+      .pipe(gulp.dest('./dist/css'));
+  })
+  ```
+
+- gulp插件，使用的时候查询官网
+
+  - gulp-htmlmin  html文件压缩
+  - gulp-csso  压缩css
+  - gulp-babel  JavaScript语法转化
+  - gulp-less  less语法转化
+  - gulp-uglify  压缩混淆js
+  - gulp-file-include  公共文件包含
+  - browsersync  浏览器实时同步
+
+- package.json文件
+
+  - npm init -y：初始化依赖文件
+  - npm install --production
+
+- nodejs中的加载机制
+
+  - require方法根据模块路径查找模块，如果是完整路径，直接引入模块
+  - 如果模块后缀省略，先找同名js文件再找同名js文件夹
+  - 如果找到了同名文件夹，找文件夹中的index.js
+  - 如果没有index.js 就会去文件夹中的package.json文件中查找main选项中的入口文件
+  - 若入口文件不存在，则模块没有被找到
+
+- Promise: 解决回调地狱
+
+  ```javascript
+  let promise = new Promise((resolve,reject)=>{
+      setTimeout(()=>{
+  		if (true){
+              resolve({name:'wc'});
+          }else{
+              reject('fail')
+          }
+      },2000)
+  })
+  promise.then(result=>console.log(result)) // 成功的resolve回调
+  	.catch(error=>console.log(error)})  // 失败的reject回调
+  // 链式编程promise 每一次都return一个Promise
+  .then
+  // 普通函数前面加 async 变成异步函数，异步函数默认的返回值是promise对象
+  // 异步函数才能用await 
+  const fs = require('fs')
+  const promisify = require('util').promisify
+  const readFile = promisify(fs.readFile)
+  async function run(){
+      let r1 = await readFile('./1.txt','utf-8');
+      let r2 = await readFile('./2.txt','utf-8');
+      let r3 = await readFile('./3.txt','utf-8');
+      console.log(r1)
+      console.log(r2)
+      console.log(r3)
+  }
+  run()
+  ```
+
+  
+
+
+
+
 
 
 
