@@ -268,5 +268,24 @@ plot.getStates();
   fill:'l(270) 0:#ffffff 0.5:#7ec2f3 1:#1890ff';
   ```
 
+- 纵坐标隐藏
+
+  ```javascript
+  yAxis: {
+  	label:null,
+  	grid: null
+  },
+  ```
+
+- 环形图页面刷新，样式（宽度出错）
+
+  ```javascript
+  // 将获取window宽度放在立即执行函数中
+  (function () {
+  	var whei = $(window).width()
+  	$("html").css({ fontSize: whei / 40 })      
+  })();
+  ```
+
   
 
