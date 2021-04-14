@@ -10,6 +10,8 @@
 
 - 相关js库：react.js，react-dom.js，babel.min.js
 
+- [bootCDN](https://www.bootcdn.cn/)
+
   
 
 ### 2. React面向组件编程
@@ -179,4 +181,128 @@
   }
   ```
 
+- 高阶函数
+
+  - 传参为函数
+  - 返回值为函数
+  - 函数柯里化：通过函数调用继续返回函数的方式，实现多次接收**参数**最后统一处理的函数编码形式
+
+  ```javascript
+  // 简化form里面的setState方法
+  class Login extends React.Component{
+      state = {
+          username:'',
+          password:'',
+      }
+  	// 高阶函数
+  	saveFormData = (dataType)=>{
+          return (event)=>{
+              this.setState({[dataType:event.target.value]})
+          }
+      }	
+  	handleSubmit = (event)=>{
+          event.preventDefault()//组织默认提交
+          const {username,password} = this.state
+          alert(`用户名:${username}密码:${password}`)
+      }
+      render(){
+          return(
+          	<form action="http://www.baidu.com" onSubmit={this.handleSubmit}>
+          	用户名:<input onChange={this.saveFormData('username')} type="text" name="username"/>  
+              密码 :<input onChange={this.saveFormData('password')} type="password" name="password"/>  
+              </form>
+          )        
+      }
+  }
+  ```
+
+- 生命周期
+
+  ```javascript
+  //组件挂载完毕
+  componentDidMount(){
+      // 初始化的事：开启定时器、发送网络请求、订阅消息
+  }
+  //组件将要卸载
+  componentWillUnmount(){
+      // 收尾工作，关闭定时器、取消订阅消息
+  }
+  //初始化渲染、状态更新之后
+  render(){
   
+  }
+  //父组件render
+  componentWillReceiveProps(){
+      
+  }
+  //setState()之后
+  shouldComponentUpdate(){
+      // 默认返回true , 若手动设置成false则不能更新
+  }
+  //forceUpdate()之后
+  componentWillUpdate(){
+  
+  }
+  render(){}
+  componentDidUpdate(preProps,preState){
+  
+  }
+  
+  // 新的生命周期
+  static getDerivedStateFromProps(props,state){
+      
+  }
+  getSnapshotBeforeUpdate(prevProps,prevState){}
+  ```
+
+  
+
+- diffing算法
+
+  - 遍历list，key最好不要用index，相同key节点复用
+  - 虚拟dom中key的作用，减少没必要的多次渲染
+  - 如果不存在对数据的逆序添加和逆序删除，index做key是没问题的
+
+  
+### 3. react应用
+
+- react脚手架: react + webpack + es6 + eslint
+
+  ```javascript
+  // 1.全局安装
+  npm install -g create-react-app
+  // 2.
+  create-react-app hello-react
+  cd hello-react
+  npm start
+  npm run build
+  ```
+
+- vscode插件：
+
+  - ES7 React...
+
+- 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
