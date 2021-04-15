@@ -986,6 +986,102 @@ Object.defineProperty(obj,prop,descriptor)
   - collection 集合
   - document 文档 相当于js中的对象
   - field 字段
+  
+- 操作：和数据库操作相关的都是异步
+
+  ```javascript
+  // net stop mongodb  停止服务
+  // net start mongodb  开启服务
+  const mongoose = require('mongoose')
+  // 连接mongodb数据库
+  mongoose.connect('mongodb://localhost/playground', { useNewUrlParser: true })
+      .then(() => console.log('suc'))
+      .catch(err => console.log(err, 'err'))
+  
+  // 创建集合
+  const courseSchema = new mongoose.Schema({
+      name:String,
+      author:String,
+      isPublished:Boolean
+  });
+  // 创建集合并应用规则
+  const Course = mongoose.model('Course',courseSchema); //courses
+  
+  // 创建文档
+  const course = new Course({
+      name: 'wangchen',
+      author: 'wc',
+      isPublished: true
+  });
+  course.save();
+  
+  // 导入数据
+  // mongoimport -d 数据库名称 -c 集合名称 --file 要导入的数据文件
+  
+  Course.find().then(result => console.log(result))
+  Course.findOne({name:'wangchen'}).then(res=>console.log(res))
+  
+  // $gt 大于 $lt 小于
+  User.find({age:{$gt:20,$lt:40}}).then(result=>console.log(result))
+  User.find({hobbies:{$in:['敲代码']}}).then(res=>console.log(res))
+  User.find().select('name email').then(res=>console.log(res))
+  User.find().sort('-age').then(res=>console.log(res))
+  // skip 跳过多少条数据 limit 限制多少数量
+  
+  // 查到第一条文档并删除
+  // 返回删除的文档
+  Course.findOneAndDelete({_id:'607849a96e96364bd4d63808'}).then(res=>console.log(res))
+  
+  // 更改文档
+  Course.updateOne()
+  Course.updateMany()
+  ```
+
+- 验证规则
+
+  ```javascript
+  const mongoose = require('mongoose')
+  
+  mongoose.connect('mongodb://localhost/playground', { useNewUrlParser: true })
+      .then(() => console.log('suc'))
+      .catch(err => console.log(err, 'err'))
+  const postSchema = new mongoose.Schema({
+      title: {
+          type: String,
+          required: [true, '请传入文章标题'],
+          minlength: [2, '最小为2'],
+          maxlength: [5, '最大为5'],
+          trim: true,
+      },
+      age: {
+          type: Number,
+          min: 18,
+          max: 100
+      },
+      publishDate: {
+          type: Date,
+          default: Date.now
+      },
+      category: {
+          type: String,
+          enum: ['html', 'css', 'java', 'js', 'node']
+      },
+      author: {
+          type: String,
+          validate: {
+              validator: v => {
+                  return v && v.length > 4
+              },
+              message: '传入的值不符合验证规则'
+          }
+      }
+  });
+  const Post = mongoose.model('Post', postSchema);
+  
+  Post.create({ title: 'ac', age: 20, category: 'js', author: '12345' }).then(res => console.log(res))
+  ```
+
+  
 
 
 
