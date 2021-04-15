@@ -978,9 +978,14 @@ Object.defineProperty(obj,prop,descriptor)
   run()
   ```
 
-  
 
+#### 4.3 MongoDB
 
+- 数据库概念
+  - database 数据库
+  - collection 集合
+  - document 文档 相当于js中的对象
+  - field 字段
 
 
 
