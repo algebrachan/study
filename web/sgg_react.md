@@ -197,7 +197,7 @@
   	// 高阶函数
   	saveFormData = (dataType)=>{
           return (event)=>{
-              this.setState({[dataType:event.target.value]})
+              this.setState({[dataType]:event.target.value]})
           }
       }	
   	handleSubmit = (event)=>{
@@ -282,11 +282,73 @@
 
   - ES7 React...
 
-- 
+- 功能界面的组件化编码流程
+
+  - 拆分组件：拆分页面，抽取组件
+  - 实现静态组件
+  - 实现动态组件：数据、交互
+
+- react案例分析
+
+  ```javascript
+  // 子组件修改父组件的state 父组件给子组件传一个函数修改自己的状态
+  state = {todos:[
+      {id:'01',name:'wc',done:true},
+      {id:'02',name:'zx',done:false},
+  ]}
+  addTodo = (todoObj)=>{
+      const {todos} = this.state // 解构赋值
+      const newTodos = [todoObj,...todos]
+      this.setState({todos:newTodos})
+  }
+  // 使用 nanoid 生成uuid唯一的key
+  // onMouseEnter onMouseLeave 鼠标移入移出
+  // 多用解构赋值
+  updateTodo = (id,done)=>{
+      const {todos} = this.state;
+      const newTodos = todos.map((todoObj)=>{
+          if(todoObj.id===id) return {...todoObj,done}
+          else return todoObj
+      })
+      this.setState({todos:newTodos})
+  }
+  // 限制props属性
+  import PropTypes from 'prop-types';
+  static propTypes = {
+      addTodo:PropTypes.func.isRequired,
+      updateTodo:PropTypes.array.isRequired
+  }
+  arr.map
+  arr.filter
+  arr.reduce
+  ```
 
 
 
+### 4.react ajax
 
+- axios
+
+  - 封装XmlHttpRequest对象的ajax
+  - promise风格
+  - 可以用在浏览器端和node服务器端
+
+  ```javascript
+  // src下创建 setupProxy.js 该方案，测试不可用
+  const proxy = require('http-proxy-middleware')
+  
+  module.exports = function(app){
+      app.use(
+      	proxy('/api',{
+              target:'http://localhost:5000',
+              changeOrigin:true,
+              pathRewrite:('^/api':'')
+          })
+      )
+  }
+  ```
+
+  
 
 
 
