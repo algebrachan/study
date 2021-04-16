@@ -14,7 +14,7 @@
 
   
 
-### 2. React面向组件编程
+### 2. react面向组件编程
 
 常见用法已在[react.md](./react.md)中记录
 
@@ -325,32 +325,190 @@
 
 
 
-### 4.react ajax
+### 4. react ajax
 
-- axios
+- axios:xhr
 
   - 封装XmlHttpRequest对象的ajax
   - promise风格
   - 可以用在浏览器端和node服务器端
 
   ```javascript
-  // src下创建 setupProxy.js 该方案，测试不可用
-  const proxy = require('http-proxy-middleware')
+  npm install http-proxy-middleware -D
+  // npm run eject
+  // src下创建 setupProxy.js  存在一些问题，build打包之后，不能跨域访问
+  const { createProxyMiddleware } = require('http-proxy-middleware')
   
-  module.exports = function(app){
+  module.exports = function (app) {
       app.use(
-      	proxy('/api',{
-              target:'http://localhost:5000',
-              changeOrigin:true,
-              pathRewrite:('^/api':'')
+          createProxyMiddleware('/wc', {
+              target: 'http://10.50.60.206:8065',
+              changeOrigin: true,
+              pathRewrite: { '^/wc': '' },
           })
       )
+}
+  // 封装state更新方法
+  updateAppState(stateObj)=>{
+  	this.setState(stateObj);
   }
+  // 三目运算符可以连着写
+  ```
+  
+- 消息订阅-发布机制
+
+  - 工具库 PubSubJS
+  - 下载:npm install pubsub-js --save
+
+  ```javascript
+  // 兄弟组件 状态通信
+  import PubSub from 'pubsub-js'
+  
+  componentDidMount(){
+      // 订阅消息
+      PubSub.subscribe('wc',(_,data)=>{
+  		console.log(data);
+          this.setState(data)
+      })
+  }
+  // 发布消息
+  PubSub.publish('wc',{name:'xx',age:18})
+  ```
+
+- fetch
+
+  ```javascript
+  search = ()=>{
+      // 优化前版本
+  	fetch('/xx').then(
+      	res=>{
+              return res.json()
+          },
+          error=>{
+              console.log(error)
+          }
+      ).then(
+      	res=>{},
+          err=>{}
+      )
+      // 优化后版本
+      try{
+          const response = await fetch('/xx')
+          const data = await response.json()
+          console.log(data)
+      }catch(error){
+          console.log('请求出错',error)
+      }
+  }
+  
+  ```
+
+  - promise
+
+  ```javascript
+  const p = new Promise((resolve,reject)=>{
+      if xx resolve(xx)
+      else reject(xx)
+  })
+  // Promise链式应用 p1 p2 都是返回Promise对象
+  p.then(res=>return p1)
+  	.then(res=>return p2)
+  	.catch(err=>console.log(err))
   ```
 
   
 
+### 5. react路由
 
+- SPA：单页面应用
+
+  - 点击页面中的链接不会刷新页面，只会局部更新
+
+  ```javascript
+  history.push() // 跳转
+  history.replace()// 替代
+  history.back() // 回退
+  history.forword()// 前进
+  ```
+
+- react-router-dom 
+
+  ```javascript
+  import {BrowserRouter,Route,Switch,Link,NavLink,Redirect} from 'react-router-dom';
+  
+  class AppStart extends React.Component{
+      render(){
+          return(
+          	<BrowserRouter>// 包在最外面
+              	<Link to="/about"></Link> // 点击跳转
+              	<Link to=`/home/1213` replace={true}></Link>
+              	<Link to={{pathname:'/demo',state:{id:'123',name:'wc'}}}></Link> // 路径传递state对象
+              	<NavLink activeClassName="active"></NavLink> // 点击加active样式
+              	<Switch>
+              		<Route path="/about" component={About}></Route> // 注册Route exact严格匹配
+  					<Route path="/home/:id" component={Home}></Route>// 路由传参params
+  					<Redirect to="/about">  // 兜底的
+              	</Switch>
+  			</BrowserRouter>
+          )
+      }
+  }
+  // 路由组件固定属性
+  history:
+  	go()
+  	goBack()
+  	goForward()
+  	push()
+  	replace()
+  location:
+  	pathname:
+  	search
+      state
+  match:
+  	params:
+  	path:
+  	url:
+  
+  // 封装NavLink组件
+  // 标签体内容是特殊的标签属性children
+  import React, { Component } from 'react'
+  import { NavLink } from 'react-router-dom'
+  
+  export default class MyNavLink extends Component {
+  
+    render() {
+      const { to, title } = this.props;
+      return (
+        <NavLink activeClassName="active" className="xxx" {...this.props} /> 
+      )
+    }
+  }
+  // 多级路由 前面的路由要添加，父路由不能开启严格匹配
+  // 接收params参数 
+  const {id,title} = this.props.match.params
+  // 接收query参数
+  // key=value&key=value urlencoded编码
+  import qs from 'querystring'
+  const {search} = this.props.location
+  const {id,title} = qs.parse(search.slice(1))
+  // 接收state参数
+  const {state} = this.props.location
+  
+  // 编程式路由跳转
+  this.props.history.push('...')
+  
+  import {withRouter} from 'react-router-dom';
+  //withRouter可以加工一般组件，使一般组件具有 路由组件的api
+  ```
+
+- antd
+
+  ```javascript
+  // 按需引入antd样式
+  npm install react-app-rewired customize-cra
+  ```
+
+  
 
 
 
