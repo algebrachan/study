@@ -894,6 +894,37 @@ Object.defineProperty(obj,prop,descriptor)
   npm install nrm -g
   nrm use xxx 
   ```
+  
+- 一些web开发相关的包
+
+  ```javascript
+  const http = require('http')
+  const getRouter = require('router')
+  // 引入模板引擎
+  const template = require('art-template')
+  const path = require('path')
+  const querystring = require('querystring')
+  // 引入静态资源
+  const serveStatic = require('serve-static')
+  // 引入处理日期时间的模块
+  const dateformat = require('dateformat')
+  // 获取路由对象
+  const router = getRouter()
+  // 实现静态资源访问服务
+  const serve = serveStatic(path.join(__dirname,'public'))
+  
+  // 配置模板的根目录
+  template.defaults.root = path.join(__dirname,'views');
+  template.defaults.imports.dateformat = dateformat;
+  
+  // 返回页面
+  router.get('/add',(req,res)=>{
+      Let html = template('index.art',{});
+      res.end(html)
+  })
+  ```
+
+  
 
 #### 4.2 Gulp
 
@@ -1079,13 +1110,48 @@ Object.defineProperty(obj,prop,descriptor)
   const Post = mongoose.model('Post', postSchema);
   
   Post.create({ title: 'ac', age: 20, category: 'js', author: '12345' }).then(res => console.log(res))
+  	catch(error=>{
+        const err = error.errors;
+          for(var attr in err){
+              console.log(err[attr]['message'])
+          }
+  })
+  ```
+  
+- 关联查询
+
+  ```javascript
+  author: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User',
+      }
+  Post.find().populate('author').then(res => console.log(res))
+  ```
+
+#### 4.4 Express
+
+- 简易框架
+
+  ```javascript
+  // 引入express框架
+  const express = require('express');
+  // 创建网站服务器
+  const app = express();
+  
+  app.get('/', (req, res) => {
+      console.log('req', req)
+      res.send('Hello. Express')
+  })
+  
+  app.get('/list', (req, res) => {
+      res.send({ name: 'wc', age: 27 })
+  })
+  // 监听端口
+  app.listen(3500)
+  console.log('网站启动成功')
   ```
 
   
-
-
-
-
 
 ##  其他用法（临时）
 
