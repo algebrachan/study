@@ -1151,6 +1151,76 @@ Object.defineProperty(obj,prop,descriptor)
   console.log('网站启动成功')
   ```
 
+- 中间件
+
+  ```javascript
+  // next方法将请求的控制权交给下一个中间件
+  app.use((req,res,next)=>{
+      console.log('请求走了app.use()中间件');
+      next();
+  })
+  app.use('/request',(req,res,next)=>{
+      console.log('请求走了app.use /request 中间件');
+      next();
+  })
+  app.get('/request',(req,res,next)=>{
+      req.name='wc';
+      next();
+  })
+  app.get('/request',(req,res)=>{
+      res.send(req.name);
+  })
+  // 异常处理
+  app.get('/index', (req, res, next) => {
+      // throw new Error('未知异常');
+      // res.send('正常执行')
+      fs.readFile('./12.txt', 'utf8', (err, result) => {
+          if (err) {
+              next(err);
+          } else {
+              res.send(result);
+          }
+      })
+  })
+  // 错误处理中间件
+  app.use((err, req, res, next) => {
+      res.status(500).send(err.message);
+      next()
+  })
+  ```
+
+- 中间件应用
+
+  - 路由保护，判断用户登录状态，未登录直接响应
+  - 网站维护公告
+  - 自定义404页面
+
+- 路由模块化
+
+  ```javascript
+  const express = require('express');
+  const app = express();
+  const home = express.Router();
+  app.use('/home',home);
+  //创建二级路由
+  home.get('/index',(req,res)=>{
+      res.send('欢迎来到90年代');
+  })
+  module.exports = home; // 导出模块
+  
+  // GET请求获取
+  req.query
+  // POST请求获取
+  const bodyParser = require('body-parser');
+  app.use(bodyParser.urlencoded({extended:false}))
+  app.post('/add',(req,res)=>{
+      res.send(req.body);
+  })
+  
+  // 实现静态资源访问功能
+  app.use('/static',express.static(__dirname))
+  ```
+
   
 
 ##  其他用法（临时）
