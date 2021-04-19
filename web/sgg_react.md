@@ -501,14 +501,52 @@
   //withRouter可以加工一般组件，使一般组件具有 路由组件的api
   ```
 
+
+### 6.ReactUI组件库
+
 - antd
 
   ```javascript
   // 按需引入antd样式
   npm install react-app-rewired customize-cra
-  ```
-
+  // 修改package.json
+"scripts":{
+      "start":"react-app-rewired start",
+      "build":"react-app-rewired build",
+  	"test":"react-app-rewired test",
+      "eject":"react-scripts eject", 
+  }
   
+  // 根目录下创建config-overrides.js
+  const {override,fixBabelImports,addLessLoader} = require('customize-cra');
+  
+  module.exports = overide(
+  	fixBabelImports('import',{
+          libraryName:'antd',
+          libraryDirectory:'es',
+          style:true
+      }),
+      addLessLoader({
+          lessOptions:{
+              javascriptEnabled:true,
+              modifyVars:{'@primary-color':'orange'},//修改默认主题样式
+          }
+      })
+  )
+  ```
+  
+
+
+
+### 7.redux
+
+- 什么情况下需要使用redux
+
+  - 某个组件的状态，需要让其他组件可以随时拿到（共享）
+  - 一个组件需要改变另一个组件的状态（通信）
+  - 总体原则：能不用就不用
+
+  ![image-20210419144830272](\sgg_react.assets\image-20210419144830272.png)
 
 
 
