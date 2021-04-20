@@ -556,7 +556,7 @@ prop("属性","属性值")
 
 ## 3.JavaScript高级
 
-### 3.1面向对象编程
+### 3.1 面向对象编程
 
 封装性、继承性、多态性
 
@@ -1219,6 +1219,75 @@ Object.defineProperty(obj,prop,descriptor)
   
   // 实现静态资源访问功能
   app.use('/static',express.static(__dirname))
+  ```
+
+
+#### 4.5 Ajax
+
+- ajax封装
+
+  ```javascript
+  function ajax(options){
+      // 默认值
+      var defaults = {
+          type:'get',
+          url:'',
+          data:{},
+          header:{
+              'Content-Type':'application/json'
+          },
+          success:function(){},
+          error:function(){}
+      }
+      //使用options 覆盖default的属性
+      Object.assign(defaults,options);
+      var xhr = XMLHttpRequest();
+      var params = '';
+      for(var attr in defaults.data){
+          params +=attr+'='+defaults.data[attr]+'&';
+      }
+      params = params.substr(0,params.length-1);// 删除最后的&
+      if(defaults.type == 'get'){
+          defaults.url = defaults.url+'?'+params;
+      }
+      xhr.open(defaults.type,defaults.url);
+      if(defaults.type == 'post'){
+          // xhr.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+          var contentType = defaults.header['Content-Type'];
+          xhr.setRequestHeader('Content-Type',contentType);
+          if(contentType == 'application/json'){
+              xhr.send(JSON.stringify(defaults.data))
+          }else{
+              xhr.send(params);
+          }
+      }else{
+          xhr.send();
+      }
+      xhr.onload=function(){
+          if(xhr.status == 200){
+              defaults.success(xhr.responseText,xhr);
+          }else{
+              defaults.error(xhr.responseText,xhr);
+          }
+          
+      }
+  }
+  ajax({
+      type:'get',
+      urlL:'http://localhost:3000/first',
+      data:{
+          name:'wc',
+          age:20
+      },
+      header:{
+          'Content-Type':'application/json'
+      }
+      success:function(data){console.log(data)},
+      error:function(data,hxr){
+          console.log(data);
+          console.log(xhr);
+      }
+  })
   ```
 
   
