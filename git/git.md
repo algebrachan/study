@@ -103,6 +103,10 @@ Host github.com                                       HostName github.com       
  
 # Feature分支 强行删除未开发完的分支
  git branch -D feature-vulcan
+
+# 分支临时切换
+ git stash # 存储临时改动
+ git stash pop # 恢复改动
  
 # 多人合作 分支提交报错
  git branch --set-upstream-to <branch-name> origin/<branch-name># 关联分支
