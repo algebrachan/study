@@ -47,6 +47,20 @@ tar -xvf # 解压缩文件 .tar后缀
 > access.log #清空文件
 ```
 
+- 防火墙
+
+```shell
+sudo ufw status
+# inactive 关闭,active 开启
+sudo ufw enable # 开启防火墙 
+sudo ufw disable # 关闭防火墙
+ufw allow/deny
+sudo ufw allow 22 # 开启端口
+ufw delete allow/deny 20 # 移除
+```
+
+
+
 ### 2.1服务器离线下载环境
 
 - python环境
@@ -63,6 +77,14 @@ tar -xvf # 解压缩文件 .tar后缀
 pip list
   ```
   
+
+- pip操作
+
+  ```
+  pip3 install xxx==1.1.0
+  pip3 uninstall xxx
+  ```
+
   
 
 ## 3. 实操问题
@@ -224,6 +246,39 @@ nohup uvicorn main:app --host '0.0.0.0' --port 8065 >/dev/null 2>&1 &
 
   ```shell
   vim /etc/supervisor/supervisord.conf
+  [unix_http_server]
+  file=/var/run/supervisor.sock   ; (the path to the socket file)
+  chmod=0700                       ; sockef file mode (default 0700)
+  
+  [supervisord]
+  logfile=/var/log/supervisor/supervisord.log ; (main log file;default $CWD/supervisord.log)
+  pidfile=/var/run/supervisord.pid ; (supervisord pidfile;default supervisord.pid)
+  childlogdir=/var/log/supervisor            ; ('AUTO' child log dir, default $TEMP)
+  
+  ; the below section must remain in the config file for RPC
+  ; (supervisorctl/web interface) to work, additional interfaces may be
+  ; added by defining them in separate rpcinterface: sections
+  [rpcinterface:supervisor]
+  supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+  
+  [supervisorctl]
+  serverurl=unix:///var/run/supervisor.sock ; use a unix:// URL  for a unix socket
+  
+  ; The [include] section can just contain the "files" setting.  This
+  ; setting can list multiple files (separated by whitespace or
+  ; newlines).  It can also contain wildcards.  The filenames are
+  ; interpreted as relative to this file.  Included files *cannot*
+  ; include files themselves.
+  
+  [include]
+  files = /etc/supervisor/conf.d/*.conf
+  # 服务管理
+  [inet_http_server]
+  port=9002
+  username=root1
+  password=root1root1
+  
+  
   
   [program:furnace_api]
   directory=/home/wangchen/fastapi
