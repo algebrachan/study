@@ -1298,7 +1298,110 @@ Object.defineProperty(obj,prop,descriptor)
 
 
 
-### 5 Vue基础
+## 5 Vue基础
+
+### 5.1 模板语法
+
+- [vue](https://cn.vuejs.org) 渐进式JavaScript框架
+
+- 指令：自定义属性，格式v-开头
+
+- v-text填充纯文本、v-html填充html片段、v-pre:提供原始信息
+
+- 双向数据绑定 v-model
+
+- MVVM设计思想
+
+- 事件绑定：
+
+  ```javascript
+  <div id='app'>
+      <div>{{num}}</div>
+  	<button v-on:click='num++'></button>
+  	<button @click='handle'></button> //handle()
+  </div>
+  var vm = new Vue({
+      el:'#app',
+      data:{
+          num:0
+      },
+      methods:{
+  		handle:function(){
+  			this.num++;
+          }
+      }
+  })
+  // 事件修饰符
+  v-on:click.stop // 阻止冒泡
+  v-on:click.prevent // 阻止默认行为
+  
+  // 属性绑定
+  <a v-bind:href='url'></a>
+  <a :href='url'></a>
+  // 样式绑定
+  v-bind:class="{...}"
+  v-bind:style='objStyles'
+  
+  // 分支结构
+  v-if // 元素是否渲染到页面
+  v-show // 元素已渲染，是否显示
+  v-else
+  v-else-if
+  v-show
+  
+  // 循环结构
+  <li :key='item.id' v-for='(item,index) in list'>{{item}}+ '---'{{index}}</li>
+  
+  ```
+
+- 常用特性
+
+  ```javascript
+  // 表单区域修饰符
+  number: //转化为数值
+  trim:
+  lazy: // 将input转化为change
+  
+  // 计算属性 有缓存  方法没有缓存
+  computed:{
+      reverseString:function(){
+          return this.msg.split('').reverse().join('')
+      }
+  }
+  
+  // 侦听器 侦听数据变化
+  watch:{
+  	firstName:function(val){
+          this.fullName=val+' '+this.lastName
+      }
+  }
+  // 过滤器 自定义过滤器
+  Vue.filter('upper',function(value){
+      // 过滤器业务逻辑
+  })
+  filters:{// 局部过滤器
+      capitalize:function(){}
+  }
+  // 过滤器使用
+  <div>{{msg | upper}}</div>
+  
+  // 生命周期
+  // 挂载
+  beforeCreate
+  created
+  beforeMount
+  mounted
+  // 更新
+  beforeUpdate
+  updated
+  // 销毁
+  beforeDestroy
+  destroyed
+  ```
+
+  
+
+
 
 ##  其他用法（临时）
 
