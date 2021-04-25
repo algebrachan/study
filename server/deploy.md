@@ -1,6 +1,6 @@
 ## 系统部署相关问题总结
 
-- redis
+- ### redis
 
   ```shell
   # 安装
@@ -25,7 +25,7 @@
   sudo redis-cli shutdown
   ```
 
-- mysql
+- ### mysql
 
   ```shell
   # 安装 
@@ -94,7 +94,7 @@
   ) ENGINE = InnoDB AUTO_INCREMENT = 154 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
   ```
 
-- supervisor
+- ### supervisor
 
   ```shell
   # 安装

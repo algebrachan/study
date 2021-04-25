@@ -548,11 +548,74 @@
 
   ![image-20210419144830272](\sgg_react.assets\image-20210419144830272.png)
 
+- store
 
+  ```javascript
+  import {createStroe,applyMiddleware} from 'redux'
+  import countReducer from './count_render'
+  export default createStore(countReducer)
+  
+  // countReducer
+  const initState = 0
+  function countReducer(preState=initState,action){
+      //从action对象中获取 type、data
+      const {type,data} = action
+      switch(type){
+          case 'increment':
+              return preState + data
+          case 'decrement':
+              return preState - data
+          default:
+              return preState
+      }
+  }
+  store.getState() // 获取状态
+  store.dispatch({type:'increment',data:value}) // 触发事件
+  componentDidMount(){
+      // 检测redux中状态的变化，只要变化，就调用render
+      store.subscribe(()=>{ // 订阅状态更改
+          this.render()
+          //this.setState()
+      })
+  }
+  /*
+  该文件专门为Count组件生成action对象 同步action 返回值是object
+  */
+  export const createIncrementAction = data =>({type:'increment',data})
+  
+  // 异步action 返回值是函数
+  export const createIncrementAsyncAction = (data,time)=>{
+      return ()=>{
+          setTimeout(()=>{
+              store.dispatch(createIncrementAction(data))
+          })
+      }
+  // 引入redux-thunk 用于支持异步action
+  export default createStore(countReducer,applyMiddleware(thunk))
+  ```
 
+- react-redux
 
+  ![image-20210425163109223](\sgg_react.assets\image-20210425163109223.png)
 
+  ```javascript
+  // 容器组件
+  import {connect} from 'react-redux'
+  // 映射状态
+  const mapStateToProps = state =>{
+      return {count:state}
+  }
+  // 映射操作状态的方法
+  const mapDispatchToProps = dispatch =>{
+      return{
+          jia:number=>dispatch(createIncrementAction(number))
+      }
+  }
+  export default connect(mapStateToProps,mapDispatchToProps)(CountUI)
+  
+  ```
 
+  
 
 
 
