@@ -1399,7 +1399,116 @@ Object.defineProperty(obj,prop,descriptor)
   destroyed
   ```
 
+
+### 5.2 组件化开发
+
+- 组件
+
+  ```javascript
+  // 全局注册语法
+  //Vue.component(组件名称,{
+  //    data:组件数据,
+  //    template:组件模板内容
+  //})
+  Vue.component('button-counter',{
+      data:function(){
+          return{
+              count:0
+          }
+      },
+      template:'<button @click="handle">点击了{{count}}</button>',
+      methods:{
+          handle:function(){
+              this.count++;
+          }
+      }
+  })
+  // 使用
+  <button-counter></button-counter>
+  // 组件命名，小写字母-的形式
   
+  // 局部组件注册
+  var ComponentA = {/*  */}
+  var ComponentB = {/*  */}
+  var ComponentC = {/*  */}
+  new Vue({
+      el:'#app',
+      components:{
+          'component-a':ComponentA,
+          'component-b':ComponentB,
+          'component-c':ComponentC,
+      }
+  })
+  ```
+
+- 数据交互
+
+  ```javascript
+  // 父传子
+  Vue.component('menu-item',{
+      props:['title'],
+      template:'<div>{{title}}</div>'
+  })
+  <menu-item title="来自父组件的数据"></menu-item>
+  <menu-item :title="title"></menu-item>
+  
+  // 子传父
+  // 子
+  @click='$emit("enlarge-text",5)'
+  // 父
+  <menu-item @enlarge-text='handle($event)'></menu-item>
+  var vm = new Vue({
+      el:'#app',
+      data:{
+          fontSize:10
+      },
+      methods:{
+          handle:function(val){
+              this.fontSize +=5;
+          }
+      }
+  })
+  // 监听事件
+  var hub = new Vue();
+  methods:{
+      handle:function(){// 触发
+          hub.$emit('tom-event',2)
+      }
+  }
+  mounted:function(){ // 监听
+  	hub.$on('jerry-event',(val)=>{
+      this.num += val;
+      })
+  },
+      
+  // 插槽
+  Vue.component('alert-box',{
+      template:`
+  		<div>
+  			<slot></slot> // 插槽预留
+  		</div>
+  		`
+  })
+  <alert-box>something happened</alert-box> // 插槽属性
+  ```
+
+  
+
+### 5.3 axios
+
+  - 支持浏览器和nodejs
+
+  - 支持promise
+
+  - 能拦截请求和响应
+
+  - 自动转换JSON
+
+    ```javascript
+    
+    ```
+    
+    
 
 
 
