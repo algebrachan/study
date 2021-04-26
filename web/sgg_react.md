@@ -502,7 +502,7 @@
   ```
 
 
-### 6.ReactUI组件库
+### 6. ReactUI组件库
 
 - antd
 
@@ -538,7 +538,7 @@
 
 
 
-### 7.redux
+### 7. redux
 
 - 什么情况下需要使用redux
 
@@ -613,11 +613,81 @@
   }
   export default connect(mapStateToProps,mapDispatchToProps)(CountUI)
   
-  ```
-
   
+<Provider store={store}></Provider>
+  import thunk from 'redux-thunk';
+  import {composeWithDevTools} from 'redux-devtools-extension';
+  const store = createStore(
+      reducer,
+      composeWithDevTools(applyMiddleware(thunk))
+  );
+  ```
+  
+- 开发者工具
+
+  - npm install redux-devtools-extension
 
 
+
+### 8. 扩展内容
+
+​		
+
+```javascript
+// setState()写法
+add =()=>{
+    const {count} = this.state
+    this.setState({count:count+1},()=>{
+        // 在render后 调用
+    })
+    this.setState(()=>{
+        return {count:99}
+    })
+    this.setState(state=>({count:state.count+1}))
+}
+
+// lazyLoad
+import React, { Suspense, lazy } from 'react';
+const Home = lazy(() => import('./routes/Home'));
+<Suspense fallback={<div>Loading...</div>}>
+	<Route path='/home' component={Home} /> 
+</Suspense>
+
+// Hooks
+function Demo(){
+    const [count,setCount] = React.useState(0)// state
+    React.useEffect(()=>{
+        console.log('@')
+        return ()=>{
+            //卸载组件的时候触发
+            
+        }
+    },[count])// 监测某个state 
+    
+    const myRef =React.useRef()
+    
+    function add(){ // 修改state
+        setCount(99)
+        setCount(count=>return{count+1})
+    }
+    return(
+    	<div>{count}</div>
+        <input type='text' ref={myRef}/>
+    )
+}
+
+// Fragment
+// 用来在return的时候替代无用div套在最外层
+
+// Context
+const XxxContext = React.createContext()
+<XxxContext.Provider value={数据}>
+  // 子组件    
+</XxxContext.Provider>
+//读取数据
+static contextType = XxxContext;
+this.context
+```
 
 
 
