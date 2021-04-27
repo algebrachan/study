@@ -612,15 +612,13 @@
       }
   }
   export default connect(mapStateToProps,mapDispatchToProps)(CountUI)
-  
-  
-<Provider store={store}></Provider>
-  import thunk from 'redux-thunk';
-  import {composeWithDevTools} from 'redux-devtools-extension';
-  const store = createStore(
-      reducer,
-      composeWithDevTools(applyMiddleware(thunk))
-  );
+  <Provider store={store}></Provider>
+    import thunk from 'redux-thunk';
+    import {composeWithDevTools} from 'redux-devtools-extension';
+    const store = createStore(
+        reducer,
+        composeWithDevTools(applyMiddleware(thunk))
+    );
   ```
   
 - 开发者工具
@@ -633,7 +631,7 @@
 
 ​		
 
-```javascript
+``` javascript
 // setState()写法
 add =()=>{
     const {count} = this.state
@@ -679,21 +677,60 @@ function Demo(){
 // Fragment
 // 用来在return的时候替代无用div套在最外层
 
-// Context
-const XxxContext = React.createContext()
-<XxxContext.Provider value={数据}>
+// Context 祖组件和后代组件通信
+const xxxContext = React.createContext()
+<xxxContext.Provider value={数据}>
   // 子组件    
 </XxxContext.Provider>
-//读取数据
+//读取数据 ：仅适用于类组件
 static contextType = XxxContext;
-this.context
+this.context // 读取context中的value
+// 函数式组件和类组件都可以
+<xxxContext.Consumer>
+	{
+    value=>(// value就是context中的value
+    	要显示的内容
+    )
+	}
+</xxxContext.Consumer>
+
+// 组件优化
+// Component的两个问题
+// 1.只要执行setState(),即使不改变状态，组件也会render() 效率低
+// 2.当前组件render，子组件没有用到父组件的数据，也要render
+// 原因：Component中的shouldComponentUpdate默认返回true
+shouldComponentUpdate(nextProps,nextState){
+    
+}
+// 使用PureComponent 浅对比
+
+// renderProps 类似插槽技术
+<A render={()=><B/>}/>
+
+// 错误边界 只能捕获后代生命周期中出现的错误
+// 父组件中
+state={
+    hasError:''
+}
+static getDerivedStateFromError(error){
+    console.log(error);
+    return{hasError:error}
+}
+componentDidCatch(){
+	console.log('统计错误，反馈给服务器，用于通知编码人员bug解决')
+}
 ```
 
-
-
-
-
-
-
-
-
+- 组件通信方式总结
+  - 组件之间的关系：父子、兄弟、祖孙
+  - 1.props:
+    - childern props
+    - render props
+  - 2.消息订阅-发布
+    - pubs-sub
+    - event
+  - 3.集中式管理
+    - redux
+    - dva
+  - 4.conText
+    - 生产者-消费者模式
