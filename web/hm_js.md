@@ -1007,6 +1007,11 @@ Object.defineProperty(obj,prop,descriptor)
       console.log(r3)
   }
   run()
+  
+  Promise.then()
+  .catch()
+  .finally()
+  Promise.all([p1,p2,p3]).then(res=>console.log())// 返回数组，依次为p1 p2 p3的结果
   ```
 
 
@@ -1505,10 +1510,130 @@ Object.defineProperty(obj,prop,descriptor)
   - 自动转换JSON
 
     ```javascript
+    // fetch用法
+    fetch('/abc',{
+        method:'post',
+        body:JSON.stringify({
+            uname:'wc',
+            pwd:'123'
+        }),
+        headers:{
+            'Content-Type':'application/json'
+        }
+    }).then(data=>{
+        return data.text();
+        //return data.json();
+    }).then(ret=>{
+        console.log(ret)// 这里得到最终数据
+    })
     
+    // axios
+    axios.get('/url',{
+        params:{
+            id:123
+        }
+    })
+    .then(ret=>{
+        console.log(ret)
+    })
+    axios.post('/url',{
+    	uname:'wc',
+        pwd:'123'
+    }).then(ret=>{
+        console.log(ret)
+    })
+    // 响应主要内容 data headers status statusText
+    
+    
+    // axios请求拦截器
+    axios.interceptors.request.use(function(config){
+        // 在请求发出之前进行一些信息设置、
+        console.log(config)
+        config.headers.mytoken = 'nihao';
+        return config;
+    },function(err){
+        // 处理响应的错误信息
+    })
+    // axios响应拦截器
+    axios.interceptors.response.use(function(res){
+    	//对返回的数据进行处理
+        return res;
+    },function(err){
+    	// 处理响应的错误信息
+    })
     ```
     
-    
+
+### 5.4 前端路由
+
+- 简易实现前端路由
+
+  ```javascript
+  <div id="app">
+      <a href="#/zhuye">主页</a>
+  	<a href="#/keji">科技</a>
+  	
+  	<component :is="comName"></component>
+  </div>
+  
+  // 定义组件
+  cosnt zhuye = {
+      template:'<h1>主页</h1>'
+  }
+  cosnt keji = {
+      template:'<h1>科技</h1>'
+  }
+  const vm = new Vue({
+      el:'#app',
+      data:{comName},
+      components:[
+          zhuye,
+          keji
+      ]
+  })
+  window.onhashchange=function(){
+      // 通过location.hash 获取最新的hash值
+      switch(loaction.hash.slice(1)){
+          case '/zhuye':
+              vm.comName='zhuye'
+              break;
+          case '/keji':
+              vm.comName='keji'
+              break;
+          default:break;
+      }
+  }
+  ```
+
+- vue-router
+
+  ```javascript
+  // 添加路由链接
+  <router-link to="/user">User</router-link>
+  <router-link to="/register">Register</router-link>
+  // 添加路由填充位
+  <router-view></router-view>
+  
+  // 定义路由组件
+  var User = {template:'<div>User</div>'}
+  var Register = {template:'<div>Register</div>'}
+  // 创建路由实例对象
+  var router = new VueRouter({
+      routes:[
+          {path:'/user',component:User},
+          {path:'/register',component:Register}
+      ]
+  })
+  
+  const vm = new Vue({
+      el:'#app',
+      data:{},
+      router:router //挂载路由实例对象
+  })
+  
+  ```
+
+  
 
 
 
