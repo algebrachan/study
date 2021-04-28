@@ -29,7 +29,7 @@
   ```typescript
   class Person extends React.Component{
   	state = {isHot:false,wind:'微风'}
-      const {name,age,sex} = this.props
+      const {name,age,sex} = this.props // 解构赋值语句
       render(){
           return <div>{this.state.wind}</div>
       }
