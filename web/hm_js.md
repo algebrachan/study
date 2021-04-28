@@ -1610,18 +1610,37 @@ Object.defineProperty(obj,prop,descriptor)
   ```javascript
   // 添加路由链接
   <router-link to="/user">User</router-link>
+  <router-link to="{name:'user',params:{id:123}}">User</router-link>
   <router-link to="/register">Register</router-link>
+  router.push({name:'user',params:{id:123}})
+  
   // 添加路由填充位
   <router-view></router-view>
   
   // 定义路由组件
-  var User = {template:'<div>User</div>'}
+  var User = {
+      props:['id'],
+      template:'<div>User{{$route.params.id}}</div>'
+  } // 获取动态路由匹配数据id
   var Register = {template:'<div>Register</div>'}
   // 创建路由实例对象
   var router = new VueRouter({
       routes:[
-          {path:'/user',component:User},
-          {path:'/register',component:Register}
+          {
+              path:'/user:id',
+              component:User,
+              name:'user',//用于匿名路由
+              props:true
+          }, // props可以直接传对象
+        {
+              path:'/register',
+              component:Register，
+              children:[ // 使用children实现嵌套路由
+              	{path:'/register/tab1',component:Tab1},
+          		{path:'/register/tab2',component:Tab2},
+              ]
+          },
+          {path:'/',redirect:'/user'},// 重定向
       ]
   })
   
@@ -1631,8 +1650,12 @@ Object.defineProperty(obj,prop,descriptor)
       router:router //挂载路由实例对象
   })
   
+  // 编程式导航
+  this.$router.push('hash地址')
+  this.$router.go(n)
+  router.push({path:'/home',query:{uname:'lisi'},params:{userId:123}})
   ```
-
+  
   
 
 
