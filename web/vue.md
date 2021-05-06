@@ -661,7 +661,8 @@ class和style都可以用v-bind处理他们
       }
     },
     provide: {
-      user: 'John Doe'
+      user: 'John Doe'，
+      todoLength: Vue.computed(() => this.todos.length)
     },
     template: `
       <div>
@@ -679,9 +680,86 @@ class和style都可以用v-bind处理他们
   })
   //provide 一些组件的实例 不起作用
   
+```
+  
+- 动态组件&异步组件
+
+  keep-alive 切换的时候保留状态
+
+  ```html
+  <!-- 失活的组件将会被缓存！-->
+  <keep-alive>
+    <component :is="currentTabComponent"></component>
+  </keep-alive>
   ```
 
+  ```javascript
+  // 异步组件 只在需要的时候才从服务器加载一个模块
+  const { createApp, defineAsyncComponent } = Vue
   
+  const app = createApp({})
+  
+  const AsyncComp = defineAsyncComponent(
+    () =>
+      new Promise((resolve, reject) => {
+        resolve({
+          template: '<div>I am async!</div>'
+        })
+      })
+  )
+  
+  app.component('async-example', AsyncComp)
+  // 异步组件可与Suspense一起使用
+  ```
+
+- 模板引用
+
+  ```javascript
+  // 直接访问dom 使用ref属性
+  const app = Vue.createApp({})
+  
+  app.component('base-input', {
+    template: `
+      <input ref="input" />
+    `,
+    methods: {
+      focusInput() {
+        this.$refs.input.focus()
+      }
+    },
+    mounted() {
+      this.focusInput()
+    }
+  })
+  ```
+
+- 处理边界情况
+
+  - 强制更新: $forceUpdate
+  - 低静态组件与v-once：对只加载一次的组件进行缓存
+
+  ```javascript
+  app.component('terms-of-service', {
+    template: `
+      <div v-once>
+        <h1>Terms of Service</h1>
+        ... a lot of static content ...
+      </div>
+    `
+  })
+  ```
+
+
+
+## 3.过渡&动画
+
+3.1 概述
+
+3.2 进入&离开
+
+3.3 列表过渡
+
+3.4 状态过渡
 
 
 
