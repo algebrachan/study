@@ -753,13 +753,578 @@ class和style都可以用v-bind处理他们
 
 ## 3.过渡&动画
 
-3.1 概述
+#### 3.1 概述
 
-3.2 进入&离开
+- 基于class的动画和过渡
 
-3.3 列表过渡
+  ```html
+  <div id="demo">
+    Push this button to do something you shouldn't be doing:<br />
+  
+    <div :class="{ shake: noActivated }">
+      <button @click="noActivated = true">Click me</button>
+      <span v-if="noActivated">Oh no!</span>
+    </div>
+  </div>
+  ```
 
-3.4 状态过渡
+  ```css
+  .shake {
+    animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+  
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+  
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+  
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
+  ```
+
+  ```javascript
+  const Demo = {
+    data() {
+      return {
+        noActivated: false
+      }
+    }
+  }
+  
+  Vue.createApp(Demo).mount('#demo')
+  ```
+
+- 过渡与style绑定
+
+  ```html
+  <div id="demo">
+    <div
+      @mousemove="xCoordinate"
+      :style="{ backgroundColor: `hsl(${x}, 80%, 50%)` }"
+      class="movearea"
+    >
+      <h3>Move your mouse across the screen...</h3>
+      <p>x: {{x}}</p>
+    </div>
+  </div>
+  ```
+
+  ```css
+  .movearea {
+    transition: 0.2s background-color ease;
+  }
+  ```
+
+  ```javascript
+  const Demo = {
+    data() {
+      return {
+        x: 0
+      }
+    },
+    methods: {
+      xCoordinate(e) {
+        this.x = e.clientX
+      }
+    }
+  }
+  
+  Vue.createApp(Demo).mount('#demo')
+  ```
+
+- Easing
+
+  ```css
+  .button {
+    background: #1b8f5a;
+    /* 应用于初始状态，因此此转换将应用于返回状态 */
+    transition: background 0.25s ease-in;
+  }
+  
+  .button:hover {
+    background: #3eaf7c;
+    /* 应用于悬停状态，因此在触发悬停时将应用此过渡 */
+    transition: background 0.35s ease-out;
+  }
+  ```
+
+  
+
+#### 3.2 进入&离开
+
+- 典例
+
+  ```html
+  <div id="demo">
+    <button @click="show = !show">
+      Toggle
+    </button>
+  
+    <transition name="fade">
+      <p v-if="show">hello</p>
+    </transition>
+  </div>
+  ```
+
+  ```javascript
+  const Demo = {
+    data() {
+      return {
+        show: true
+      }
+    }
+  }
+  
+  Vue.createApp(Demo).mount('#demo')
+  ```
+
+  ```css
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 0.5s ease;
+  }
+  
+  .fade-enter-from,
+  .fade-leave-to {
+    opacity: 0;
+  }
+  ```
+
+- 过渡class
+
+  - `v-enter-from`: 进入开始
+  - `v-enter-active`: 进入过渡生效时
+  - `v-enter-to`: 进入结束
+  - `v-leave-from`: 离开开始
+  - `v-leave-active`: 离开过渡生效时
+  - `v-leave-to`: 离开结束
+
+- JavaScript钩子
+
+  ```html
+  <transition
+    @before-enter="beforeEnter"
+    @enter="enter"
+    @after-enter="afterEnter"
+    @enter-cancelled="enterCancelled"
+    @before-leave="beforeLeave"
+    @leave="leave"
+    @after-leave="afterLeave"
+    @leave-cancelled="leaveCancelled"
+    :css="false"
+  >
+    <!-- ... -->
+  </transition>
+  ```
+
+  ```javascript
+  // ...
+  methods: {
+    // --------
+    // ENTERING
+    // --------
+  
+    beforeEnter(el) {
+      // ...
+    },
+    // 当与 CSS 结合使用时
+    // 回调函数 done 是可选的
+    enter(el, done) {
+      // ...
+      done()
+    },
+    afterEnter(el) {
+      // ...
+    },
+    enterCancelled(el) {
+      // ...
+    },
+  
+    // --------
+    // 离开时
+    // --------
+  
+    beforeLeave(el) {
+      // ...
+    },
+    // 当与 CSS 结合使用时
+    // 回调函数 done 是可选的
+    leave(el, done) {
+      // ...
+      done()
+    },
+    afterLeave(el) {
+      // ...
+    },
+    // leaveCancelled 只用于 v-show 中
+    leaveCancelled(el) {
+      // ...
+    }
+  }
+  ```
+
+- 多元素过渡
+
+  ```html
+  <transition>
+    <button :key="docState">
+      {{ buttonMessage }}
+    </button>
+  </transition>
+  ```
+
+  ```javascript
+  // ...
+  computed: {
+    buttonMessage() {
+      switch (this.docState) {
+        case 'saved': return 'Edit'
+        case 'edited': return 'Save'
+        case 'editing': return 'Cancel'
+      }
+    }
+  }
+  ```
+
+- 多个组件之间的过渡
+
+  ```html
+  <div id="demo">
+    <input v-model="view" type="radio" value="v-a" id="a"><label for="a">A</label>
+    <input v-model="view" type="radio" value="v-b" id="b"><label for="b">B</label>
+    <transition name="component-fade" mode="out-in">
+      <component :is="view"></component>
+    </transition>
+  </div>
+  ```
+
+  ```javascript
+  const Demo = {
+    data() {
+      return {
+        view: 'v-a'
+      }
+    },
+    components: {
+      'v-a': {
+        template: '<div>Component A</div>'
+      },
+      'v-b': {
+        template: '<div>Component B</div>'
+      }
+    }
+  }
+  
+  Vue.createApp(Demo).mount('#demo')
+  ```
+
+  ```css
+  .component-fade-enter-active,
+  .component-fade-leave-active {
+    transition: opacity 0.3s ease;
+  }
+  
+  .component-fade-enter-from,
+  .component-fade-leave-to {
+    opacity: 0;
+  }
+  ```
+
+#### 3.3 列表过渡
+
+- 典例 使用  <transition-group>
+
+  ```html
+  <div id="list-demo">
+    <button @click="add">Add</button>
+    <button @click="remove">Remove</button>
+    <transition-group name="list" tag="p">
+      <span v-for="item in items" :key="item" class="list-item">
+        {{ item }}
+      </span>
+    </transition-group>
+  </div>
+  ```
+
+  ```javascript
+  const Demo = {
+    data() {
+      return {
+        items: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        nextNum: 10
+      }
+    },
+    methods: {
+      randomIndex() {
+        return Math.floor(Math.random() * this.items.length)
+      },
+      add() {
+        this.items.splice(this.randomIndex(), 0, this.nextNum++)
+      },
+      remove() {
+        this.items.splice(this.randomIndex(), 1)
+      }
+    }
+  }
+  
+  Vue.createApp(Demo).mount('#list-demo')
+  ```
+
+  ```css
+  .list-item {
+    display: inline-block;
+    margin-right: 10px;
+  }
+  .list-enter-active,
+  .list-leave-active {
+    transition: all 1s ease;
+  }
+  .list-enter-from,
+  .list-leave-to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  ```
+
+- 列表移动过渡
+
+  ```html
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+  
+  <div id="flip-list-demo">
+    <button @click="shuffle">Shuffle</button>
+    <transition-group name="flip-list" tag="ul">
+      <li v-for="item in items" :key="item">
+        {{ item }}
+      </li>
+    </transition-group>
+  </div>
+  ```
+
+  ```javascript
+  const Demo = {
+    data() {
+      return {
+        items: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+      }
+    },
+    methods: {
+      shuffle() {
+        this.items = _.shuffle(this.items)
+      }
+    }
+  }
+  
+  Vue.createApp(Demo).mount('#flip-list-demo')
+  ```
+
+  ```css
+  .flip-list-move {
+    transition: transform 0.8s ease;
+  }
+  ```
+
+- 列表交错过渡
+
+  ```html
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.3.4/gsap.min.js"></script>
+  
+  <div id="demo">
+    <input v-model="query" />
+    <transition-group
+      name="staggered-fade"
+      tag="ul"
+      :css="false"
+      @before-enter="beforeEnter"
+      @enter="enter"
+      @leave="leave"
+    >
+      <li
+        v-for="(item, index) in computedList"
+        :key="item.msg"
+        :data-index="index"
+      >
+        {{ item.msg }}
+      </li>
+    </transition-group>
+  </div>
+  ```
+
+  ```javascript
+  const Demo = {
+    data() {
+      return {
+        query: '',
+        list: [
+          { msg: 'Bruce Lee' },
+          { msg: 'Jackie Chan' },
+          { msg: 'Chuck Norris' },
+          { msg: 'Jet Li' },
+          { msg: 'Kung Fury' }
+        ]
+      }
+    },
+    computed: {
+      computedList() {
+        var vm = this
+        return this.list.filter(item => {
+          return item.msg.toLowerCase().indexOf(vm.query.toLowerCase()) !== -1
+        })
+      }
+    },
+    methods: {
+      beforeEnter(el) {
+        el.style.opacity = 0
+        el.style.height = 0
+      },
+      enter(el, done) {
+        gsap.to(el, {
+          opacity: 1,
+          height: '1.6em',
+          delay: el.dataset.index * 0.15,
+          onComplete: done
+        })
+      },
+      leave(el, done) {
+        gsap.to(el, {
+          opacity: 0,
+          height: 0,
+          delay: el.dataset.index * 0.15,
+          onComplete: done
+        })
+      }
+    }
+  }
+  
+  Vue.createApp(Demo).mount('#demo')
+  ```
+
+#### 3.4 状态过渡
+
+- 状态动画与侦听器
+
+  ```html
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.2.4/gsap.min.js"></script>
+  
+  <div id="animated-number-demo">
+    <input v-model.number="number" type="number" step="20" />
+    <p>{{ animatedNumber }}</p>
+  </div>
+  ```
+
+  ```javascript
+  const Demo = {
+    data() {
+      return {
+        number: 0,
+        tweenedNumber: 0
+      }
+    },
+    computed: {
+      animatedNumber() {
+        return this.tweenedNumber.toFixed(0)
+      }
+    },
+    watch: {
+      number(newValue) {
+        gsap.to(this.$data, { duration: 0.5, tweenedNumber: newValue })
+      }
+    }
+  }
+  
+  Vue.createApp(Demo).mount('#animated-number-demo')
+  ```
+
+- 把过渡放到组件里
+
+  ```html
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.2.4/gsap.min.js"></script>
+  
+  <div id="app">
+    <input v-model.number="firstNumber" type="number" step="20" /> +
+    <input v-model.number="secondNumber" type="number" step="20" /> = {{ result }}
+    <p>
+      <animated-integer :value="firstNumber"></animated-integer> +
+      <animated-integer :value="secondNumber"></animated-integer> =
+      <animated-integer :value="result"></animated-integer>
+    </p>
+  </div>
+  ```
+
+  ```javascript
+  const app = Vue.createApp({
+    data() {
+      return {
+        firstNumber: 20,
+        secondNumber: 40
+      }
+    },
+    computed: {
+      result() {
+        return this.firstNumber + this.secondNumber
+      }
+    }
+  })
+  
+  app.component('animated-integer', {
+    template: '<span>{{ fullValue }}</span>',
+    props: {
+      value: {
+        type: Number,
+        required: true
+      }
+    },
+    data() {
+      return {
+        tweeningValue: 0
+      }
+    },
+    computed: {
+      fullValue() {
+        return Math.floor(this.tweeningValue)
+      }
+    },
+    methods: {
+      tween(newValue, oldValue) {
+        gsap.to(this.$data, {
+          duration: 0.5,
+          tweeningValue: newValue,
+          ease: 'sine'
+        })
+      }
+    },
+    watch: {
+      value(newValue, oldValue) {
+        this.tween(newValue, oldValue)
+      }
+    },
+    mounted() {
+      this.tween(this.value, 0)
+    }
+  })
+  
+  app.mount('#app')
+  ```
+
+  
 
 
 
