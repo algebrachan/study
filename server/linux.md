@@ -77,7 +77,6 @@ ufw delete allow/deny 20 # 移除
 pip list
   ```
   
-
 - pip操作
 
   ```

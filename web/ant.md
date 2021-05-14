@@ -1,8 +1,8 @@
 # Ant View
 
 ```init
-更新时间:2021年5月14日10:00:54
-说明:antv开发过程中的api问题记录
+更新时间：2020年12月14日11:03:44
+说明：antv开发过程中的api问题记录
 ```
 
 
@@ -289,19 +289,3 @@ plot.getStates();
 
   
 
-
-
-# Ant Design
-
-## 问题总结
-
-- message多次出现提示向下累计问题
-
-  ```javascript
-  import { message } from 'antd';
-  // 在message提示之前，使用destory
-  message.destroy()
-  message.info('提示信息')
-  ```
-
-  

@@ -753,7 +753,7 @@ class和style都可以用v-bind处理他们
 
 ## 3.过渡&动画
 
-#### 3.1 概述
+### 3.1 概述
 
 - 基于class的动画和过渡
 
@@ -868,7 +868,7 @@ class和style都可以用v-bind处理他们
 
   
 
-#### 3.2 进入&离开
+### 3.2 进入&离开
 
 - 典例
 
@@ -1048,7 +1048,7 @@ class和style都可以用v-bind处理他们
   }
   ```
 
-#### 3.3 列表过渡
+### 3.3 列表过渡
 
 - 典例 使用  <transition-group>
 
@@ -1217,7 +1217,7 @@ class和style都可以用v-bind处理他们
   Vue.createApp(Demo).mount('#demo')
   ```
 
-#### 3.4 状态过渡
+### 3.4 状态过渡
 
 - 状态动画与侦听器
 
@@ -1322,6 +1322,184 @@ class和style都可以用v-bind处理他们
   })
   
   app.mount('#app')
+  ```
+
+
+
+## 4.可复用&组合
+
+### 4.1组合式API基础
+
+- 典例
+
+  ```javascript
+  // src/components/UserRepositories.vue
+  import { fetchUserRepositories } from '@/api/repositories'
+  import { ref } from 'vue'
+  
+  export default {
+    components: { RepositoriesFilters, RepositoriesSortBy, RepositoriesList },
+    props: {
+      user: {
+        type: String,
+        required: true
+      }
+    },
+    setup (props) {
+      // 使用 `toRefs` 创建对prop的 `user` property 的响应式引用
+   	const { user } = toRefs(props)
+      const repositories = ref([]) // 响应式 初始值为[]
+      const getUserRepositories = async () => {
+         // 更新 `prop.user` 到 `user.value` 访问引用值
+        repositories.value = await fetchUserRepositories(user.value)
+      }
+  	onMounted(getUserRepositories) // 在 `mounted` 时调用 `getUserRepositories`
+      // 在用户 prop 的响应式引用上设置一个侦听器
+    	watch(user, getUserRepositories)
+      return {
+        repositories,
+        getUserRepositories
+      }
+    },
+    data () {
+      return {
+        filters: { ... }, // 3
+        searchQuery: '' // 2
+      }
+    },
+    computed: {
+      filteredRepositories () { ... }, // 3
+      repositoriesMatchingSearchQuery () { ... }, // 2
+    },
+    watch: {
+      user: 'getUserRepositories' // 1
+    },
+    methods: {
+      updateFilters () { ... }, // 3
+    },
+    mounted () {
+      this.getUserRepositories() // 1
+    }
+  }
+  ```
+
+- setup
+
+  - `props`
+  - `context`
+
+  ```javascript
+  // setup中的props是响应式的，传入新的prop，它将被更新
+  // 因为 props 是响应式的，你不能使用 ES6 解构，因为它会消除 prop 的响应性
+  import { toRefs } from 'vue'
+  export default {
+      props:{
+          title:String
+      },
+      setup(props){
+          const { title } = toRefs(props，'title')// 解构使用 toRefs 若没有title则需要toRef替代它
+          console.log(title.value)
+      }
+  }
+  
+  //context 是一个普通的 JavaScript 对象，它暴露三个组件的 property：
+  export default {
+    setup(props, context) {
+      // Attribute (非响应式对象)
+      console.log(context.attrs)
+  
+      // 插槽 (非响应式对象)
+      console.log(context.slots)
+  
+      // 触发事件 (方法)
+      console.log(context.emit)
+    }
+  }
+  export default {
+    setup(props, { attrs, slots, emit }) { // context非响应式，可以安全的解构 避免对子属性的解构
+      ...
+    }
+  }
+  // setup内部不能使用this
+  ```
+
+- 生命周期钩子：如何在setup()内部调用
+
+  | 选项式 API        | Hook inside `setup` |
+  | ----------------- | ------------------- |
+  | `beforeCreate`    | Not needed*         |
+  | `created`         | Not needed*         |
+  | `beforeMount`     | `onBeforeMount`     |
+  | `mounted`         | `onMounted`         |
+  | `beforeUpdate`    | `onBeforeUpdate`    |
+  | `updated`         | `onUpdated`         |
+  | `beforeUnmount`   | `onBeforeUnmount`   |
+  | `unmounted`       | `onUnmounted`       |
+  | `errorCaptured`   | `onErrorCaptured`   |
+  | `renderTracked`   | `onRenderTracked`   |
+  | `renderTriggered` | `onRenderTriggered` |
+
+- Provide/Inject
+
+  ```vue
+  <!-- 使用Provide -->
+  <!-- src/components/MyMap.vue -->
+  <template>
+    <MyMarker />
+  </template>
+  
+  <script>
+  import { provide, reactive, readonly, ref } from 'vue'
+  import MyMarker from './MyMarker.vue
+  
+  export default {
+    components: {
+      MyMarker
+    },
+    setup() {
+      const location = ref('North Pole') // 响应式
+      const geolocation = reactive({
+        longitude: 90,
+        latitude: 135
+      })
+  
+      const updateLocation = () => { // inject 内部更改
+        location.value = 'South Pole'
+      }
+  
+      provide('location', readonly(location)) // inject只读
+      provide('geolocation', readonly(geolocation))
+      provide('updateLocation', updateLocation)
+    }
+    methods: { 
+      updateLocation() { // 修改响应式 property
+        this.location = 'South Pole'
+      }
+    }
+  }
+  </script>
+  ```
+
+  ```vue
+  <!-- 使用Inject -->
+  <!-- src/components/MyMarker.vue -->
+  <script>
+  import { inject } from 'vue'
+  
+  export default {
+    setup() {
+      const userLocation = inject('location', 'The Universe')
+      const userGeolocation = inject('geolocation')
+      const updateUserLocation = inject('updateLocation')
+  
+      return {
+        userLocation,
+        userGeolocation,
+        updateUserLocation
+      }
+    }
+  }
+  </script>
   ```
 
   
