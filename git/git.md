@@ -83,7 +83,7 @@ Host github.com                                       HostName github.com       
  git checkout -b dev # 不推荐
  git checkout master # 不推荐
  
- git switch -c dev
+ git switch -c dev # 创建
  git switch master
  
  git branch
