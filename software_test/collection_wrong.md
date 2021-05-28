@@ -65,7 +65,7 @@
 
 ![软件工程5](collection_wrong.assets\软件工程5.png)
 
-
+![image-20210528144520152](collection_wrong.assets\image-20210528144520152.png)
 
 ### 4.数据结构&算法
 
@@ -115,8 +115,11 @@
 - 寻址方式
   - 直接寻址：操作数在内存中，指令给出操作数的地址，访问内存来获得操作数
   - 立即寻址：操作数在指令中
+  - 间接寻址：指令给出操作数地址的地址
   - 寄存器寻址：操作数在寄存器中
   - 寄存器间接寻址：操作数的地址在CPU寄存器中，还要访问一次内存来得到操作数
+  - 相对寻址：指令地址给出一个偏移量
+  - 变址寻址：
 - 编译是将高级语言源代码转换成目标代码的过程，运行速度快
 - 解释不生成目标代码，一条条解释，运行速度慢
 
@@ -156,8 +159,14 @@
 
 - 数据模型的三要素：数据结构、数据操作、完整性约束
 
+![image-20210528144827244](collection_wrong.assets\image-20210528144827244.png)
+
 ![数据库](collection_wrong.assets\数据库.png)
 
 ![信技1](collection_wrong.assets\专英1.png)
 
 ![系统9](collection_wrong.assets\系统9.png)
+
+![image-20210528144612680](collection_wrong.assets\image-20210528144612680.png)
+
+![image-20210528144707997](collection_wrong.assets\image-20210528144707997.png)
