@@ -312,4 +312,11 @@ nohup uvicorn main:app --host '0.0.0.0' --port 8065 >/dev/null 2>&1 &
   supervisorctl reload        #重新启动配置中的所有程序
   ```
 
-  
+```mermaid
+graph LR;
+  A-->B
+  B-->C
+  C-->D
+  D-->A
+```
+
