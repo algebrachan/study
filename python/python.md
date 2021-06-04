@@ -634,6 +634,134 @@ print('Main program waited until background was done.')
 
   
 
+### 4.4 apscheduler(定时轮询框架)
+
+[参考网址](https://www.sohu.com/a/407444741_658944)
+
+> `APScheduler`：Advanced Python Scheduler：基于 Quartz 的 Python 定时任务框架，轻量而功能强大的进程内任务调度器
+
+- 定制性高（triggers）：时间间隔（Interval）、周期性时间（Date）、cron 形式（Linux crontab）
+- 后台存储（job stores）：Memory、SQLAlchemy、Redis、MongoDB 等
+
+组件：
+
+- triggers：**触发器**：每个 job 都有触发器，包含它的调度逻辑
+
+- job stores：**作业存储**：默认在内存中，序列化后可保存到其他地方，如 redis
+
+- executors：**执行器**：处理作业的运行，将 job 中的可调用部分提交给线程或进程池来实现，job 完成后，执行器会通知调度器
+
+  - ThreadPool、ProcessPool
+
+- schedulers：**调度器**：将其他组件绑定在一起，对使用者提供接口通常只有一个调度器 scheduler 在程序中运行。
+
+  - Add、Modify、Remove·
+
+  ```python
+  BlockingScheduler	# 阻塞性 调度器
+  BackgroundScheduler	# 后台运行
+  AsyncIOScheduler	# asyncio
+  GeventScheduler		# gevent
+  TornadoScheduler	# Tornado
+  TwistedScheduler	# Twister
+  QTScheduler			# QT
+  ```
+
+- 使用
+
+  ```python
+  pip install apscheduler
+  ```
+
+  ```python
+  import time 
+  import datetime
+  from apscheduler.schedulers.background import BackgroundScheduler
+  
+  def task_test():
+      print(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime()))
+  
+  if __name__ == '__main__':
+      schedular = BackgroundScheduler()   # 后台
+      schedular.add_job(task_test,'interval',seconds=2)  # 以 interval 间隔性执行
+      
+      schedular.start()
+  
+      while True:
+          print(time.time()) 
+          time.sleep(5)
+  
+  def job_func(text):
+      print(text)
+  
+  scheduler = BackgroundScheduler()
+  # 在 2017-12-13 时刻运行一次 job_func 方法
+  scheduler .add_job(job_func, 'date', run_date=date(2017, 12, 13), args=['text'])
+  # 在 2017-12-13 14:00:00 时刻运行一次 job_func 方法
+  scheduler .add_job(job_func, 'date', run_date=datetime(2017, 12, 13, 14, 0, 0), args=['text'])
+  # 在 2017-12-13 14:00:01 时刻运行一次 job_func 方法
+  scheduler .add_job(job_func, 'date', run_date='2017-12-13 14:00:01', args=['text'])
+  
+  scheduler.start()
+  ```
+
+  ```python
+  def job_func(text):
+      print(text)
+  # date，指定时间运行一次
+  scheduler.add_job(job_func,
+                    'date',
+                    run_date=datetime.datetime(2020,1,1,14,0,0)	
+                    # run_date='2020-1-1 14:00:00'
+                   args=['test'])
+  # interval，固定时间
+  scheduler.add_job(job_func, 
+                    'interval',
+                    minutes=2, 
+                    start_date='2017-12-13 14:00:01' , 	# datetime or str
+                    end_date='2017-12-13 14:00:10')		# datetime or str
+  weeks,days,hours,minutes,seconds
+  # cron，触发器，特定时间周期触发，与 Linux crontab 格式兼容
+  # 在每年 1-3、7-9 月份中的每个星期一、二中的 00:00, 01:00, 02:00 和 03:00 执行 job_func 任务
+  scheduler.add_job(job_func, 'cron', month='1-3,7-9',day='0, tue', hour='0-3')
+  year 年 int or str 4 位数字
+  month 月 int or str	1-12
+  day	日	int or str 1-31
+  week	周	int or str	1-53
+  day_of_week	星期几	int or str 0-6 或 mon,tue,wed,thu,fri,sat,sun
+  hour	时	int or str	0-23
+  minute	分	int or str	0-59
+  second	秒	int or str 0-59
+  start_date	最早开始时间（包含）	datetime or str
+  end_date	最晚结束时间（包含）	datetime or str
+  timezone	指定时区	datetime.tzinfo or str
+  分 minute[0-59]时 hour[0-23]日 day[1-31]月 month[1-12]周 week[0-7],0 或代表星期日
+  
+  大于最小有效值的字段默认为*，小于最小有效值的默认为最小值。
+  参数表达式
+  * 字段的任一个值
+  */a	匹配每递增 a 后的值，如 hour 的*/5，为 0，5，10，15，20
+  a/b	从 a 开始，匹配每递增 b 后的值，如 hour 的 2/9，匹配 2,11,20
+  a-b	a 到 b 之间的取值，2-5,匹配 2,3,4,5
+  a-b/c	a 到 b 间递增 c 的值，包括 a，不一定包括 b,如 1-20/5，匹配 1,6,11,16
+  xth y	匹配 y 在当月的第 x 次，如 3rd fri，指当月的第三个周五
+  last x	匹配 x 在当月的最后一次，如 last fri，当月的最后一个周五
+  last	匹配当月的最后一天
+  x,y,z	匹配多个表达式的组合
+  ```
+
+- 遇到的问题
+
+  - Timezone offset does not match system offset: 0 != 28800
+
+  - ```python
+    # 因为系统时区和代码运行时区不一样导致，需在初始化的时候指定上海的时区
+    scheduler = BlockingScheduler(timezone="Asia/Shanghai")
+    ```
+
+
+
+
 ## 5. redis作为临时内存数据库
 
 - 存储方案，使用hash存储对象，其中运用到json和python对象互转
@@ -674,6 +802,10 @@ print('Main program waited until background was done.')
 ## 6. python应用消息队列
 
 ### 6.1 rabbitMq
+
+```
+pip install pika
+```
 
 ```python
 import pika
@@ -736,3 +868,4 @@ if __name__ == '__main__':
     mq.consume()
 ```
 
+- 问题：太重

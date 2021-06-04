@@ -158,6 +158,12 @@
 ### x.其他
 
 - 数据模型的三要素：数据结构、数据操作、完整性约束
+- E-R模型：实体、联系、属性
+- 死锁原因
+  - 互斥条件：一次只允许一个进程使用
+  - 请求保持条件：阻塞
+  - 不可剥夺条件：只能自己释放
+  - 环路条件：互为条件
 
 ![image-20210528144827244](collection_wrong.assets\image-20210528144827244.png)
 
@@ -170,3 +176,7 @@
 ![image-20210528144612680](collection_wrong.assets\image-20210528144612680.png)
 
 ![image-20210528144707997](collection_wrong.assets\image-20210528144707997.png)
+
+
+
+![image-20210528171219350](collection_wrong.assets\image-20210528171219350.png)

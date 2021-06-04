@@ -513,3 +513,17 @@
     响应式工具，hidden-xs,hidden-sm,hidden-md,hidden-lg,在该条件下隐藏
     清除浮动类 clearfix
     ```
+
+## 4 常见问题总结
+
+- 文字设置字间距并居中
+
+  ```css
+  .box{
+  	letter-spacing:14px;
+      text-indent:14px;
+      text-align:center;
+  }
+  ```
+
+  

@@ -20,6 +20,7 @@ rabbitmq-server.bat
 ```
 
 - web端口：15672  
+  - 用户密码：guest guest
 
 ### 1.2 [linux安装](https://www.cnblogs.com/web424/p/6761153.html)
 

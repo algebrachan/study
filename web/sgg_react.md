@@ -372,7 +372,7 @@
       })
   }
   // 发布消息
-  PubSub.publish('wc',{name:'xx',age:18})
+      PubSub.publish('wc',{name:'xx',age:18})
   ```
 
 - fetch
