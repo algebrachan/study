@@ -869,3 +869,9 @@ if __name__ == '__main__':
 ```
 
 - 问题：太重
+
+### 6.2 kafka
+
+[参考网址](https://zhuanlan.zhihu.com/p/38330574)
+
+- 
