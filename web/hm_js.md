@@ -1656,7 +1656,223 @@ Object.defineProperty(obj,prop,descriptor)
   router.push({path:'/home',query:{uname:'lisi'},params:{userId:123}})
   ```
   
+
+
+
+
+
+## 6 前端工程化
+
+### 6.1ES6模块 
+
+​	每个js文件都是一个独立的模块
+
+​	导入模块成员使用**import**关键字
+
+​	暴露模块成员使用**export**关键字
+
+- Node.js中通过babel体验ES6模块化
+
+  - npm install --save-dev @babel/core @babel/cli @babel/preset-env @babel/node
+  - npm install --save @babel/polyfill
+  - 项目跟目录创建文件 babel.config.js
+  - bebel.config.js 
+
+  ```javascript
+  const presets = [
+  	["@babel/env",{
+          targets:{
+              edge:"17",
+              firefox:"60",
+              chrome:"67",
+              safari:"11.1"
+          }
+      }]
+  ]
+  module.exports = {presets}
+  // npx babel-node index.js 执行代码
+  ```
+
+- 默认导出 导入
+
+  export default {  //默认导出成员}
+
+  import 接收名称 from '模块标识符'
+
+- 按需导出 导入
+
+  export let s1 = 10
   
+  import { s1 } from '模块标识符'
+  
+- 直接导入并执行模块代码
+
+  import './m2.js'
+
+
+
+### 6.2 webpack
+
+前端项目打包工具，提供友好的模块化支持、代码压缩混淆、处理js兼容性问题、性能优化
+
+- 在项目中安装和配置webpack
+
+  - 运行 npm install webpack webpack-cli -D 
+
+  - 项目根目录创建 webpack.config.js 配置文件
+
+    ```javascript
+    // webpack.config.js 配置文件内容
+    module.exports = {
+        mode:'development' // mode 用来指定构建模式
+    }
+    ```
+
+  - 在package.json的scripts节点下，新增dev脚本如下
+
+    ```json
+    "scripts":{
+        "dev":"webpack" // script 节点下的脚本 可以通过 npm run 执行
+    }
+    ```
+
+  - 终端运行 npm run dev 命令，启动 webpack进行项目打包
+
+- 入口与出口
+
+  ```javascript
+  const path = require('path')
+  
+  module.exports = {
+  	mode:'development',
+  	entry:path.join(__dirname,'./src/index.js'), // 入口
+  	output:{ // 出口
+  		path:path.join(__dirname,'./dist'),
+  		filename:'bundle.js'
+  	}
+  }
+  ```
+
+- 配置自动打包
+
+  - 运行 npm install webpack-dev-server -D
+
+  - 修改 package.json -> scripts 中的dev命令如下
+
+    ```json
+    "scripts":{
+        "dev":"webpack-dev-server --open --host 127.0.0.1 --port 8888" // script 节点下的脚本 可以通过 npm run 执行
+    }
+    ```
+
+  - 将src -> index.html 中 script脚本的引用路径，修改为"./buldle.js"
+
+  - 运行 npm run dev命令
+
+  - 浏览器访问 http://localhost:8080 查看自动打包效果
+
+- 配置html-webpack-plugin 生成预览页面
+
+  - 运行 npm install html-webpack-plugin -D
+
+  - 修改webpack.config.js 文件头部区域，添加如下配置
+
+    ```javascript
+    // 导入插件
+    const HtmlWebpackPlugin = require('html-webpack-plugin')
+    const htmlPlugin = new HtmlWebpackPlugin({
+        template:'./src/index.html',//指定要用到的模板文件
+        filename:'index.html' // 指定生成的文件的名称，该文件存在于内存中 在目录中不显示
+    })
+    ....
+    
+    module.exports = {
+        plugins:[htmlPlugin] // plugins数组是webpack打包期间会用到的一些插件列表
+    }
+    ```
+
+- 通过loader打包非js模块
+
+  - css、less、sass
+
+    `npm i style-loader css-loader -D`
+
+    `npm i less-loader less -D`
+
+    `npm i sass-loader node-sass -D`
+
+    ```json
+    module:{
+        rules:[
+            {test:/\.css$/,use:['style-loader','css-loader']},
+            {test:/\.less$/,use:['style-loader','css-loader','less-loader']}
+            {test:/\.sass$/,use:['style-loader','css-loader','sass-loader']}
+        ]
+    }
+    ```
+
+  - 配置postCSS自动添加css的兼容前缀
+
+    `npm i postcss-loader autoprefixer -D`
+
+    ```javascript
+    // 项目根目录创建 postcss配置文件 postcss.config.js 
+    const autoprefixer = require('autoprefixer')
+    module.exports = {
+        plugins:[autoprefixer]
+    }
+    
+    // webpack.config.js中 module -> rules 数组中修改css 
+    module:{
+        rules:[
+            {test:/\.css$/,use:['style-loader','css-loader','postcss-loader']}
+        ]
+    }
+    ```
+
+  - 打包样式表中的图片和字体文件
+
+    `npm i url-loader file-loader -D`
+
+    ```javascript
+    module:{
+        rules:[
+            {
+                test:/\.jpg|png|gif|bmp|ttf|eot|svg|woff|woff2$/,
+                use:'url-loader?limit=16940' // 小于limit 才会被转成base64 单位是byte
+            }
+        ]
+    }
+    ```
+
+  - 打包处理js中的高级语法
+
+    安装babel转换器相关包 `npm i babel-loader @babel/core @babel/runtime -D`  
+
+    安装babel语法插件相关的包 `npm i @babel/preset-env @babel/plugin-transform-runtime @babel/plugin-proposal-class-properties -d`
+
+    ```javascript
+    // 项目根目录创建 babel配置文件 babel.config.js
+    module.exports = {
+        presets:['@babel/preset-env'],
+        plugins:['@babel/plugin-transform-runtime','@babel/plugin-proposal-class-properties']
+    }
+    
+    // webpack.config.js 中
+    module:{
+        rules:[
+            {test:/\.js$/,use:'babel-loader',exclude:/node_modules/}
+        ]
+    }
+    ```
+
+    
+
+
+
+
+
+
 
 
 
