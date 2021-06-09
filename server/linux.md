@@ -84,6 +84,16 @@ pip list
   pip3 uninstall xxx
   ```
 
+- apt 离线安装
+
+  ```shell
+  # 可以通过 apt-get download 提前下载好包及相关依赖
+  #  dpkg -i <包名>
+  
+  # cd 到离线包所在目录
+  dpkg -i *.deb
+  ```
+
   
 
 ## 3. 实操问题

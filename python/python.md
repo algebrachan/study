@@ -1,6 +1,12 @@
 # Python
 
+## 0.常见问题及解决方案
 
+- pip报No module named 'pip’
+
+  当在执行pip更新时，出现失败或警告，再次执行pip命令报错时，分别按顺序执行以下2条命令即可完成修复。
+  `python -m ensurepip`
+  `python -m pip install --upgrade pip`
 
 ## 1.python 配置虚拟环境
 
