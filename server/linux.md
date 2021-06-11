@@ -61,6 +61,14 @@ sudo ufw allow 22 # 开启端口
 ufw delete allow/deny 20 # 移除
 ```
 
+- sudo相关
+
+```shell
+# 解决 sudo经常需要额外输入密码的问题
+# |:管道 将前面的输出作为后面的 stdin  -S 从标准输入读取密码
+echo (password) | sudo -S (command)
+```
+
 
 
 ### 2.1服务器离线下载环境

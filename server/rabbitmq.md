@@ -34,6 +34,16 @@ rabbitmq-server.bat
 
 
 
+### 1.3 docker安装
+
+```shell
+docker pull rabbitmq:management  # 记得下载这个带web管理的
+docker run -d --name rabbitmq -p 5671:5671 -p 5672:5672 -p 4369:4369 -p 25672:25672 -p 15671:15671 -p 15672:15672 rabbitmq:management
+# 输入网址：http://IP:15672/ 账号密码：guest/guest
+```
+
+
+
 ### 1.3 基本命令
 
 
