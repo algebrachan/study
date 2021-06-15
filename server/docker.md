@@ -299,8 +299,157 @@ docker run -d --name rabbitmq -p 5671:5671 -p 5672:5672 -p 4369:4369 -p 25672:25
 docker search nginx
 docker pull nginx
 docker run -d --name nginx01 -p 3344:80 nginx
+```
+
+
+
+### 安装Tomcat
+
+```shell
+docker run -it --rm tomcat:9.0
+# 之前启动的是后台 -d, 停止了容器之后是可以查到 docker run 0it --rm 一般用来测试，用完就删除
+
+# 下载再启动 
+docker pull tomcat
+docker run -d 3355:8080 --name tomcat01 tomcat
+# 进入容器
+docker exec -it tomcat01 /bin/bash
+
 
 ```
 
 
+
+### 可视化面板安装
+
+- portainer
+
+  ```shell
+  docker run -d -p 8088:9000 \
+  --restart=always -v /var/run/docker.sock:/var/run/docker.sock --privileged=true portainer/portainer
+  ```
+
+  
+
+- Rancher
+
+
+
+
+
+
+
+## Docker镜像讲解
+
+### 镜像是什么
+
+镜像是一种轻量级、可执行的独立软件包，用来打包软件运行环境和基于运行环境开发的软件，它包含运行某个软件所需的所有内容，包括代码，运行时、库、环境变量和配置文件
+
+所有应用，直接打包docker镜像就可以直接跑起来
+
+如何得到镜像：
+
+- 从远程仓库下载
+- 拷贝
+- 自己制作一个镜像DockerFile
+
+### Docker镜像加载原理
+
+> UnionFS (联合文件系统)
+
+分层。轻量级且高性能的文件系统
+
+bootfs加载内核
+
+rootfs加载操作系统
+
+对于一个精简的OS，rootfs可以很小，只要包含最基本的命令，工具和程序库就可以。 因为底层直接用host的kernel 自己只需要提供rootfs就可以，对于linux发行版，bootfs基本是一致的，可以公用
+
+
+
+### commit镜像
+
+```shell
+docker commit 提交容器成为一个新的副本
+
+# 命令和git原理类似
+docker commit -m="提交描述信息" -a="作者" 容器id 目标镜像名:[TAG]
+
+```
+
+
+
+### 容器数据卷
+
+将应用和环境打包成一个镜像
+
+数据？如果数据都在容器中，那么我们容器删除，数据就会丢失
+
+数据可以持久化
+
+卷技术，目录的挂载，将我们容器内的目录，挂载到linux上面
+
+> 方式一：直接使用命令来挂载 -v
+
+```shell
+docker run -it -v 主机目录:容器内目录
+```
+
+
+
+### 安装mysql
+
+```shell
+docker run -d -p 3310:3306 -v /home/mysql/conf:/etc/mysql/conf.d -v /home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 --name mysql01 mysql:5.7 
+```
+
+```shell
+# 匿名挂载
+-v 容器内路径
+docker run -d -P --name nginx01 -v /etc/nginx nginx
+
+# 查看所有的 volume 的情况
+docker volume ls
+# 具名挂载
+docker run -d -P --name nginx01 -v juming-nginx:/etc/nginx nginx
+# 建议使用具名挂载
+
+-v 容器内路径	# 匿名挂载
+-v 卷名：容器内路径	# 具名挂载
+-v /宿主机路径:容器内路径	# 指定路径挂载
+
+# ro 只读
+# rw 可读可写
+
+```
+
+
+
+### Dockerfile 
+
+dockerfile就是用来构建 docker 镜像的构建文件 命令脚本  通过脚本可以生成镜像，镜像是一层一层的
+
+创建步骤
+
+1、编写一个dockerfile文件
+
+2、docker build 构建一个镜像
+
+3、docker run 运行镜像
+
+4、docker push 发布镜像
+
+基础知识
+
+1、每个保留关键字都是必须是大写字母
+
+2、执行从上到下顺序执行
+
+3、# 表示注释
+
+4、每个指令都会创建一个新的镜像层，并提交！
+
+#### 指令
+
+![img](docker.assets\img.dongcoder.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg)
 
