@@ -1866,7 +1866,90 @@ Object.defineProperty(obj,prop,descriptor)
     }
     ```
 
-    
+- webpack 打包发布
+
+  ```json
+  // 在package.json 文件中配置 webpack打包命令
+  // 该命令默认加载项目根目录中的 webpack.config.js配置文件
+  "script":{
+      // 用于打包的命令
+      "build":"webpack -p",
+      // 用于开发调试的命令
+      "dev":"webpack-dev-server --open --host 127.0.0.1 --prot 3000"
+  }
+  ```
+
+  
+
+### 6.3 Vue单文件组件
+
+单文件组件的组成结构
+
+- template 组件的模块区域
+- script 业务逻辑区域
+- style 样式区域
+
+#### webpack中配置vue组件的加载器
+
+运行 `npm i vue-loader vue-template-compiler -D`
+
+在webpack.config.js配置文件中，添加 vue-loader 的配置项如下:
+
+```javascript
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
+module.exports = {
+    module:{
+        rules:[
+            // ... 其他规则
+            {test:/\.vue$/,loader:'vue-loader'}
+        ]
+    },
+    plugins:[
+        // ... 其他插件
+        new VueLoaderPlugin() // 请确保引入这个插件！
+    ]
+}
+```
+
+#### 在项目中使用vue
+
+`npm i vue -s`
+
+```javascript
+import Vue from 'vue'
+import App from './components/App.vue'
+
+const vm = new Vue({
+    el:'#app',
+    render:h=>h(App)
+})
+```
+
+
+
+### 6.4 Vue脚手架
+
+官网地址： https://cli.vuejs.org/zh/
+
+安装 3.x版本的Vue脚手架:
+
+```shell
+npm install -g @vue/cli
+
+#  创建vue项目
+vue create my-project
+vue ui
+# 2.x版本
+npm install -g @vue/cli-init
+vue init webpack my-project
+
+```
+
+
+
+
+
+
 
 
 
