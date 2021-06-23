@@ -453,3 +453,91 @@ dockerfile就是用来构建 docker 镜像的构建文件 命令脚本  通过�
 
 ![img](docker.assets\img.dongcoder.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=jpeg)
 
+```shell
+# 1.编写dockerfile文件
+cat mydockerfile-ubuntu
+FROM ubuntu
+MAINTAINER wangchen<17326032809@126.com>
+
+ENV MYPATH /usr/local
+WORKDIR $MYPATH
+RUN apt install vim
+
+EXPORE 80
+
+CMD echo $MYPATH
+CMD echo "---end---"
+CMD /bin/bash
+
+# 2.通过这个文件构建镜像
+# 命令 docker build -f dockerfile文件路径 -t 镜像名:[tag] .
+sudo docker build -f /home/wangchen/mydockerfile -t ubunto01:0.1 .
+# 3.测试运行
+
+docker history 镜像id
+
+```
+
+> CMD和ENTRYPOINT 区别
+
+```shell
+CMD			# 指定这个容器启动的时候要运行的命令，只有最后一个会生效，可被替代
+ENTRYPOINT	# 指定这个容器启动的时候要运行的命令，可以追加
+
+
+```
+
+
+
+#### dockerfile制作tomcat镜像
+
+```shell
+# 1.准备镜像文件 Tomcat压缩包，jdk的压缩包
+
+# 2.编写dockerfile文件
+
+```
+
+#### 发布镜像
+
+> dockerhub
+
+```shell
+Log in to a Docker registry.
+If no server is specified, the default is defined by the daemon.
+
+Options:
+  -p, --password string   Password
+      --password-stdin    Take the password from stdin
+  -u, --username string   Username
+
+
+sudo docker login -u wangchen0328
+sudo docker push wangchen0328/nginx01:1.1
+
+```
+
+> 阿里云镜像
+
+1、登陆阿里云
+
+2、找到容器镜像服务
+
+3、创建命名空间
+
+4、创建容器镜像
+
+
+
+#### 打包、加载镜像
+
+```shell
+docker save -o /home/xxx.tar IMAGE
+docker load -i /home/xxx.tar IMAGE
+```
+
+
+
+## Docker网络
+
+> 理解docker0
