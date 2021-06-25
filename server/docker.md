@@ -91,6 +91,19 @@ sudo rm -rf /var/lib/containerd
 
 #### 配置阿里云镜像加速
 
+```shell
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://kj2jhyp2.mirror.aliyuncs.com"]
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+```
+
+
+
 #### 底层原理
 
 Docker 是一个Client-Server 结构的系统，Docker的守护进程运行在主机上，通过Socket从客户端访问
@@ -191,6 +204,7 @@ docker pull docker.io/library/mysql:latest
 
 ```shell
 wangchen@rtx3080:~$ sudo docker rmi -f 2c9028880e58 # 删除指定的镜像 id
+sudo docker rm -f $(sudo docker ps -aq)
 sudo docker rmi -f $(sudo docker images -aq) # 删除全部容器
 
 ```
@@ -541,3 +555,254 @@ docker load -i /home/xxx.tar IMAGE
 ## Docker网络
 
 > 理解docker0
+
+清空docker 
+
+![image-20210625110758293](docker.assets\image-20210625110758293.png)
+
+三个网络
+
+```shell
+#问题： docker 是如何处理容器网络访问的？
+docker run -d -P --name tomcat01 tomcat
+
+# linux 可以 PING 通 docker 容器内部
+# 容器和容器之间是可以ping通的 通过桥接ip地址
+
+```
+
+> 原理
+
+1.我们每启动一个docker容器，docker就会给docker容器分配一个ip，我们只要安装了docker，就会有一个网卡 docker0 **桥接**模式，使用的技术是 **evth-pair** 技术！
+
+```ini
+# 我们发现这个容器带来的网卡，都是一对对的
+# evth-pair 就是一对的虚拟设备接口，他们都是成对出现的，一段连着协议，一段彼此相连
+# evth-pair 充当一个桥梁，连接各种虚拟网络设备
+# OpenStac Docker容器之间的连接 OVS连接
+```
+
+容器之间的通信
+
+![image-20210625112919019](docker.assets\image-20210625112919019.png)
+
+### -- link 
+
+```shell
+docker run -d -P --name tomcat03 --link tomcat02 tomcat
+# 通过 --link 直接ping容器名称 
+```
+
+本质探究： --link 就是我们在hosts 配置中增加一个 tomcat02 xxx
+
+自定义网络 不建议使用 --link
+
+docker0问题：他不再支持容器名连接访问
+
+
+
+### 自定义网络
+
+- 网络模式
+  - bridge：桥接  docker(默认，自己创建也使用bridge模式)
+  - none：不配置网络
+  - host：和宿主机共享网络
+  - container：容器网络连通 （局限很大）
+
+```shell
+docker network ls # 查看docker网络
+docker network rm xxx
+
+docker run -d -P --name tomcat01 --net bridge tomcat
+# docker0 默认
+# 自定义网络
+docker network create --driver bridge --subnet 192.168.0.0/16 --gateway 192.168.0.1 mynet
+
+root@iZbp18eobx9icoi9md9hlbZ:~# docker network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+ce27d69eeca1   bridge    bridge    local
+867b33f74adc   host      host      local
+3f60b8a0603b   mynet     bridge    local
+018c37eef36e   none      null      local
+
+docker run -d -P --name tomcat01 --net mynet tomcat
+# 自定义网络可以相互ping，修复了docker0的缺点
+```
+
+
+
+### 网络连通
+
+```shell
+# 容器连接网络
+docker network connect mynet tomcat01
+# 连通之后就是将 tomcat01 放到了 mynet 网络下
+# 一个容器两个ip地址！ 阿里云服务，公网ip 私网
+```
+
+
+
+### 实战部署redis集群
+
+分片 + 高可用 + 负载均衡
+
+```shell
+docker network create redis --subnet 172.38.0.0/16
+
+# 通过脚本创建六个redis配置
+for port in $(seq 1 6);\
+do \
+mkdir -p /mydata/redis/node-${port}/conf
+touch /mydata/redis/node-${port}/conf/redis.conf
+cat << EOF >/mydata/redis/node-${port}/conf/redis.conf
+port 6379
+bind 0.0.0.0
+cluster-enabled yes
+cluster-config-file nodes.conf
+cluster-node-timeout 5000
+cluster-announce-ip 172.38.0.1${port}
+cluster-announce-port 6379
+cluster-announce-bus-port 16379
+appendonly yes
+EOF
+done
+# 启动 服务
+docker run -p 6371:6379 -p 16371:16379 --name redis-1 \
+-v /mydata/redis/node-1/data:/data \
+-v /mydata/redis/node-1/conf/redis.conf:/etc/redis/redis.conf \
+-d --net redis --ip 172.38.0.11 redis:5.0.9-alpine3.11 redis-server /etc/redis/redis.conf
+
+# 创建集群
+docker exec -it redis-1 /bin/sh
+/data # redis-cli --cluster create 172.38.0.11:6379 172.38.0.12:6379 172.38.0.13:6379 172.38.0.14:6379 172.38.0.15:6379 172.38.0.16:6379 --cluster-replicas l
+# 进入
+/data # redis-cli -c
+```
+
+
+
+
+
+## DockerCompose
+
+### 简介
+
+Docker Compose来轻松高效的管理容器，定义运行多个容器
+
+> 官方介绍 
+
+Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application’s services. Then, with a single command, you create and start all the services from your configuration. To learn more about all the features of Compose, see [the list of features](https://docs.docker.com/compose/#features).
+
+Compose works in all environments: production, staging, development, testing, as well as CI workflows. You can learn more about each case in [Common Use Cases](https://docs.docker.com/compose/#common-use-cases).
+
+Using Compose is basically a three-step process:
+
+1. Define your app’s environment with a `Dockerfile` so it can be reproduced anywhere.
+2. Define the services that make up your app in `docker-compose.yml` so they can be run together in an isolated environment.
+3. Run `docker compose up` and the [Docker compose command](https://docs.docker.com/compose/cli-command/) starts and runs your entire app. You can alternatively run `docker-compose up` using the docker-compose binary.
+
+
+
+Compose是Docker官方的开源项目 ，需要安装！
+
+Dockerfile 让程序在任何地方运行 web服务。 redis、mysql、nginx ...多个容器
+
+```yaml
+version: "3.9"  # optional since v1.27.0
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/code
+      - logvolume01:/var/log
+    links:
+      - redis
+  redis:
+    image: redis
+volumes:
+  logvolume01: {}
+```
+
+`docker-compose up` 
+
+- 服务service，容器、应用 （web、redis、mysql ...）
+- 项目project。 一组关联的容器。
+
+
+
+### 安装
+
+可根据官网 安装
+
+```shell
+sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
+
+
+流程：
+
+1、创建网络
+
+2、执行Docker-compose.yaml
+
+3、启动服务
+
+
+
+默认的服务名 文件名_ 服务名 _ num
+
+多个服务器 集群 A B _num 副本数量
+
+集群状态。 服务都不可能只有一个运行时。 弹性 、10 HA 高并发
+
+kubectl service 负载均衡。
+
+### 网络规则
+
+10个服务 => 项目 (项目中的内容都在同个网络下，域名访问)
+
+mysql:3306
+
+10个容器实例 ： mysql  redis
+
+停止：docker-compose down ctrl+c
+
+
+
+### yaml 规则
+
+```yaml
+# 3层 
+version:'' # 版本
+services: # 服务
+	服务1：web
+        # 服务配置
+        images
+        build
+        network
+        ...
+    服务2：redis
+
+# 其他配置 网络/卷 全局规则
+volumes:
+networks:
+configs:
+```
+
+
+
+
+
+## Docker Swarm
+
+集群
+
+
+
+
+
