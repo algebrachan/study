@@ -799,6 +799,9 @@ print('Main program waited until background was done.')
           pass
       return False
   
+  def set_redis(obj, key, sec):
+      obj2hash(obj, key)
+      r.expire(key, sec)  # 过期时间
   
   ```
 
@@ -881,3 +884,89 @@ if __name__ == '__main__':
 [参考网址](https://zhuanlan.zhihu.com/p/38330574)
 
 - 
+
+
+
+## 7.常见中间件的python使用
+
+### 7.1 redis
+
+- [参考网址](https://www.runoob.com/w3cnote/python-redis-intro.html)
+-  `pip install redis`
+
+```python
+import redis
+
+pool = redis.ConnectionPool(host='localhost', port=6379,db=0,decode_responses=True)
+r=redis.Redis(connection_pool=pool)
+r.set('name', 'runoob')  # 设置 name 对应的值
+print(r.get('name'))  # 取出键 name 对应的值
+
+# string 操作 
+set(name, value, ex=None, px=None, nx=False, xx=False) # ex-过期时间(秒) px-过期(毫秒) nx- 为true只有不存在时set xx-为true只有存在的时候才set
+mset(*args, **kwargs) # 批量设置值
+r.mset({"k1":"v1", "k2":"v2"})
+mget(keys, *args) # 批量获取
+getset(name, value) # 设置新值并获取原来的值
+getrange(key, start, end) # 截取
+setrange(key,offset,value) # 指定字符替换
+append(key, value) # 
+
+# hash 操作
+hset(name, key, value) # 单个增加或修改
+hkeys(name) # 获取hash所有key
+hget(name,[keys]) # 获取hash 对应key的值
+hsetnx(name,key,value) # key不存在时创建
+
+hmset(name, mapping) # 批量增加 mapping-字典 hmset方法已过期
+r.hset("hash2",mapping={"k6": "v6", "k7": "v7"})
+hgetall(name) # 获取所有键值 返回一个字典mapping
+hlen(name) # 获键值对个数
+hvals(name) # 获取所有值
+hexists(name,key) # key是否存在
+hdel(name,*keys) # 删除指定的键值对
+hincrby(name, key, amount=1) # 自增
+hincrbyfloat(name, key, amount=1.0) # 浮点数 自增
+hscan(name, cursor=0, match=None, count=None) # 分片读取
+hscan_iter(name, match=None, count=None)# 分批读取
+
+# list
+lpush(name,values) # 添加到列表最左边
+lpushx(name,value) # 只有name存在时才添加
+lrange(name,start,end) # 取出索引号 s - e (-1为最后一个元素)
+rpush(name,value) # 添加到右边
+rpushx(name,value)
+lset(name,index,value) # 指定索引号修改
+lrem(name,value,num) # 要删除的值，num 从前到后删除几个 0为全部
+lpop(name) # 获取左边第一个元素 返回并移除
+rpop(name)# 右边
+ltrim(name, start, end) # 删除索引之外的值
+lindex(name, index) # 根据索引号取值
+rpoplpush(src, dst) # 移动
+blpop(keys, timeout)
+brpop(keys, timeout)
+
+# set
+sadd(name,values)
+scard(name) # 获取个数
+smembers(name) # 获取所有成员
+
+#zset
+zadd
+zcard
+r.zrange( name, start, end, desc=False, withscores=False, score_cast_func=float)
+zrem(name,values)
+
+# 迭代器
+for i in r.hscan_iter("hash1"):
+    print(i)
+sscan_iter
+zscan_iter
+```
+
+
+
+### 7.2 MongoDB
+
+- [参考网页](https://www.runoob.com/python3/python-mongodb.html)
+-  `pip install pymongo`
