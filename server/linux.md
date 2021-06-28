@@ -67,6 +67,9 @@ ufw delete allow/deny 20 # 移除
 # 解决 sudo经常需要额外输入密码的问题
 # |:管道 将前面的输出作为后面的 stdin  -S 从标准输入读取密码
 echo (password) | sudo -S (command)
+# 新增用户
+sudo useradd -s /bin/bash -d /home/wangchen -m wangchen
+sudo passwd <user_name> 
 ```
 
 

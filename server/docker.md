@@ -794,15 +794,103 @@ networks:
 configs:
 ```
 
+多写，多看，compose.yaml 配置
+
+- 官方文档
+- 开源项目
+
 
 
 
 
 ## Docker Swarm
 
-集群
+- 集群管理
+  - manager
+  - worker
+- node：节点，多个节点组成了一个网络集群
+- service：docker集群的核心
+
+![Swarm mode cluster](docker.assets\swarm-diagram.png)
+
+```shell
+# 初始化 swam 
+docker swarm init --advertise-addr 私网地址
+# 私网 公网
+# 获取令牌
+docker swarm join-token manager
+docker swarm join-token worker
+# 加入节点
+docker swarm join --token xxx xx.xx.xx.xx.:2377
+
+docker node ls
+
+```
+
+### Raft协议
+
+双主双从： 假设一个节点挂了，其他节点是否可用
+
+Raft协议：保证大多数节点存活才可用， 只要>1 集群至少大于3台
 
 
 
+弹性、扩容！集群！
 
+docker-compose up 启动一个项目 单机
+
+集群： swarm docker service
+
+容器 => 服务 => 副本
+
+redis 服务 => 10 个副本 (同时开启 10个redis容器)
+
+
+
+ 灰度发布：金丝雀发布
+
+```shell
+docker run 容器启动 不具有扩缩容器
+docker service 服务启动 具有扩缩容器，滚动更新！
+
+docker service create -p 8888:80 --name my-nginx nginx
+# 扩容
+docker service update --replicas 10 my-nginx
+docker service update --replicas 1 my-nginx
+# 扩容
+docker service scale my-nginx=5
+
+docker service rm my-nginx
+```
+
+### 总结
+
+命令 -> 管理 -> api -> 调度 -> 工作节点(创建Task容器维护创建)
+
+
+
+## Docker 其他命令
+
+docker-compose 单机部署项目
+
+**Docker Stack**部署，集群部署！
+
+```shell
+docker-compose up -d wordpress.yaml
+
+docker stack deploy wordpress.yaml
+
+```
+
+
+
+**Docker Secret**
+
+安全！ 配置密码，证书！
+
+**Docker Config**
+
+![image-20210628161757343](docker.assets\image-20210628161757343.png)
+
+未来需要学习Golang语言，天生的并发语言
 
