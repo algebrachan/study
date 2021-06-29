@@ -328,9 +328,25 @@ docker pull tomcat
 docker run -d 3355:8080 --name tomcat01 tomcat
 # 进入容器
 docker exec -it tomcat01 /bin/bash
-
-
 ```
+
+### 安装MongoDB
+
+```shell
+docker search mongo
+docker pull mongo:latest
+docker run -itd --name mongo -p 27017:27017 mongo --auth # --auth 需要密码
+
+docker exec -it mongo mongo admin
+# 创建一个名为 admin，密码为 123456 的用户。
+db.createUser({ user:'admin',pwd:'123456',roles:[ { role:'userAdminAnyDatabase', db: 'admin'},"readWriteAnyDatabase"]});
+db.auth('admin', '123456')
+
+# 连接
+mongodb://admin:123456@localhost/
+```
+
+
 
 
 

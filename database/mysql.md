@@ -31,6 +31,8 @@ ALTER USER 'root'@'localhost' IDENTIFIED BY '123456' PASSWORD EXPIRE NEVER;
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '123456'; 
 FLUSH PRIVILEGES;   #刷新权限 
 alter user 'root'@'%' identified by '123456'; #重置密码
+
+# 重启mysql
 ```
 
 - ERROR 2003 (HY000): Can't connect to MySQL server on '10.50.63.63' (10061)

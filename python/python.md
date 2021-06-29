@@ -970,3 +970,37 @@ zscan_iter
 
 - [参考网页](https://www.runoob.com/python3/python-mongodb.html)
 -  `pip install pymongo`
+
+
+
+```python
+# 连接
+myclient = pymongo.MongoClient("mongodb://admin:123456@10.50.63.63:27017")
+dblist = myclient.list_database_names()
+mydb = myclient["database"]
+mycol = mydb["collection"]
+
+# 插入
+mydict = { "name": "RUNOOB", "alexa": "10000", "url": "https://www.runoob.com" }
+mycol.insert_one(mydict)
+
+# 查询 0和1 不能同时存在 _id 除外
+for x in mycol.find({},{ "_id": 0, "name": 1, "alexa": 1 }):
+  print(x)
+find_one
+
+# 修改数据
+myquery = { "name": { "$regex": "^F" } }
+newvalues = { "$set": { "alexa": "123" } }
+ 
+x = mycol.update_many(myquery, newvalues)
+update_one()
+# 排序
+mydoc = mycol.find().sort("alexa")
+# 删除
+myquery = { "name": "Taobao" }
+mycol.delete_one(myquery)
+myquery = { "name": {"$regex": "^F"} }
+x = mycol.delete_many(myquery)
+```
+
