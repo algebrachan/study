@@ -623,6 +623,186 @@ print('Main program waited until background was done.')
   logger = Logger(path+'server.log', when='D').logger
   ```
 
+
+
+#### logging
+
+>   `logging`：【标准库】功能齐全且灵活的日志记录模块，可方便地设置输出日志的等级、输出方式、保存路径、日志文件回滚。
+
+- 日志是对软件执行时所发生事件的追踪方式。常用于记录异常的错误信息，并让程序继续执行下去。
+- 在最简单的情况下，日志消息被发送到文件或 `sys.stderr`
+- 日志设计的好坏决定了问题排查的难易程度，对于日志的评价标准有三个：
+    - 覆盖度：是否对程序运行应记录处进行记录，如异常、外部调用、一条调用链路上的入口、出口和路径关键点上等。
+    - 清晰度：清晰的表达程序目前的状态，统一风格。
+    - 信息量：调用的上下文、外部的返回值，用于查询的关键字等，便于分析信息。
+        对于线上系统来说，一般可以通过调整日志级别来控制日志的数量，所以打印日志的代码只要不对阅读造成障碍，基本上都是可以接受的。
+
+#### 结构
+
+- 日志系统可以直接从 Python 配置，也可以从用户配置文件加载，以便自定义日志记录而无需更改应用程序。
+- Logger: 日志器，提供程序可用接口
+- Handler: 处理器，将 logger 创建的日志发送到合适目的地输出
+    - StreamHandler：将日志信息输出到 sys.stdout, sys.stderr 或类文件对象
+    - FileHander：将日专信息输出到磁盘文件
+    - NullHandler：空操作 handler
+- Filter：过滤器，提供更细的控制，控制输出哪条，丢弃哪条
+- Formatter：格式化器，决定日志输出格式
+- Logger 通过 handler 将日志输出到不同目标位置，可以设置多个处理器输出到不同位置
+    每个 handler 可以设置自己的 filter，实现日志过滤
+    每个 handler 可以设置自己的 formater, 实现同一条日志 以不同格式输出到不同地方
+
+
+
+#### 简单模式
+
+```python
+import logging
+# filename 指定日志存放文件，level 指定 logging 级别
+logging.basicConfig(filename="out.log",		# 指定日志文件名
+                    level=logging.INFO,
+                    filemode='a',			# 指定日志文件的打开模式
+                    format='%(asctime)s - %(filename)s[line:%(lineno)d]  - %(levelname)s - %(message)s)
+logging.debug('test')
+                    
+datefmt: 指定时间格式，同 time.strftime()，默认为%Y-%m-%d %H:%M:%S
+level: 设置日志级别，默认为 logging.WARNING
+stream: 指定将日志的输出流，可以指定输出到 sys.stderr,sys.stdout 或者文件，默认输出到 sys.stderr，当 stream 和 filename 同时指定时，stream 被忽略
+format 参数指定输出的格式和内容：
+  %(name)s                 Logger 的名字
+  %(levelno)s             数字形式的日志级别
+  %(levelname)s           文本形式的日志级别
+  %(pathname)s           调用日志输出函数的模块的完整路径名，可能没有
+  %(filename)s             调用日志输出函数的模块的文件名
+  %(module)s               调用日志输出函数的模块名
+  %(funcName)s           调用日志输出函数的函数名
+  %(lineno)d                 调用日志输出函数的语句所在的代码行
+  %(created)f                当前时间，用 UNIX 标准的表示时间的浮 点数表
+  %(relativeCreated)d    输出日志信息时的，自 Logger 创建以 来的毫秒数
+  %(asctime)s                字符串形式的当前时间。默认格式是 "年-月-日 时:分:秒,毫秒",'%a, %d %b %Y %H:%M:%S',
+  %(thread)d                 线程 ID。可能没有
+  %(threadName)s        线程名。可能没有
+  %(process)d               进程 ID。可能没有
+  %(message)s              用户输出的消息
+```
+
+```python
+TimedRotatingFileHandler(
+    filename, 	# 输出日志文件名的前缀
+    [when,		# 字符串，“S”: Seconds, “M”: Minutes, “H”: Hours, “D”: Days, “W”: Week day (0=Monday), “midnight”: Roll over at midnight
+     [interval,	# 指等待多少个单位 when 的时间后，Logger 会自动重建文件，当然，这个文件的创建取决于 filename+suffix，若这个文件跟之前的文件有重名，则会自动覆盖掉以前的文件，所以有些情况 suffix 要定义的不能因为 when 而重复。
+      [backupCount	# 保留日志个数。默认的 0 是不会自动删除掉日志。若设 10，则在文件的创建过程中库会判断是否有超过这个 10，若超过，则会从最先创建的开始删除。
+      ]]])
+```
+
+```python
+def setup_logger(log_file, name='test', log_level=logging.DEBUG):
+    """创建日志器
+
+    Arguments:
+        log_file {rstr} -- 日志保存的文件
+
+    Keyword Arguments:
+        name {str} -- 日志器的名称 (default: {'test'})
+        log_level {int} -- 日志器的级别 (default: {logging.DEBUG})
+
+    Returns:
+        logger -- 创建的日志器
+    """
+
+    # 创建 logger
+    my_logger = logging.getLogger(name)
+    my_logger.setLevel(log_level)
+    # 创建 handler
+    handler_file_size = logging.handlers.RotatingFileHandler(
+        filename=log_file, mode='a', maxBytes=1 * 1024 * 1024, backupCount=3, encoding='utf-8')
+    # 设置输出格式
+    formatter = logging.Formatter(
+        # 时间 文件名 文件行号 函数名 日志等级 输出的信息
+        fmt="[%(asctime)s %(filename)s:%(lineno)d:%(funcName)s]:%(levelname)s: %(message)s",
+        datefmt='%m-%d %H:%M:%S')
+    handler_file_size.setFormatter(formatter)
+    my_logger.addHandler(handler_file_size)
+    # 设置日志器输出到 print 流
+    print_stream = logging.StreamHandler()
+    print_stream.setFormatter(formatter)
+    my_logger.addHandler(print_stream)
+    return my_logger
+```
+
+#### logger 日志器
+
+- 可代码配置，也可使用 conf 配置文件
+
+```python
+logger=logging.getLogger('mylogger')	# 日志器，提供程序可用接口
+logger.setlevel(logging.DEBUG)     
+# 如果把 logger 的级别设置为 INFO， 那么小于 INFO 级别的日志都不输出(即 debug 的不输出)，大于等于 INFO 级别的日志都输出，
+logger.debug('test message') 	# 等级 1，调试，最低，如记录算法中每个循环的中间状态。
+logger.info("test message") 	# 等级 2，信息，处理请求或状态变化等日常事务，确认程序按预期运行
+logger.warning("test message")  # 等级 3，警告，发生重要的事，但并不是错误，如用户登录密码错误，程序仍按预期进行
+logger.error("foobar")      	# 等级 4，错误，程序的某些功能已经不能正常执行。如 IO 操作失败，或连接失败
+logger.critical("foobar")   	# 等级 5，危急，表明程序已不能继续执行，如内存、磁盘耗尽，一般较少使用
+
+try:
+    open("sklearn.txt","rb")
+except (SystemExit,KeyboardInterrupt):
+    raise
+except Exception:
+    logger.error("Faild to open sklearn.txt from logger.error",exc_info = True)
+logger.info("Finish")
+```
+
+#### 文件配置
+
+```python
+import logging
+import logging.config
+
+logging.config.fileConfig('logging.conf')
+
+# create logger
+logger = logging.getLogger('simpleExample')
+
+# 'application' code
+logger.debug('debug message')
+logger.info('info message')
+logger.warning('warn message')
+logger.error('error message')
+logger.critical('critical message')
+```
+
+这是 logging.conf 文件：
+
+```
+[loggers]
+keys=root,simpleExample
+
+[handlers]
+keys=consoleHandler
+
+[formatters]
+keys=simpleFormatter
+
+[logger_root]
+level=DEBUG
+handlers=consoleHandler
+
+[logger_simpleExample]
+level=DEBUG
+handlers=consoleHandler
+qualname=simpleExample
+propagate=0
+
+[handler_consoleHandler]
+class=StreamHandler
+level=DEBUG
+formatter=simpleFormatter
+args=(sys.stdout,)
+
+[formatter_simpleFormatter]
+format=%(asctime)s - %(name)s - %(levelname)s - %(message)s
+```
+
 ### 4.3 json
 
   ```python
