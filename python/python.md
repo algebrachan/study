@@ -180,6 +180,8 @@ spam and eggs
 
 - 其他说明：为了让 Python 将目录当做内容包，目录中必须包含 `__init__.py` 文件
 
+
+
 ### 2.3 调试
 
 ```python
@@ -225,6 +227,31 @@ squares = list(map(lambda x: x**2, range(10)))
 squares = [x**2 for x in range(10)]
 # 转置
 list(zip(*matrix))
+```
+
+### 2.6 语法糖
+
+- 字符串前加字母
+
+```python
+# 字符串前加 r
+# 1.r'' 的作用是去除转义字符.
+# 2.正则表达式 
+str = r'input\n'
+
+# 字符串前加 f
+# 以 f开头表示在字符串内支持大括号内的python 表达式
+f'{name} done in {time.time() - t0:.2f} s'
+
+# 字符串前加 b
+# b'' 表示字符串是byte类型
+str.encode('utf-8')
+bytes.decode('utf-8')
+
+# 字符串前加 u
+# 表示有中文的字符串 防止乱码
+
+
 ```
 
 
