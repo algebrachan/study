@@ -1,5 +1,99 @@
 # Redis
 
+## 0. 概述
+
+### 0.1 NoSQL
+
+- Not Only Sql
+
+> NoSQL特点
+
+解耦
+
+1、方便扩展（数据之间没有关系，很好扩展）
+
+2、大数据量高性能 （一秒写8万次，读取11万次，缓存记录级，是一种细粒度的缓存）
+
+3、数据类型是多样型的
+
+4、键值对
+
+### 0.2 场景分析
+
+> 架构师需要面对的问题
+
+```bash
+# 1.商品的基本信息
+	名称、价格、商家信息 mysql
+  
+# 2.商品的描述、评论
+	文档型数据库 mysql
+  
+# 3.图片
+	分布式文件系统 FastDFS
+	- TFS
+	- GFS
+	- HDFS
+	- OSS
+
+# 4.商品关键字（搜索）
+	- 搜索引擎 solr elasticsearch
+	- ISearch: 多隆
+	
+# 5.商品热门的波段信息
+	- 内存数据库
+	- Redis、Tair、Memache
+	
+# 6.商品的交易
+	第三方接口整合
+# 使用统一的数据服务层 UDSL
+
+```
+
+### 0.3 Redis概述
+
+Redis （Remote Dictionary Server）远程字典服务
+
+> Redis能干嘛
+
+1、内存存储，持久化，（rdb，aof）
+
+2、效率高，可用于高速缓存
+
+3、发布订阅系统
+
+4、地理信息分析
+
+5、计时器、计数器
+
+
+
+#### redis基本知识
+
+- 默认有16个数据库，默认使用 db 1；select切换
+- redis是单线程的，CPU不是瓶颈，内存是瓶颈
+
+
+
+```shell
+select 1 # 切换数据库
+DBSIZE # 数据库大小
+keys * # 获取db所有的key
+flushall # 清空所有数据
+flushdb # 清空当前db
+
+```
+
+> redis是单线程，还这么快？
+
+1、多线程（cpu上下文切换，争夺资源）不一定比单线程效率高
+
+2、高性能的服务器不一定是多线程的
+
+核心：redis将所有数据全部放在内存中，所以效率高。对于内存系统来说，没有上下文切换，效率是最高的
+
+
+
 ## 1. 安装配置
 
 https://blog.csdn.net/erlian1992/article/details/54382443
@@ -92,7 +186,18 @@ CONFIG SET appendonly yes
   $ sudo service nginx reload
   ```
 
-  
+
+### 1.4 性能测试
+
+redis-benchmark
+
+![image-20210703214019402](redis.assets\image-20210703214019402.png)
+
+```shell
+redis-benchmark -h localhost -p 6379 -c 100 -n 10000
+```
+
+
 
 ## 2. 数据类型
 
@@ -262,7 +367,7 @@ flushall # 删除所有key
 
 
 
-## 4.redis python操作
+## 4. redis python操作
 
 ### 4.1 基本操作
 
