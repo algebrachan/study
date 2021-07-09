@@ -82,6 +82,12 @@ keys * # 获取db所有的key
 flushall # 清空所有数据
 flushdb # 清空当前db
 
+set name 1
+get name
+EXISTS name # 是否存在
+move name # 移除
+EXPIRE name 10 # 单点登陆可以设置过期时间
+ttl name # 查看过期时间
 ```
 
 > redis是单线程，还这么快？
@@ -91,6 +97,174 @@ flushdb # 清空当前db
 2、高性能的服务器不一定是多线程的
 
 核心：redis将所有数据全部放在内存中，所以效率高。对于内存系统来说，没有上下文切换，效率是最高的
+
+#### redis配置文件
+
+> 单位 redis.conf 对大小写不敏感
+
+![image-20210709142601019](redis.assets\image-20210709142601019.png)
+
+> 包含: 可以包含多个配置文件的引入
+
+![image-20210709142638136](redis.assets\image-20210709142638136.png)
+
+> 网络
+
+```bash
+bind 127.0.0.1 ::1 # 绑定ip
+protected-mode yes # 保护模式
+port 6379	# 端口
+```
+
+> 通用配置
+
+```bash
+daemonize yes # 以守护进程的方式进行，默认为no 需要开启 yes
+pidfile /var/run/redis/redis-server.pid # 守护进程的 pid 文件
+loglevel notice # 日志级别 
+# This can be one of:
+# debug (a lot of information, useful for development/testing)
+# verbose (many rarely useful info, but not a mess like the debug level)
+# notice (moderately verbose, what you want in production probably)
+# warning (only very important / critical messages are logged)
+
+logfile /var/log/redis/redis-server.log # 日志文件夹
+databases 16	# 数据库数量
+```
+
+> 快照
+
+持久化，在规定的时间内执行了多少次，则会持久化到文件， .rdb .aof
+
+redis是内存数据库，如果没有持久化，那么数据断电及失
+
+```bash
+#   save ""
+
+save 900 1		# 如果900内，至少有一个1 key 进行了修改，我们进行持久化操作
+save 300 10 	# 300s内 至少10 key 进行了修改，我们进行持久化
+save 60 10000 
+
+stop-writes-on-bgsave-error yes # 持久化错误之后是否进行继续操作，默认开启
+rdbcompression yes # 是否需要 压缩rdb文件，需要消耗一些资源
+rdbchecksum yes # 保存rdb文件的时候，进行错误的检查校验
+dir ./  # rdb文件保存的目录
+
+```
+
+> security
+
+```bash
+# 设置redis密码
+config set requirepass "123456"
+auto 123456 # 使用密码进行登陆
+```
+
+> 限制clients
+
+```bash
+maxclients 10000 # 设置最大客户端的数量
+maxmemory <bytes> # 最大内存
+maxmemory-policy noeviction # 内存到达上线之后的处理策略
+		# 移除一些过期的key
+```
+
+> APPEND ONLY MODE  aof配置
+
+```bash
+appendly no # 默认不开启，默认使用rdb方式持久化，
+appendfilename "appendonly.aof" # 配置文件名称
+
+# appendfsync always # 每次修改都会同步
+appendfsync everysec # 每秒同步
+# appendfsync no	 # 不同步
+
+```
+
+
+
+#### RDB(Redis DataBase)
+
+在指定的时间间隔内将内存中的数据集快照写入磁盘， snapshot快照，它恢复时是将快照文件直接读到内存里
+
+Redis会单独创建 fork 一个子进程来进行持久化，会先将数据写入到一个临时文件中，待持久化过程结束，再用这个临时文件替换上次持久化好的文件。整个过程，主进程是不进行IO操作的。缺点是最后一次持久化的数据可能丢失
+
+> 触发机制
+
+- save的规则满足的情况下，会自动触发rdb规则
+- 执行flushall命令，也会触发我们的rdb规则
+- 退出redis，也会产生rdb文件！
+
+> 如果恢复rdb文件
+
+- 只需要将rdb文件放在我们redis启动目录就可以，redis启动的时候回自动检查dump.rdb
+- `config get dir` 查看路径 dump.rdb
+
+
+
+#### AOF(Append Only File)
+
+将我们所有命令都记录下来，恢复的时候就把这个文件全部在执行一遍
+
+优点：每次修改都同步，文件完整性会更加好
+
+没秒同步一次，可能会丢失一秒的数据
+
+从不同步，效率最高
+
+缺点：aof数据文件远大于rdb，修复的速度也比rdb慢
+
+
+
+### 0.4 Redis集群
+
+#### 主从复制
+
+master ， slave 
+
+主机以写为主，从机以读为主，读写分离，减缓服务器压力
+
+作用：
+
+- 数据冗余
+- 故障恢复
+- 负载均衡
+- 高可用
+
+```bash
+info replication # 查看当前库的信息 
+# 通过命令配置
+slaveof 127.0.0.1 6379 # 在从机中配置主机
+slaveof no one # 主机断开，从机手动设置为主节点
+
+# 配置文件配置，永久的
+
+```
+
+- 增量复制
+- 全量复制
+
+#### 哨兵模式
+
+配置哨兵配置文件 sentinel.conf
+
+```bash
+sentinel monitor myredis 127.0.0.1 6379 1
+```
+
+优点：
+
+哨兵集群，基于主从复制
+
+主从可以切换，故障可以转移，系统可用性好
+
+缺点：
+
+redis不好在线扩容，集群容量一旦达到上限，扩容十分麻烦
+
+实现哨兵的配置十分麻烦，里面有很多选择
+
+
 
 
 
@@ -201,7 +375,7 @@ redis-benchmark -h localhost -p 6379 -c 100 -n 10000
 
 ## 2. 数据类型
 
-###  2.1 字符串
+###  2.1 String
 
 - key-value
 
@@ -212,15 +386,48 @@ redis-benchmark -h localhost -p 6379 -c 100 -n 10000
 - 实例
 
   ```shell
-  SET wc "王晨"
-  GET wc
+  SET key "王晨"
+  GET key
+  APPEND key "hello" # 追加字符串
+  STRLEN key # 字符串长度
+  
+  incr views # 加1 可用于浏览量
+  decr views # 减1
+  INCRBY views 10 # +10
+  DECRBY views 10 # -10
+  
+  GETRANGE key 0 3 # 截取字符串 [0,3]
+  GETRANGE key 0 -1 # 截取所有字符串
+  SETRANGE key 1 xx # 从第1个索引开始替换字符串
+  
+  # setex(set with expire) # 设置过期时间
+  # setnx(set if not exist) # 不存在再设置 如果存在则失败
+  
+  mset k1 v1 k2 v2 k3 v3 # 同时设置多个值
+  mget k1 k2 k3
+  msetnx k1 v1 # 
+  
+  # 对象
+  set user:1 {name:wc,age:27}
+  # user:{id}:{filed}
+  mset user:1:name zhangsan user:1:age 2
+  mget user:1:name user:1:age
+  
+  getset # 先获取再设置 
   ```
+
+- 使用场景
+
+  - 计数器
+  - 统计多单位的数量
+  - 粉丝数
+  - 对象缓存数据
 
 ### 2.2 Hash
 
 - redis hash 是一个键值对集合
 
-- string类型的field和value的映射表
+- string类型的field和value的映射表，本质和string类型没有区别
 
 - 场景：存储、读取、修改用户属性；编程中的对象
 
@@ -231,7 +438,20 @@ redis-benchmark -h localhost -p 6379 -c 100 -n 10000
   HGET runoob field1
   HGET runoob field2
   HGETALL runoob
+  HDEL runoob field1
+  
+  hlen myhash 
+  hkeys myhash # 只获取所有的field
+  hkeys myhash # 只后驱所有的value
+  hincrby myhash field3 1
+  hincrby myhash field -1 
+  
+  hsetnx myhash field4 hello # 如果不存在则可以设置，如果存在则不可设置
   ```
+  
+- 应用
+
+  - hash变更的数据 user name age 
 
 ### 2.3 List
 
@@ -246,7 +466,9 @@ redis-benchmark -h localhost -p 6379 -c 100 -n 10000
 - 实例
 
   ```shell
+  
   lpush runoob redis # lpush在头部加
+  rpush runoob redis # rpush在尾部加
   lrange runoob 0 10
   blpop key1 timeout # 移除并获取列表的第一个元素,若没有元素就阻塞
   brpop key1 timeout # 移除并获取列表的最后一个元素
@@ -254,32 +476,59 @@ redis-benchmark -h localhost -p 6379 -c 100 -n 10000
   lpop key # 移除获取第一个元素
   lpush key value # 插入到列表头部
   rpop key # 移除列表最后一个元素返回移除元素值
+  llen # 返回列表长度
+  lrem list count value
+  ltrim mylist 1 2 # 通过下标截取长度
+  rpoplpush mylist myotherlist # 移除列表最后一个元素，将他移动到新的列表中
+  
+  linsert # 将某个具体的value插入到列表中
+  linsert mylist before "world" "other"
+  linsert mylist after world new 
+  
   ```
+
+  > 小结
+
+  - 实际上是一个链表
+  - 在两边插入或者改动值，效率最高，获取中间元素，效率低一些，链表结构的特点：插入快，查询慢
+  - 可以实现消息队列（rpush，lpop），栈（lpush，lpop）
 
 ### 2.4 Set
 
-- Set是string类型的无序集合
+- Set是string类型的无序集合，唯一的
 
 - 操作的复杂度都是O(1)
 
 - 添加一个string元素到key对应的set集合中，成功返回1，元素已存在返回0
-
-- 场景：利用唯一性统计
 
 - 实例
 
   ```shell
   sadd runoob redis
   sadd runoob mongodb
+  
   smembers key # 返回集合中的所有成员
   smember key member # 判断member元素是否是集合key的成员
+  sismember key hello
+  
   scard key # 获取集合成员数
+  
   sinter key1 [key2] # 返回给定所有集合的交集
   sunion key1 [key2] # 返回集合的并
+  
   smove source destination member # 集合间移动元素
   spop key # 移除并返回集合中的一个随机元素
   
+  srandmember myset # 随机抽选一个元素
+  srandmember myset 2 # 随机抽选出指定类型的元素
+  spop myset # 随机弹出一个值
+  
+  
   ```
+  
+- 应用场景：
+
+  - 共同关注，共同爱好，推荐好友
 
 ### 2.5 zset 
 
@@ -296,11 +545,80 @@ redis-benchmark -h localhost -p 6379 -c 100 -n 10000
   zadd runoob 0 redis
   zadd runoob 0 rabbitmq
   ZRANGEBYSCORE runoob 0 1000
+  
+  zrange salary 0 -1
+  zrem salary xiaohong   # 移除
+  zcard salary # 获取有序集合中的个数
+  
   ```
 
+- 应用：
+
+  - 排行榜应用实现
+
+  - 存储班级成绩表，工资表排序 
+
+    
+
+### 2.6 geospatial 地理位置
 
 
-## 3. redis命令
+
+```shell
+geoadd china:city 116.40 39.90  beijing # 添加 经纬
+
+geopos china:city beijin # 查看
+
+geodist china:city beijin shanghai km # 计算距离 
+
+georadius china:city 110 30 1000 km # 以给定的经纬度为中心，通过半径来查询
+
+geohash china:city beijing shanghai # 返回当前经纬度的hash字符串 将二维降维到一维
+
+```
+
+> GEO 底层的实现原理其实就是Zset 我们可以使用Zset命令来操作GEO
+
+
+
+### 2.7 Hyperloglog
+
+> 什么是基数？ 找不重复的元素的个数
+
+- Hyperloglog 基数统计的算法
+
+```shell
+pfadd mykey a b c d e f
+pfadd mykey2 i j z x c b n 
+pfcount mykey2
+pfmeger mykey3 mykey mykey2 # 合并
+pfcount mykey3
+
+```
+
+- 应用：
+  - 网页的UV
+
+
+
+### 2.8 Bitmaps位图
+
+> 位存储
+
+统计用户信息，活跃，不活跃！ 登陆、未登陆！ 打卡，未打卡！ 两个状态的都可以使用bitmaps
+
+都是操作二进制位来进行记录，就只有0和1两个状态
+
+```shell
+setbit sign 0 0
+bitcount sign
+```
+
+
+
+
+
+## 3. redis功能
 
 ### 3.1 通用命令
 
@@ -332,6 +650,19 @@ unsubscribe channel # 退订给定的频道
 
 ```
 
+- 应用场景：
+  - 构建即使通信应用，实时广播，实时提醒
+
+> 原理
+
+通过 subscribe 命令订阅某频道后，redis-server 里维护了一个字典，字典的键就是一个个频道，字典的值则是一个链表。链表中保存了所有订阅这个channel的客户端，subscribe命令的关键 就是将客户添加到给定 channel 的订阅链表中
+
+publish命令向订阅者发送消息，redis-server会使用给定的频道作为键，在它维护的channel字典中查找记录了订阅这个频道的所有客户端的链表，遍历这个链表，将消息发布给所有订阅者
+
+
+
+
+
 ### 3.3 事务
 
 - 事务的执行不是原子性
@@ -345,7 +676,29 @@ exec # 事务结束
 # 若b处失败，则a不会回滚 c会继续
 
 discard # 取消事务
+
+watch money # 加锁
+unwatch # 解锁
+
 ```
+
+> 监控！Watch 是乐观锁
+
+**悲观锁**
+
+什么时候都会出问题，无论做什么都会加锁
+
+**乐观锁**
+
+什么时候都不会出问题，所以不会上锁! 更新数据的时候去判断一下，在此期间是否有人修改过这个数据
+
+获取version
+
+更新的时候比较version
+
+> Redis监测测试
+
+
 
 ### 3.4 服务器命令
 
@@ -367,9 +720,9 @@ flushall # 删除所有key
 
 
 
-## 4. redis python操作
+## 4. redis SDK操作
 
-### 4.1 基本操作
+### 4.1 python基本操作
 
 - [参考网址](https://www.runoob.com/w3cnote/python-redis-intro.html)
 
@@ -443,3 +796,6 @@ sscan_iter
 zscan_iter
 ```
 
+### 4.2 Jedis
+
+> 什么是jedis 是 redis 官方推荐的 java 连接开发工具！使用java 操作redis 的中间件
