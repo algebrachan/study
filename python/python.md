@@ -166,6 +166,7 @@ knights = {'gallahad': 'the pure', 'robin': 'the brave'}
 for k, v in knights.items():
 	print(k, v)
     
+    
 # 循环多个序列 zip 
 # 1对1循环
 questions = ['name', 'quest', 'favorite color']
