@@ -150,29 +150,33 @@ some_dict = tree()
 some_dict['colours']['favourite'] = "yellow"
 
 # 循环技巧
-#enumerate 应用在list中
+# enumerate 应用在list中
+# c为序号，从1开始
 my_list = ['apple', 'banana', 'grapes', 'pear']
 for c, value in enumerate(my_list, 1):
     print(c, value)
+# 输出:
+(1, 'apple')
+(2, 'banana')
+(3, 'grapes')
+(4, 'pear')    
+
 # dict循环
 knights = {'gallahad': 'the pure', 'robin': 'the brave'}
 for k, v in knights.items():
 	print(k, v)
-# 循环多个序列 zip
+    
+# 循环多个序列 zip 
+# 1对1循环
 questions = ['name', 'quest', 'favorite color']
 answers = ['lancelot', 'the holy grail', 'blue']
 for q, a in zip(questions, answers):
 	print('What is your {0}?  It is {1}.'.format(q, a))
     
-# 输出:
-(1, 'apple')
-(2, 'banana')
-(3, 'grapes')
-(4, 'pear')
-
 # dir 对象自省， 返回该对象的所有属性
 
 # str.format 字符串格式化
+# 建议使用 f'{}'
 print('{0} and {1}'.format('spam', 'eggs'))
 spam and eggs
 
@@ -205,6 +209,7 @@ def decorator_name(f):
         return f(*args, **kwargs)
     return decorated
 
+# 装饰者 在func函数之前再进行一步操作，常见应用场景，拦截器
 @decorator_name
 def func():
     return("Function is running")
