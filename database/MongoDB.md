@@ -323,6 +323,7 @@ sharding:
 ```shell
 use admin
 db.createUser({user:"myroot",pwd:"123456",roles:["root"]})
+db.createUser({user:"admin",pwd:"123456",roles:["root"]})
 # 创建一个普通用户
 db.createUser({user:"fadmin",pwd:"furnace123456",roles:[{role:"root",db:"furnace"}]})
 db.auth("furnace","furnace123456")

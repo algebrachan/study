@@ -293,3 +293,207 @@ for (offset,item) in enumerate(S):
 ```
 
 > 迭代器
+
+```python
+# 文件迭代器
+f = open('xx.py')
+f.readline()
+# __next__() 方法 也可迭代，但是到文件末尾时，__next__会引发内置的StopIteration异常
+
+# 内置函数next() 自动调用对象的__next__方法
+# 迭代器 iter()
+L = [1,2,3]
+I = iter(L)
+next(I)
+next(I)
+# 迭代器有记录功能，一旦迭代了，上一条的数据不会重复,dict对象可用迭代器遍历
+# map zip filter迭代器,遍历一次，就用尽了,只支持一个迭代器
+
+# range()支持多个爹地阿奇
+
+# 字典视图迭代器 它返回连续的键，无需在环境中调用keys
+
+```
+
+> 文档
+
+| 形式                | 角色                       |
+| ------------------- | -------------------------- |
+| #注释               | 文件中的文档               |
+| dir函数             | 对象中可用属性的列表       |
+| 文档字符串 __ doc__ | 附加在对象上的文件中的文档 |
+
+
+
+### 4. 函数
+
+函数是python为了代码最大程度的重用和最小化代码冗余而提供的最基本的程序结构
+
+def	创建了一个对象并将其赋值给某一变量名
+
+lambda	创建了一个对象但将其作为结果返回
+
+return	将一个结果对象发送给调用者
+
+yield	向调用者发回一个结果对象，但是记住它离开的地方
+
+global	声明了一个模块级的变量并被赋值
+
+```python
+# 可以将函数赋值给一个不同的变量名，并通过新的变量名进行了调用
+othername = func
+othername()
+
+```
+
+> 作用域
+
+- 内嵌的模块是全局作用域
+- 全局作用域的作用范围仅限于单个文件
+- 每次对函数的调用都创建了一个新的本地作用域
+- 赋值的变量名除非声明为全局变量或非本地变量，否则均为本地变量 global来声明
+
+```python
+# 工厂函数
+def maker(N):
+    def action(X):
+        return X ** N
+    return action
+f = maker(2)
+g = maker(3)
+f(3) # 9
+g(3) # 27
+# nonlocal使用 内嵌变量可以改变父函数的值
+def tester(start):
+    state = start
+    def nested(label):
+        nonlocal state
+        print(label,state)
+        state += 1
+    return nested
+
+F = tester(0)
+F('spam')
+```
+
+> 参数
+
+```python
+def(*args):print(args) # 把所有参数收集到一个新的元组
+
+def(**args):print(args) # 把关键字参数传递给一个新的字典
+    
+# 解包参数
+
+```
+
+> 函数高级
+
+函数式编程工具：filter，reduce，map
+
+```python
+filter((lambda x:x>0),range(-5,5)) # 过滤
+reduce((lambda x,y:x*y),[1,2,3,4]) # 计算 24
+# map是对每一个元素进行操纵 
+```
+
+yeild 保存状态
+
+return 直接返回值
+
+
+
+### 5. 模块
+
+- 模块语句会在首次导入时执行
+- 顶层的赋值语句会创建模块属性
+- 模块的命名空间能通过属性_dict_或dir获取
+- 模块是一个独立的作用域
+
+包导入，必须包含init.py这个包文件
+
+```python
+#  以__name__进行单元测试
+#  模块设计理念
+# 1.总是在python的模块内编写代码
+# 2.模块耦合要降低到最低：全局变量
+# 3.最大化模块的粘合性：统一目标
+# 4.模块应该少去修改其他模块的变量
+
+```
+
+
+
+### 6. 类和OOP
+
+类通过继承进行定制
+
+- 超类(父类)列在了类开头的括号中
+- 类从其超类中继承属性
+- 实例会继承所有可读取类的属性
+- 每个object.attribute都会开启新的独立搜索
+- 逻辑的修改是通过创建子类，而不是修改超类
+
+```python
+# class中
+# method(self,params) # class中的方法都需要加self
+
+# 类与字典的关系
+# x.__dict__ 类实例x转化为字典
+
+# __str__ 方法打印 类显示的文字
+```
+
+> 类与实例
+
+类产生多个实例对象
+
+- class语句创建类对象并将其赋值给变量名
+- class语句内的赋值语句会创建类的属性
+- 类属性提供对象的状态和行为
+
+实例对象是具体的元素
+
+- 像函数那样调用类对象会创建新的实例对象
+- 每个实例对象继承类的属性并获得了自己的命名空间
+- 在方法内对self属性做赋值运算会产生每个实例自己的属性
+
+> 类代码编写
+
+```python
+# python会自动把实例方法的调用对应到类方法函数
+instance.method(args...)
+class.method(instance,args...)
+
+# 希望子类实现父类的方法
+class Super:
+    def delegate(self):
+        self.action()
+#    def action(self):
+#       	raise NotImplementedError('action must be defined!')
+	@abstractmethod  # 等同于上述的作用 不能产生一个实例，除非在类的较低层级定义了该方法
+    def action(self):
+        pass
+class Sub(Super):
+    def action(self):
+        print('spam')
+
+```
+
+> 运算符重载
+
+```python
+#	__init__	构造函数	X=Class(args)
+#	__del__		析构函数	X对象回收
+#	__add__		运算符+	X+Y
+#	__or__		运算符|
+#	__repr__,__str__	打印	print(X) repr(X) str(X)
+#	__iter__,__next__	迭代环境
+#	__new__		在init之前创建对象
+#	__getitem__	索引
+#	__setitem__	分片
+
+```
+
+
+

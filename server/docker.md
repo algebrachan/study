@@ -207,6 +207,9 @@ wangchen@rtx3080:~$ sudo docker rmi -f 2c9028880e58 # 删除指定的镜像 id
 sudo docker rm -f $(sudo docker ps -aq)
 sudo docker rmi -f $(sudo docker images -aq) # 删除全部容器
 
+# 根据镜像id删除
+sudo docker image rm id
+
 ```
 
 
@@ -293,6 +296,13 @@ docker attach 容器ID  # 进入容器正在执行的终端 不会启动新的�
 
 # 容器主机互相拷贝文件
 docker cp 容器id:/home/xx /home # 容器 -->宿主机
+
+# 创建一个自定义容器卷
+docker volume create edc-nginx-vol 
+# 查看所有容器卷
+docker volume ls 
+# 查看指定容器卷详情信息
+docker volume inspect edc-nginx-vol 
 ```
 
 ## Docker实践
@@ -365,9 +375,67 @@ mongodb://admin:123456@localhost/
 
 
 
+### docker部署项目实战
+
+- 创建docker网络 `docker network create --driver bridge --subnet 192.168.0.0/16 --gateway 192.168.0.1 mynet`
+
+- 使用dockerfile创建web后端镜像
+
+   `sudo docker build -t myimage .`
+
+  sudo docker run -d --name myapi -p 8001:8001 -v /home/wangchen/docker/webapi/app:/app --net mynet myimage
+
+- 使用nginx创建前端镜像
+
+  ` sudo docker run -d --name myweb -p 3355:80 -p 8060:8060 -v /home/wangchen/docker/web/app:/usr/share/nginx -v /home/wangchen/docker/web/nginx/conf.d:/etc/nginx/conf.d --net mynet nginx`
+
+  sudo docker cp 20:/etc/nginx/conf.d /home/wangchen/docker/web/nginx
+
+  sudo docker cp 20:/etc/nginx/conf.d /home/wangchen/docker/web/nginx
+
+- 启动mysql镜像
+
+  sudo docker run  -d --name my-mysql  -p 3307:3306 -v /home/wangchen/docker/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=123456 --net mynet mysql
+
+  创建用户：create user furnace identified with mysql_native_password by 'furnace123456';
+
+   grant all privileges on furnacedb.* to 'furnace'@'%';
+
+  flush privileges;
+
+- 启动redis镜像
+
+  sudo docker run -d --name my-redis -p 6380:6379 --net mynet redis 
+
+- 启动mongodb镜像
+
+  sudo docker run -d --name my-mongodb -p 27017:27017 -v /home/wangchen/docker/mongodb:/data/db --net mynet mongo --auth
+
+  docker exec -it my-mongodb mongo admin
+
+  use admin
+
+  db.createUser({user:"admin",pwd:"123456",roles:["root"]})
 
 
 
+- 其他
+
+  - docker开机自启动：
+
+    sudo systemctl enable docker.service
+
+    sudo systemctl restart  docker
+
+  - 容器自启动
+
+    ```java
+    docker run --restart=always 容器名称或容器ID
+        
+    docker update --restart=always 容器名称或容器ID
+    ```
+
+  
 
 ## Docker镜像讲解
 
@@ -425,7 +493,8 @@ docker commit -m="提交描述信息" -a="作者" 容器id 目标镜像名:[TAG]
 docker run -it -v 主机目录:容器内目录
 ```
 
-
+- 注意，使用挂载，得在外面的路径里面赋值同样的文件
+- 
 
 ### 安装mysql
 
@@ -526,6 +595,7 @@ ENTRYPOINT	# 指定这个容器启动的时候要运行的命令，可以追加
 
 # 2.编写dockerfile文件
 
+docker history --no-trunc=true image > image1-dockerfile
 ```
 
 #### 发布镜像
