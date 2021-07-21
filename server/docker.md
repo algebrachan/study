@@ -633,7 +633,7 @@ sudo docker push wangchen0328/nginx01:1.1
 
 ```shell
 docker save -o /home/xxx.tar IMAGE
-docker load -i /home/xxx.tar IMAGE
+docker load -i /home/xxx.tar 
 ```
 
 
