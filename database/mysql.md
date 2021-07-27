@@ -28,6 +28,37 @@ redis  mongodb
 
 8.0版本
 
+
+
+### 数据库引擎
+
+|              | MyISAM | InnoDB        |
+| ------------ | ------ | ------------- |
+| 事务支持     | 不支持 | 支持          |
+| 数据行锁定   | 不支持 | 支持          |
+| 外键约束     | 不支持 | 支持          |
+| 全文索引     | 支持   | 不支持        |
+| 表空间的大小 | 较小   | 较大，约为2倍 |
+
+- MYISAM：节约空间，速度快
+- INNODB：安全，事务的处理，多表用户操作
+
+
+
+> 在物理空间存在的位置
+
+data目录下
+
+- InnoDB 在数据库表中只有一个*.frm文件，
+- MyISAM
+  - *.frm   表结构的定义文件
+  - *.MYD  数据文件(data)
+  - *.MYI   索引文件(index)
+
+
+
+
+
 ### 安装
 
 [菜鸟安装教程](https://www.runoob.com/w3cnote/windows10-mysql-installer.html)
@@ -99,6 +130,12 @@ drop database if exists westos; 	-- 删除数据库
 use westos;		-- 使用数据库
 
 show databases;		-- 查看所有数据库
+
+create table [if not exists] `table_name` (
+	'字段名' 列类型 [属性] [索引] [注释],
+    ...
+    '字段名' 列类型 [属性] [索引] [注释],
+)engine=INNODB DEFAULT CHARSET=utf8
 ```
 
 ### 数据库的列类型
@@ -202,6 +239,8 @@ is_delete	伪删除
 gmt_create 创建时间
 
 gmt_update 修改时间
+
+
 
 
 
