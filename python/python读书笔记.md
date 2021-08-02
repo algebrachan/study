@@ -492,8 +492,246 @@ class Sub(Super):
 #	__new__		在init之前创建对象
 #	__getitem__	索引
 #	__setitem__	分片
+#   __dict__    类的属性
+```
+
+```python
+# Call表达式: __call__
+# 当调用实例时，使用__call__方法
+
+class Prod:
+    def __init__(self,value)
+    	self.value = value
+    def __call__(self,other)
+    	return self.value * other
+x = Prod(2)
+x(3)
+>>>6
+x(4)
+>>>8
+
+# self.__class__.__name__ 获取一个实例的类的名称
 
 ```
 
 
 
+### 7. 异常和工具
+
+```python
+try/except # 捕捉异常 并处理
+
+try/finally # 无论是否发生异常都执行
+
+raise # 手动抛出异常
+
+assert # 有条件地在程序代码中触发异常
+
+with/as
+
+```
+
+**异常对象**
+
+### 8. 高级话题
+
+#### 字符串
+
+```python
+# ASCII 互转
+ord('a')
+
+chr(97) # 
+
+hex(97) # 16进制
+
+# 字符串转byte
+str.encode()
+bytes(S,encoding)
+
+# byte转字符串
+bytes.decode()
+str(B,encoding)
+
+import pickle # 使用模块转化
+```
+
+#### 
+
+## Python核心编程(第3版)
+
+### 1. 正则表达式
+
+re模块
+
+match()
+
+search()
+
+compile()
+
+```python
+# match 匹配 从字符串的起始部分开始匹配模式
+m = re.match('foo','foo')
+if m is not None: m.group() # 输出
+# 匹配多个字符串 使用择一符号|隔开
+    
+# search 搜索 搜索字符串出现
+m = re.search('foo','seafood')
+if m is not None: m.group()
+
+```
+
+### 2. 网络编程
+
+**套接字**是计算器网络数据结构，它提现了上节中所描述的“通信端点”的概念。在任何类型的通信开始之前，网络应用程序必须创建套接字。可以将它们比作电话插孔，没有它将无法通信
+
+**tcp服务端**
+
+```python
+from socket import *
+from time import ctime
+
+HOST = 'localhost'
+PORT = 21567
+BUFSIZ = 1024
+ADDR = (HOST,PORT)
+
+tcpSerSock = socket(AF_INET,SOCK_STREAM)
+tcpSerSock.bind(ADDR)
+tcpSerSock.listen(5)
+
+while True:
+    print('waiting for connection...')
+    tcpCliSock,addr = tcpSerSock.accept()
+    print('...connect from:',addr)
+    
+    while True:
+        data = tcpCliSock.recv(BUFSIZ)
+        if not data:
+            break
+        tcpCliSock.send('[%s] %s' %(bytes(ctime(),'utf-8'),data))
+        
+    tcpCliSock.close()
+tcpSerSock.close()
+
+```
+
+**tcp 客户端**
+
+```python
+from socket import *
+HOST = 'localhost'
+PORT = 21567
+BUFSIZ = 1024
+ADDR = (HOST,PORT)
+
+tcpCliSock = socket(AF_INET,SOCK_STREAM)
+tcpCliSock.connect(ADDR)
+
+while True:
+    data = input('>')
+    if not data:
+        break
+    tcpCliSock.send(data.encode('utf-8'))
+    data = tcpCliSock.recv(BUFSIZ)
+    if not data:
+        break
+    print(data.decode('utf-8'))
+tcpCliSock.close()
+```
+
+**UDP服务器**
+
+```python
+from socket import *
+from datetime import datetime
+
+HOST = '127.0.0.1'
+PORT = 21568
+BUFSIZ = 1024
+ADDR = (HOST,PORT)
+
+udpSerSock = socket(AF_INET,SOCK_DGRAM)
+udpSerSock.bind(ADDR)
+print('waiting for message...')
+
+while True:
+  data,addr = udpSerSock.recvfrom(BUFSIZ)
+  data = data.decode('utf-8')
+  data = f'{data}:{datetime.now()}'
+  udpSerSock.sendto(data.encode('utf-8'),addr)
+  print('...received from and returned to:',addr)
+
+udpSerSock.close()
+```
+
+**upd客户端**
+
+```python
+from socket import *
+
+HOST = 'localhost'
+PORT = 21568
+BUFSIZ = 1024
+ADDR = (HOST,PORT)
+
+udpCliSock = socket(AF_INET,SOCK_DGRAM)
+
+while True:
+  data = input('> ')
+  if not data:
+    break
+  udpCliSock.sendto(data.encode('utf-8'),ADDR)
+  data,ADDR = udpCliSock.recvfrom(BUFSIZ)
+  if not data:
+    break
+  print(data.decode('utf-8'))
+
+udpCliSock.close()
+```
+
+**SocketServer TCP**
+
+```python
+from datetime import datetime
+from socketserver import (TCPServer as TCP,StreamRequestHandler as SRH)
+
+
+class MyRequestHandler(SRH):
+  def handle(self):
+    print('...connect from:',self.client_address)
+    self.data = self.request.recv(BUFSIZ).strip()
+    self.request.sendall(f'{self.data}:{datetime.now()}'.encode('utf-8'))
+
+tcpServ = TCP(ADDR,MyRequestHandler)
+print('waiting for connection...')
+tcpServ.serve_forever()
+```
+
+
+
+- 注意事项
+  - 数据传输是二进制，需要encode和decode
+  - tcp是wait connect
+  - udp是wait message
+
+
+
+### 3. 因特网客户端编程
+
+文件传输	FTP
+
+网络新闻	Usenet	NNTP
+
+电子邮件	SMTP	POP	IMAP	POP3	IMAP4
+
+
+
+### 4. 多线程编程
+
+进程：是一个执行中的程序。有自己的地址空间、内存、数据栈以及其他用于跟踪执行的辅助数据。
+
+线程：在同一个进程下执行，共享相同的上下文
+
+守护线程：退出时，不需要等待这个线程执行完成

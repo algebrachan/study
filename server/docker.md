@@ -383,7 +383,7 @@ mongodb://admin:123456@localhost/
 
    `sudo docker build -t myimage .`
 
-  sudo docker run -d --name myapi -p 8001:8001 -v /home/wangchen/docker/webapi/app:/app --net mynet myimage
+  sudo docker run -it --name myapi -p 8001:8001 -v /home/wangchen/docker/webapi/app:/app --net mynet myimage
 
 - 使用nginx创建前端镜像
 

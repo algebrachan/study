@@ -1217,3 +1217,33 @@ myquery = { "name": {"$regex": "^F"} }
 x = mycol.delete_many(myquery)
 ```
 
+
+
+## 8.python数据分析常用模块
+
+### 8.1 numpy
+
+https://zhuanlan.zhihu.com/p/24988491
+
+```python
+import numpy as np
+
+array = np.array([[1,2,3],[2,3,4]],dtype=np.int32)
+# 属性 array.ndim array.shape array.size
+
+# 零矩阵
+a = np.zeros((3,4),dtype=np.int16) # 3行4列的零矩阵
+b = np.ones((3,4),dtype=np.int16)  # 3行4列的 1矩阵
+c = np.arange(12).reshape((3,4))   # 生成3行4列 0->11 的数列
+d = np.linspace(1,10,20)    # 1-10 20个
+
+# 基础运算
+a = np.array([10,20,30,40])
+b = np.range(4)
+c = a -b
+
+```
+
+### 8.2 pandas
+
+https://zhuanlan.zhihu.com/p/99889912

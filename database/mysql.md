@@ -440,11 +440,116 @@ Btree：InnoDB的默认数据结构
 
 
 
+### 3.6 权限管理
+
+```sql
+-- 创建用户 CREATE USER 用户名 IDENTIFIED BY '密码'
+create user kuangshen identified by '123456'
+
+-- 修改密码
+set password = PASSWORD('123456')
+
+-- 修改密码(修改指定用户密码)
+set password for kuangshen = PASSWORD('123456')
+
+-- 重命名 RENAME USER 原来名字 TO 新名字
+RENAME USER kuangshen TO kuangshen2
+
+-- 用户权限 ALL PRIVILEGES 全部的权限 ， 库 ，表
+-- ALL PRIVILEGES 除了给别人授权，其他都能干
+GRANT ALL PRIVILEGES ON *.* TO kuangshen2
+
+-- 查询权限
+SHOW GRANT FOR kuangshen2
+SHOW GRANT FOR root@localhost
+
+-- ROOT用户权限： GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION
+
+-- 撤销权限 REVOKE 
+REVOKE ALL PRIVILEGES ON *.* FROM kuangshen2
+
+-- 删除用户
+DROP USER kuangshen
+
+```
+
+### 3.7 备份
+
+可使用可视化工具导出数据
+
+```sql
+-- 命令行备份 导出数据 数据库 表名
+mysqldump -hlocalhost -uroot -p123456 school student >D:/a.sql
+
+-- 导入
+-- 在登陆情况
+source d:/a.sql
+
+-- mysql -u用户名 -p密码 库名< 备份文件
+
+```
 
 
 
 
 
+## 4. 数据库设计
+
+**良好的数据库设计**
+
+- 节省内存空间
+- 保证数据库的完整性
+- 方便我们开发系统
+
+**软件开发中，关于数据库的设计**
+
+- 分析需求：分析业务和需要处理的数据库的需求
+- 概要设计：设计关系图E-R图
+
+
+
+### 4.1 三大范式
+
+#### 第一范式(1NF)
+
+原子性：保证每一列不可再分
+
+
+
+#### 第二范式(2NF)
+
+前提：满足第一范式
+
+每张表只描述一件事情
+
+
+
+#### 第三范式(3NF)
+
+前提：满足第一范式 和 第二范式
+
+第三范式需要确保数据表中的每一列数据都和主键直接相关，而不能间接相关
+
+
+
+（规范数据库的设计）
+
+**规范性 和 性能的问题**
+
+关联查询的表不得超过三张
+
+- 考虑商业化的需求和目标，（成本，用户体验）数据库的性能更加重要
+- 在规范性能的问题的时候，需要适当的考虑一下 规范性
+
+
+
+statement对象
+
+prestatement对象
+
+SQL注入
+
+数据库连接池
 
 
 
