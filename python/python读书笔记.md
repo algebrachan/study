@@ -735,3 +735,249 @@ tcpServ.serve_forever()
 线程：在同一个进程下执行，共享相同的上下文
 
 守护线程：退出时，不需要等待这个线程执行完成
+
+Thread类：
+
+| 属性                                                         | 描述                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **Thread对象数据属性**                                       |                                                              |
+| name                                                         | 线程名                                                       |
+| ident                                                        | 线程的标识符                                                 |
+| daemon                                                       | 布尔标志，表示这个线程是否是守护线程                         |
+| **Thread对象方法**                                           |                                                              |
+| __init__(group=None,target=None,args=(),kwargs={},verbose=None,daemon=None) | 实例化一个线程对象，需要有一个可调用的target，参数，         |
+| start()                                                      | 开始执行该线程                                               |
+| run()                                                        | 定义线程功能的方法                                           |
+| join(timeout=None)                                           | 直至启动的线程终止之前一直挂起，除非给出timeout，否则一直阻塞 |
+
+**使用threading模块**
+
+```python
+import threading
+from datetime import datetime
+from time import sleep
+
+loops = [4,2]
+
+def loop(nloop,nsec):
+  print('start loop',nloop,'at:',datetime.now())
+  sleep(nsec)
+  print('loop',nloop,'done at:',datetime.now())
+
+def main():
+  print('starting at:',datetime.now())
+  threads = []
+  nloops = range(len(loops))
+
+  for i in nloops:
+    t = threading.Thread(target=loop,args=(i,loops[i]))
+    threads.append(t)
+
+  for i in nloops:
+    threads[i].start()
+
+  for i in nloops:
+    threads[i].join() # join 将子线程逻辑同步到主线程，
+
+  print('all DONE at:',datetime.now()) # 使用join的情况下，子线程执行完毕才会执行该语句
+
+if __name__ == '__main__':
+    main()
+    
+```
+
+```python
+# 使用可调用的类
+import threading
+from datetime import datetime
+from time import sleep
+
+loops = [4,2]
+
+def loop(nloop,nsec):
+  print('start loop',nloop,'at:',datetime.now())
+  sleep(nsec)
+  print('loop',nloop,'done at:',datetime.now())
+
+class ThreadFunc(object):
+  def __init__(self,func,args,name=''):
+    self.name = name
+    self.func = func
+    self.args = args
+  
+  def __call__(self): # 可执行函数
+    self.func(*self.args)
+
+def main():
+  print('starting at:',datetime.now())
+  threads = []
+  nloops = range(len(loops))
+
+  for i in nloops:
+    t = threading.Thread(target=ThreadFunc(loop,(i,loops[i]),loop.__name__))
+    threads.append(t)
+
+  for i in nloops:
+    threads[i].start()
+
+  for i in nloops:
+    threads[i].join()
+
+  print('all DONE at:',datetime.now())
+  
+
+if __name__ == '__main__':
+    main()
+
+# 子类化的Thread
+class MyThread(threading.Thread):
+    def __init__(self,func,args,name=''):
+        threading.Thread.__init__(self)
+        self.name = name
+        self.func = func
+        self.args = args
+        
+    def getResult(self):
+        return self.res
+    
+    def run(self): # 重写run函数
+        self.func(*self.args)
+# t = MyThread(loop,(i,loops[i]),loop.__name__)
+```
+
+**生产者-消费者**
+
+```python
+import threading
+from datetime import datetime
+from time import sleep
+from random import randint
+from queue import Queue
+
+class MyThread(threading.Thread):
+  def __init__(self,func,args,name=''):
+    threading.Thread.__init__(self)
+    self.name = name
+    self.func = func
+    self.args = args
+
+  def run(self):
+    self.func(*self.args)
+
+def writeQ(queue):
+  print('producing object for Q...')
+  queue.put('xxx',1)
+  print('size now',queue.qsize())
+
+def readQ(queue):
+  val = queue.get(1)
+  print(val,'consumed object from Q ... size now',queue.qsize())
+
+def writer(queue,loops):
+  for i in range(loops):
+    writeQ(queue)
+    sleep(randint(1,3))
+
+def reader(queue,loops):
+  for i in range(loops):
+    readQ(queue)
+    sleep(randint(2,5))
+
+funcs = [writer,reader]
+nfuncs = range(len(funcs))
+
+def main():
+  nloops = randint(2,5)
+  print('nloops',nloops)
+  q = Queue(32)
+
+  threads = []
+  for i in nfuncs:
+    t = MyThread(funcs[i],(q,nloops),funcs[i].__name__)
+    threads.append(t)
+  
+  for i in nfuncs:
+    threads[i].start()
+
+  for i in nfuncs:
+    threads[i].join()
+
+  print('all DONE')
+
+if __name__ == '__main__':
+    main()
+```
+
+- 注：
+  - join()方法只有在你需要等待线程完成的时候才是有用的
+- 线程替代方案
+  - subprocess模块
+  - multiprocessing模块: 子进程
+  - concurrent.futures模块
+
+### 5. GUI编程
+
+Tkinter
+
+**GUI编程介绍**
+
+窗口和控件
+
+事件驱动处理
+
+布局管理器
+
+```python
+import tkinter
+
+if __name__ == '__main__':
+    top = tkinter.Tk(screenName='wc')
+    label = tkinter.Label(top,text='hello world!')
+    label.pack() # pack() 渲染
+    quit = tkinter.Button(top,text='hello world!',command=top.quit())
+    quit.pack()
+    tkinter.mainloop()
+```
+
+- 注：只做介绍，一般不使用python做GUI
+
+
+
+### 6. 数据库编程
+
+ORM:将纯SQL转为对象处理
+
+SQLAlchemy
+
+SQLObject
+
+
+
+PyMongo:连接mongodb的工具
+
+
+
+### 7. *Microsoft Office编程
+
+COM:客户端编程
+
+
+
+### 8. python扩展
+
+任何可以集成或导入另一个python脚本的代码都是一个扩展。这些新代码可以使用纯python编写，也可使用C和C++这样的编译语言编写
+
+
+
+### 9. Web客户端和服务器
+
+urlparse模块 用于处理URL字符串
+
+urllib模块
+
+​	urlopen() 返回一个文件类型对象
+
+​	f.read()	f.readline() f.readlines() f.close() f.fileno()
+
+
+
