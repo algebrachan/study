@@ -981,3 +981,241 @@ urllib模块
 
 
 
+### 10. Web编程：CGI和WSGI
+
+> CGI
+
+公共网关接口，是外部扩展应用程序与 Web 服务器交互的一个标准接口。
+
+对于许多静态的HTML网页无法实现的功能，通过 CGI可以实现，比如表单的处理、对数据库的访问、搜索引擎、基于Web的数据库访问等等。
+
+> WSGI
+
+wsgi是在web服务器和web框架层之间提供一个通用的API标准
+
+### 11. Web框架：Django
+
+### 12. 云计算：Google App Engine
+
+### 13. Web服务
+
+### 14. 文本服务
+
+> CSV
+
+逗号分隔值
+
+```python
+import csv
+f = open('bookdata.csv','w')
+writer = csv.writer(f)
+f.close()
+
+f = open('bookdata.csv','r')
+reader = csv.reader(f)
+
+```
+
+> JSON
+
+```python
+import json
+
+json.dumps()
+json.loads()
+```
+
+### 15. 其他内容
+
+
+
+## Python高级编程(第2版)
+
+### 1. Python现状
+
+python环境隔离，
+
+virtualenv虚拟环境
+
+将依赖保存到requirements.txt
+
+`pip install -r requirements.txt`
+
+### 2. 语法最佳实践——类别级以下
+
+> 字符串与字节
+
+```python
+print(bytes([102,111,111])) # b'foo'
+# 字符串拼接
+s = ""
+for substring in substrings: # 不建议这样使用
+    s += substring 
+
+s = "".join(substrings)
+```
+
+> 集合类型
+
+- 列表
+- 元组
+- 字典
+- 集合
+
+**高级语法**
+
+- 迭代器
+- 生成器
+- 装饰器
+- 上下文管理器
+
+```python
+# 装饰器用法
+# 1.参数检查
+# 2.缓存
+# 3.代理
+# 4.上下文装饰器
+from threading import RLock
+lock = RLock()
+
+def synchronized(function):
+    def _synchronized(*args,**kw):
+        lock.acquire()
+        try:
+            return function(*args,**kw)
+        finally:
+            lock.release()
+        return _synchronized
+@synchronized
+def thread_safe():# 确保锁定资源
+    pass	
+
+# with语法
+with context_manager:
+    # 代码块
+with context_manager as context:
+    # 代码块
+with A() as a,B() as b:
+    ...
+
+# for ... else 可以在循环自然结束而不是被break语句终止时执行一个代码块
+
+```
+
+
+
+### 3. 语法最佳实践——类别级以上
+
+```python
+# 子类化内置类型
+class DistinctError(ValueError):
+    """如果向distinctdict添加重复值，则引发这个错误"""
+
+class distinctdict(dict):
+    def __setitem__(self,key,value):
+        if value in self.values():
+            if(
+            	(key in self and self[key] != value) or key not in self
+            ):
+                raise DistinctError("this value already exists for different key")
+        super().__setitem__(key,value)
+             
+```
+
+### 4. 选择好的名称
+
+> PEP8
+
+常量：大写加下划线
+
+私有变量：两个前缀下划线标记为包的私有元素
+
+特殊方法：双下划线的合成词
+
+“has”和“is”前缀命名布尔元素
+
+### 5. 编写一个包
+
+```python
+# 项目配置 setup.py
+from setuptools import setup
+setup(
+	name='mypackage',
+)
+```
+
+```shell
+pyinstaller --onefile myscript.py
+
+cxfreeze myscript.py
+
+```
+
+### 6. 部署代码
+
+用Fabric进行自动化部署
+
+### 7. 使用其他语言开发Python扩展
+
+### 8. 管理代码
+
+git
+
+### 9. 文档化你的项目
+
+### 10. 测试驱动开发
+
+- 验收测试：TDD原则
+- 单元测试
+- 功能测试
+- 集成测试
+- 负载和性能测试
+- 代码质量测试
+
+```python
+import unittest # 单元测试包
+
+class MyTests(unittest.TestCase):
+    
+
+```
+
+### 11. 优化——一般原则与分析技术
+
+**三个优化原则**
+
+- 首先要能工作
+- 从用户的角度考虑
+- 保持代码的可读性
+
+### 12. 优化——一些强大的技术
+
+复杂度
+
+### 13. 并发
+
+线程池：
+
+### 14. 有用的设计模式
+
+- 创建型模式
+- 结构型模式
+- 行为模式
+
+```python
+# 单例模式
+class Singleton:
+    _instance = None
+   
+	def __new__(cls,*args,**kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls,*args,**kwargs)
+        return cls._instance
+
+
+```
+
+
+
+
+
