@@ -1225,6 +1225,8 @@ x = mycol.delete_many(myquery)
 
 https://zhuanlan.zhihu.com/p/24988491
 
+numpy基础
+
 ```python
 import numpy as np
 
@@ -1241,9 +1243,104 @@ d = np.linspace(1,10,20)    # 1-10 20个
 a = np.array([10,20,30,40])
 b = np.range(4)
 c = a -b
+c = a * b # 矩阵中对应数量相乘
+c_dot = np.dot(a,b) # 矩阵乘法
+c_dot_2 = a.dot(b)  # 矩阵乘法第二种形式
 
+# 
+a = np.random.random((2,4)) # 随机生成2行4列的矩阵
+np.sum(a,axis=1) # axis=1 在一列中输出聚合函数，axis=0在一行中输出聚合函数
+np.min(a)
+np.max(a)
+
+A = np.arange(2,14).reshape((3,4))
+np.argmin(A) # 最小值索引
+np.argmax(A) # 最大值索引
+np.mean(A) # 平均值
+A.mean() # 平均值
+np.median(A) # 中位数
+np.cumsum(A) # 累加和 list
+np.diff(A) # 累差 
+np.nonzero(A) # 非零索引
+np.transpose(A) # 矩阵转向
+A.T
+np.clip(A,5,9) # 小于5的数变为5，大于9的数变为9
 ```
+
+numpy操作
+
+```python
+# numpy索引
+A = np.arange(3,15).reshape((3,4))
+A[1][1] # 索引从0开始
+
+# array合并
+A = np.array([1,1,1])[:,np.newaxis]
+B = np.array([2,2,2])[:,np.newaxis]
+
+C = np.concatenate((A,B,B,A),aixs=1)
+# array 分割
+np.split(A,2,axis=1) # 按列分为两块
+np.array_split(A,3,axis=1) # 不等项 分割
+np.vsplit(A,3) # 横向3块分割
+np.hsplit(A,2) # 纵向2块分割
+
+# 赋值之间 内存地址未改变
+# 拷贝
+b = a.copy() # deep copy
+```
+
+
 
 ### 8.2 pandas
 
 https://zhuanlan.zhihu.com/p/99889912
+
+pandas基础
+
+```python
+import pandas as pd
+import numpy as np
+# 创建Series
+s = pd.Series([1,3,6,np.nan,44,1])
+dates = pd.date_range('20200101',periods=6) # DatetimeIndex
+df = pd.DateFrame(np.random.randn(6,4),index=dates,columns=['a','b','c','d'])
+df['a']
+df.a
+df[0:3]
+df.loc
+df.iloc
+
+# 处理丢失数据
+df.dropna(axis=0,how='any') # 行 how={'any','all'} 丢弃
+df.fillna(value=0) 
+df.isnull()
+
+# 导入导出
+read_csv
+read_excel
+read_hdf
+read_sql
+read_json
+read_msgpack
+read_html
+read_state
+read_sas
+read_clipboard
+read_pickle
+ 
+# concatenating 
+import numpy as np
+import pandas as pd
+
+df1 = pd.DataFrame(np.ones((3,4))*0,columns=['a','b','c','d']) # np.ones 1矩阵
+df2 = pd.DataFrame(np.ones((3,4))*1,columns=['a','b','c','d'])
+df3 = pd.DataFrame(np.ones((3,4))*2,columns=['a','b','c','d'])
+
+res = pd.concat([df1,df2,df3],axis=0,ignore_index=True,join='inner',join_axes=[df1.index]) # 横向合并 join类似与mysql的内联查询
+print(res)
+
+# merge
+res = pd.merge(left,right,on=['key1','key2'])
+```
+
