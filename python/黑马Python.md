@@ -1138,9 +1138,199 @@ show slave status \G
 
   
 
-  
+
+## 数据挖掘
+
+### Jupyter使用
+
+https://jupyter.org/
+
+```
+pip install jupyterlab
+pip install notebook
+pip install voila
+jupyter notebook
+```
+
+### Matplotlib
+
+- 专门用于开发2D图表
+- 使用起来及其简单
+- 以渐进、交互式实现数据可视化
+
+**三层结构**
+
+- 容器层：Canvas、Figure、Axes
+- 辅助显示层：
+- 图像层
+
+#### 折线图
+
+```python
+import matplotlib.pyplot as plt
+import random
+
+# 1.创建画布
+plt.figure(figsize=(20,8),dpi=80)
+
+x = range(60)
+y_shanghai = [random.uniform(15,18) for i in x]
+
+# 2.绘制折线图
+plt.plot(x,y_shanghai)
+
+# 修改x y刻度
+x_label = [f'11:{i}' for i in x]
+plt.xticks(x[::5],x_label[::5])
+plt.yticks(range(0,40,5))
+
+# 添加网格
+plt.grid(True,linestyle='--',alpha=0.5)
+plt.xlabel("time")
+plt.ylabel("temp")
+plt.title("title")
+
+plt.savefig("test78.png")
+# 3.显示图像
+plt.show() # 当调用show时，会释放对象
+```
+
+```python
+# 散点图
+import matplotlib.pyplot as plt
+plt.figure(figsize=(20,8),dpi=80)
+plt.scatter(x,y)
+plt.show()
+
+# 柱状图
+plt.bar()
+# 直方图
+plt.hist()
+# 饼图
+plt.pie(x,labels=,autopct=,colors)
+```
+
+### Numpy
+
+numpy - 数值计算库
+
+num - numerial 数值化的
+
+py - python
+
+**ndarray**
+
+​	n - 任意个
+
+​	d - dimension维度
+
+​	array - 数组
 
 
+
+#### ndarray
+
+属性
+
+|     属性名字     |      属性解释      |
+| :--------------: | :----------------: |
+|  ndarray.shape   |   数组维度的元组   |
+|   ndarray.ndim   |      数组维数      |
+|   ndarray.size   |  数组中的元素数量  |
+| ndarray.itemsize | 一个数组元素的长度 |
+|  ndarray.dtype   | 数组元素的类型 ‘’  |
+
+```python
+# 生成数组的方法
+import numpy as np
+
+np.array()
+ 
+np.zeros(shape) # shape 几行几列的元组
+np.ones(shape)
+np.copy() 	# 深拷贝
+np.asarray() # 浅拷贝
+np.linspace(0,100,10) [0,100] # 等距离
+np.arange(a,b,c) # [a,b) c步长
+
+# 生成随机数组 
+np.random.uniform(low=0.0,high=1.0,size=None) # 返回[0.0,1.0)内的一组均匀分布的数
+
+# 正态分布
+np.random.normal(loc=0.0,scale=1.0,size=None)
+# loc: 均值
+# scale: 标准差
+
+# 逻辑运算
+np.unique(temp) # 去重
+stock_change > 0.5 # 大于0.5就标记为True 
+np.all() # 是否全部满足
+np.any() # 存在一个满足
+np.where() # 三元运算符
+
+# 统计指标函数 
+min	max	mean	
+median # 中位数	 
+var	# 方差
+std # 标准差
+
+# 数组间运算
+arr1 * arr2
+
+# 矩阵运算
+np.matmul(data,weights)
+np.dot(data,weights)
+
+# 合并
+np.hstack(tup) # column wise
+np.vstack(tup) # row wise
+np.concatenate(a1,a2,...,axis=0)
+
+```
+
+### Pandas
+
+专门用于数据挖掘的开源python库
+
+```python
+# DataFrame属性
+data.shape
+data.index
+data.columns
+data.values
+data.T 
+
+# MultiIndex 多级分层索引对象
+df.index,names
+df.index.levels
+
+# Panel
+pd.Panel(data=None,items=None,major_axis=None,minor_axis=None,copy=False,dtype=None)
+
+# Series 带索引的一维数组
+
+# 索引 先列后行
+
+# 排序
+df.sort_values(key=,ascending=)
+```
+
+> 缺失值处理
+
+1）删除含有缺失值的样本
+
+2）替换/插补
+
+```python
+import numpy as np
+np.any(pd.isnull(movie)) # 返回True，说明数据中存在缺失值
+np.all(pd.notnull(movie)) # 返回False，说明数据中存在缺失值
+
+
+pd.concat()
+pd.merge()
+
+```
 
 
 

@@ -1344,3 +1344,145 @@ print(res)
 res = pd.merge(left,right,on=['key1','key2'])
 ```
 
+
+
+## 9.python爬虫
+
+> 爬虫
+
+通过编写程序，模拟浏览器上网，然后让其去互联网上抓取数据的过程
+
+**爬虫分类**
+
+- 通用爬虫
+
+  抓取系统重要组成部分，抓取的是一整张页面数据
+
+- 聚焦爬虫
+
+  建立在通用爬虫的基础之上，抓取页面中特定的局部内容
+
+- 增量式爬虫
+
+  检测网站中数据更新的情况，只会抓取网站中最新更新出来的数据
+
+
+
+> 反爬机制
+
+门户网站，可以通过制定相应的策略或者技术手段，防止爬虫程序进行网站数据的爬取
+
+
+
+> 反反爬策略
+
+爬虫程序可以通过制定相关的策略或者技术手段，破解门户网站中具备的反爬机制，从而可以获取门户网站的数据
+
+
+
+> robots.txt协议
+
+规定了网站中哪些数据可以被爬虫爬取哪些数据不可以被爬取
+
+
+
+### http&https
+
+请求头：
+
+User-Agent: 请求载体的身份标识
+
+Connection：请求完毕后，是断开连接还是保持连接
+
+响应头：
+
+Content-Type：服务器响应的数据类型
+
+加密方式：
+
+对称密钥加密
+
+非对称密钥加密
+
+证书密钥加密
+
+### requests
+
+```python
+import requests
+
+url = 'https://www.sogou.com/'
+response = requests.get(url=url)
+page_text = response.text
+
+with open('./sogou.html','w',encoding='utf-8') as fp:
+    fp.write(page_text)
+    
+
+# UA伪装：让爬虫对应的请求载体身份标识伪装成某一款浏览器
+headers = {
+    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36'
+}
+```
+
+### 数据解析
+
+- 正则：匹配字符串
+- bs4：
+- xpath：
+
+```python
+# 爬取图片
+import requests
+
+url = 'https://...' # 图片url地址
+# text(字符串) content (二进制) json() (对象)
+img_data = requests.get(url=url).content
+with open('./1.jpg','wb') as fp:
+    fp.write(img_data)
+```
+
+
+
+```python
+# bs4 环境安装
+# pip install bs4
+# pip install lxml
+
+page_text = response.text
+soup = BeatigulSoup(page_text,'lxml') # html标签
+# soup.tagName: 返回的是文档中第一次出现的tagName对应的标签
+
+soup.find('div') 
+# 属性定位法
+soup.find('div',class_='song')
+soup.find_all('a')
+soup.select('.tang') # 支持css选择器的写法
+soup.select('.tang > ul a')[0].get_text()
+
+```
+
+
+
+```python
+# xpath 环境安装
+# pip install lxml
+from lxml import etree
+
+page_text = response.text
+# tree = etree.parse(page_text)
+tree = etree.HTML('page_text')
+r = tree.xpath('/html/body/div')
+
+# etree.HTML('page_text')
+
+
+# 如果请求过程产生了cookie， 使用session对象
+session = requests.Session()
+
+```
+
+### 代理
+
+
+
