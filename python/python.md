@@ -1484,5 +1484,265 @@ session = requests.Session()
 
 ### 代理
 
+破解封IP这种反爬机制
+
+快代理https://www.kuaidaili.com/
+
+西祠代理
+
+www.goubanjia.com
+
+```python
+# 使用代理
+import requests
+
+
+headers = {
+    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36'
+}
+
+url = 'https://www.baidu.com/s?ie=UTF-8&wd=ip'
+
+# response = requests.get(url=url,headers=headers)
+response = requests.get(url=url,headers=headers,proxies={"http":'118.163.13.200:8080'})
+page_text = response.text
+
+with open('./3.html','w',encoding='utf-8') as fp:
+    fp.write(page_text)
+
+```
+
+
+
+### 异步爬虫
+
+多线程
+
+线程池：降低系统对线程创建销毁的频率
+
+```python
+# 单线程 串行
+from datetime import datetime
+import time
+
+def get_page(str):
+  print("正在下载：",str)
+  time.sleep(2)
+  print("下载成功：",str)
+
+name_list = ["aa","bb","cc","dd"]
+
+start_time = datetime.now()
+
+for i in range(len(name_list)):
+  get_page(name_list[i])
+
+end_time = datetime.now()
+
+print(f'{(end_time-start_time).seconds}s') # 8s
+
+
+# 线程池操作
+from datetime import datetime
+from multiprocessing.dummy import Pool
+import time
+
+start_time = datetime.now()
+def get_page(str):
+  print("正在下载：",str)
+  time.sleep(2)
+  print("下载成功：",str)
+
+name_list = ["aa","bb","cc","dd","ee"]
+# 创建 4个线程的线程池
+pool = Pool(4)
+
+pool.map(get_page,name_list)
+
+end_time = datetime.now()
+
+print(f'{(end_time-start_time).seconds}s') # 4s
+
+```
+
+```python
+# 单线程+异步协程
+import asyncio
+
+async def request(url):
+  print('正在请求的url是',url)
+  print('请求成功',url)
+  return url
+
+# async修饰的函数，调用之后返回的一个协程对象
+c = request('www.baidu.com')
+
+# # 创建一个事件循环对象
+# loop = asyncio.get_event_loop()
+# # 将协程对象注册到loop中，启动事件循环
+# loop.run_until_complete(c)
+
+# # task的使用
+# loop = asyncio.get_event_loop()
+# # 基于loop创建了一个task对象
+# task = loop.create_task(c)
+# print(task)
+# loop.run_until_complete(task)
+# print(task)
+
+# # future使用
+# loop = asyncio.get_event_loop()
+# task = asyncio.ensure_future(c)
+# print(task)
+# loop.run_until_complete(task)
+# print(task)
+
+def callback_func(task):
+  print(task.result())
+    
+# 绑定回调
+loop = asyncio.get_event_loop()
+task = asyncio.ensure_future(c)
+# 将回调函数绑定到任务对象中
+task.add_done_callback(callback_func)
+loop.run_until_complete(task)
+
+```
+
+```python
+# 异步多任务
+import asyncio
+from datetime import datetime
+import time
+
+async def request(url):
+  print('正在下载',url)
+  # 在异步协程中，如果出现了同步模块相关的代码，就无法实现异步
+  # time.sleep(2)
+  # 在asyncio中遇到阻塞操作必须手动挂起
+  await asyncio.sleep(2)
+  print('下载完毕',url)
+
+start = datetime.now()
+urls = [
+  'www.baidu.com',
+  'www.sogou.com',
+  'www.doubanjia.com',
+]
+
+# 任务列表: 存放多个任务对象
+tasks = []
+for url in urls:
+  c = request(url)
+  task = asyncio.ensure_future(c)
+  tasks.append(task)
+
+loop = asyncio.get_event_loop()
+# 需要将任务列表封装到wait中
+loop.run_until_complete(asyncio.wait(tasks))
+
+end = datetime.now()
+print(f'{(end-start).seconds}s') 
+```
+
+```python
+# 模拟flask服务
+from flask import Flask
+import time
+
+app = Flask(__name__)
+
+@app.route('/bobo')
+def index_bobo():
+  time.sleep(2)
+  return 'hello bobo'
+
+@app.route('/jay')
+def index_javy():
+  time.sleep(2)
+  return 'hello jay'
+
+@app.route('/tom')
+def index_tom():
+  time.sleep(2)
+  return 'hello tom'
+
+if __name__ == '__main__':
+    app.run()
+```
+
+```python
+# 使用requests模块，是同步的
+import asyncio
+from datetime import datetime
+import requests
+
+
+start = datetime.now()
+urls = [
+  'http://127.0.0.1:5000/bobo',
+  'http://127.0.0.1:5000/jay',
+  'http://127.0.0.1:5000/tom',
+]
+headers = {
+    'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36'
+}
+async def get_page(url):
+  print('正在下载:',url)
+  response = requests.get(url=url,headers=headers)
+  print('下载完毕',response.text)
+
+tasks =[]
+for url in urls:
+  c = get_page(url)
+  task = asyncio.ensure_future(c)
+  tasks.append(task)
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(asyncio.wait(tasks))
+
+end = datetime.now()
+
+print(f'{(end-start).seconds}s')  # 6s
+
+
+# 使用异步请求模块 aiohttp
+
+import asyncio
+from datetime import datetime
+import aiohttp
+
+start = datetime.now()
+urls = [
+  'http://127.0.0.1:5000/bobo',
+  'http://127.0.0.1:5000/jay',
+  'http://127.0.0.1:5000/tom',
+]
+
+async def get_page(url):
+  async with aiohttp.ClientSession() as session:
+    async with await session.get(url) as response:
+      # text() 方法可以返回字符串形式的响应数据
+      # read() 返回二进制
+      # json() 返回json对象
+      # 注意：获取响应数据操作之前一定要使用await进行手动挂起
+      page_text = await response.text()
+      print(page_text)
+
+tasks =[]
+for url in urls:
+  c = get_page(url)
+  task = asyncio.ensure_future(c)
+  tasks.append(task)
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(asyncio.wait(tasks))
+
+end = datetime.now()
+
+print(f'{(end-start).seconds}s') 
+
+```
+
 
 
