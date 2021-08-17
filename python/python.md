@@ -1482,6 +1482,39 @@ session = requests.Session()
 
 ```
 
+### xpath
+
+```python
+# 属性定位
+xpath('//input[@id="kw"]') # 
+xpath('//input[@class="bg s_btn"]')
+
+# 层级定位
+xpath('//div[@id="head"]/div/div[2]/a[1] ')
+
+# 索引定位 索引从1开始
+xpath('//div[@id="head"]/div/div[2]/a[1]')
+
+# 逻辑运算
+xpath('//input[@class="s_ipt" and @name="wd"]')
+
+# 模糊匹配 contains		starts-with
+xpath('//input[contains(@class,"s_i")]')
+xpath('//input[starts-with(@class,"s")]')
+
+# 取文本
+xpath('//div[@id="u1"]/a[5]/text()') # 获取节点内容
+xpath('//div[@id="u1"]//text()') # 获取节点里不带标签下所有内容
+
+# 取属性
+xpath('//div[@id="u1"]/a[5]/@href') # 获取href属性
+
+```
+
+
+
+
+
 ### 代理
 
 破解封IP这种反爬机制
@@ -1744,5 +1777,307 @@ print(f'{(end-start).seconds}s')
 
 ```
 
+### selenium
 
+便捷的获取网站中动态加载的数据
 
+便捷实现模拟登陆
+
+> selenium模块
+
+基于浏览器自动化的一个模块
+
+```python
+# pip install selenium
+# 下载浏览器驱动程序
+# http://chromedriver.storage.googleapis.com/index.html
+
+from selenium import webdriver
+from lxml import etree
+
+# 实例化一个浏览器对象(传入chrome浏览器驱动)
+bro = webdriver.Chrome(executable_path='./chromedriver.exe')
+# 让浏览器发起一个指定url对应请求
+bro.get('https://www.baidu.com/')
+
+# 获取源码
+page_text = bro.page_source
+
+tree = etree.HTML(page_text)
+a = tree.xpath('//div[@id="s-top-left"]/a/@href')
+
+print('a',a)
+```
+
+- 自动化操作
+
+```python
+from selenium import webdriver
+from time import sleep
+# 实例化一个浏览器对象(传入chrome浏览器驱动)
+bro = webdriver.Chrome(executable_path='./chromedriver.exe')
+# 让浏览器发起一个指定url对应请求
+bro.get('https://www.taobao.com/')
+
+# 标签定位
+search_input = bro.find_element_by_id('q')
+# 标签交互 输入 send_keys
+search_input.send_keys('Iphone')
+
+# 执行一组js程序
+bro.execute_script('window.scrollTo(0,document.body.scrollHeight)')
+sleep(2)
+btn = bro.find_element_by_class_name('btn-search')
+btn.click()
+
+sleep(1)
+bro.get('https://www.baidu.com')
+sleep(2)
+bro.back() # 后退
+sleep(2)
+bro.forward() # 前进
+sleep(5)
+bro.quit() # 退出
+
+# 如果定位的标签是存在于iframe标签之中的则必须通过如下操作进行标签定位
+bro.switch_to.frame('iframeResult')
+
+# 实例化动作练
+action = ActionChains(bro)
+# click_and_hold(div) 长按且点击操作
+# move_by_offset(x,y) 移动
+# perform() 让动作链立即执行
+# action.release() 释放动作链对象
+```
+
+- 无头浏览器&规避检测
+
+```python
+from selenium import webdriver
+from time import sleep
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver import ChromeOptions
+
+# 实现可视化界面
+chrome_options = Options()
+chrome_options.add_argument('--headless')
+chrome_options.add_argument('--disable-gpu')
+
+# 规避检测
+option = ChromeOptions()
+option.add_experimental_option('excludeSwitches',['enable-automation'])
+
+# 实例化一个浏览器对象(传入chrome浏览器驱动)
+bro = webdriver.Chrome(executable_path='./chromedriver.exe',chrome_options=chrome_options,options=option)
+# 无可视化界面
+bro.get('https://www.baidu.com/')
+sleep(2)
+bro.save_screenshot('baidu.png')
+
+sleep(5)
+bro.quit()
+```
+
+### scrapy
+
+> scrapy框架
+
+高性能的持久化存储
+
+异步数据下载
+
+高性能数据解析
+
+分布式
+
+```shell
+scrapy startproject firstBlood # 创建爬虫项目
+scrapy genspider first www.xxx.com # 创建spider源文件
+scrapy crawl spiderName # 执行爬虫文件
+
+```
+
+- 数据解析
+
+```python
+# settings.py 配置文件
+ROBOTSTXT_OBEY = False
+
+LOG_LEVEL = 'ERROR'
+
+# spiders/first.py 数据解析
+
+import scrapy
+
+class FirstSpider(scrapy.Spider):
+    # 爬虫文件的名称：就是爬虫源文件的一个唯一标识
+    name = 'first'
+    # 允许的域名：用来限定start_urls列表中哪些url可以进行请求发送
+    # allowed_domains = ['www.baidu.com']
+
+    # 起始的url列表：被scrapy自动发送请求
+    start_urls = ['https://www.qiushibaike.com/text/']
+
+    # 用于解析数据
+    def parse(self, response):
+      # 解析：作者的名称+段子内容
+      # print(response)
+      div_list = response.xpath('//div[starts-with(@id,"qiushi_tag")]')
+      all_data = [] # 存储数据
+      for div in div_list:
+        # xpath返回的是列表，但是列表元素一定是Selector类型的对象
+        # extract可以将Selector对象中data参数存储的字符串提取出来
+        author = div.xpath('./div[1]/a[2]/h2/text()')[0].extract()
+        content = div.xpath('./a[1]/div[@class="content"]//text()').extract()
+        content = ''.join(content)
+        dic = {
+          'author':author,
+          'content':content
+        }
+        all_data.append(dic)
+      return all_data
+```
+
+- 持久化存储
+
+  - 命令行，终端指令
+
+     `scrapy crawl first -o ./qiubai.csv`
+
+    ​	中文乱码问题： 在settings中添加  *FEED_EXPORT_ENCODING = 'utf-8-sig'*
+
+  - 基于管道：
+
+    - 数据解析
+    - 在item类中定义相关的属性
+    - 将解析的数据封装到item类型的对象
+    - 将item类型的对象提交给管道进行持久化的操作
+    - 在管道类的process_item中要将其接收到的item对象中存储的数据进行持久化存储操作
+    - 在配置文件中开启管道
+
+  ```python
+  # items.py
+  import scrapy
+  
+  class FirstbloodItem(scrapy.Item):
+      # define the fields for your item here like:
+      # name = scrapy.Field()
+      author = scrapy.Field()
+      content = scrapy.Field()
+      pass
+  
+  # pipelines.py
+  from itemadapter import ItemAdapter
+  
+  class FirstbloodPipeline:
+      fp = None
+      # 重写父类方法 该方法只有在开始爬虫的时候调用一次
+      def open_spider(self,spider):
+          print('开始爬虫')
+          self.fp = open('./first.txt','w',encoding='utf-8')
+  
+      # 该方法每接到一次item就会被调用一次
+      def process_item(self, item, spider):
+          author = item['author']
+          content = item['content']
+          self.fp.write(author+':'+content+'\n')
+          return item
+  
+      def close_spider(self,spider):
+          print('结束爬虫')
+          self.fp.close()
+          
+  # settings.py
+  ITEM_PIPELINES = {
+     'firstBlood.pipelines.FirstbloodPipeline': 300,
+  }
+  
+  # first.py
+  import scrapy
+  from firstBlood.items import FirstbloodItem
+  
+  class FirstSpider(scrapy.Spider):
+      # 爬虫文件的名称：就是爬虫源文件的一个唯一标识
+      name = 'first'
+      # 允许的域名：用来限定start_urls列表中哪些url可以进行请求发送
+      # allowed_domains = ['www.baidu.com']
+  
+      # 起始的url列表：被scrapy自动发送请求
+      start_urls = ['https://www.qiushibaike.com/text/']
+  
+      # 用于解析数据
+      def parse(self, response):
+        # 解析：作者的名称+段子内容
+        # print(response)
+        div_list = response.xpath('//div[starts-with(@id,"qiushi_tag")]')
+        for div in div_list:
+          # xpath返回的是列表，但是列表元素一定是Selector类型的对象
+          # extract可以将Selector对象中data参数存储的字符串提取出来
+          author = div.xpath('./div[1]/a[2]/h2/text()')[0].extract()
+          content = div.xpath('./a[1]/div[@class="content"]//text()').extract()
+          content = ''.join(content)
+  
+          item = FirstbloodItem()
+          item['author'] = author
+          item['content'] = content.strip()
+          yield item # 将item提交给管道
+  ```
+
+  - 保存数据库管道
+
+  ```python
+  # pipelines.py
+  from itemadapter import ItemAdapter
+  import pymysql
+  
+  class FirstbloodPipeline:
+      fp = None
+      # 重写父类方法 该方法只有在开始爬虫的时候调用一次
+      def open_spider(self,spider):
+          print('开始爬虫')
+          self.fp = open('./first.txt','w',encoding='utf-8')
+  
+      # 该方法每接到一次item就会被调用一次
+      def process_item(self, item, spider):
+          author = item['author']
+          content = item['content']
+          self.fp.write(author+':'+content+'\n')
+          return item  # 就会执行给下一个管道
+  
+      def close_spider(self,spider):
+          print('结束爬虫')
+          self.fp.close()
+  
+  # 管道文件中一个管道类对应将一组数据存储到一个平台或载体中
+  class mysqlPipeLine:
+      conn = None
+      cursor = None
+      def open_spider(self,spider):
+          self.conn = pymysql.Connect(host='127.0.0.1',port=3306,user='root',password='123456',db='scrapydb',charset='utf8')
+  
+      def process_item(self, item, spider):
+          self.cursor = self.conn.cursor()
+          try:
+              sql = f'insert into qiubai (author,content) values("{item["author"]}","{item["content"]}")'
+              self.cursor.execute(sql)
+              self.conn.commit()
+          except Exception as e:
+              print(e)
+              self.conn.rollback()
+  
+          return item 
+  
+      def close_spider(self,spider):
+          self.cursor.close()
+          self.conn.close()
+  
+  # settings.py
+  ITEM_PIPELINES = {
+     'firstBlood.pipelines.FirstbloodPipeline': 300,
+     'firstBlood.pipelines.mysqlPipeLine': 400,
+  }
+  ```
+
+  
+
+  
