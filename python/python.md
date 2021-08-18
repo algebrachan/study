@@ -1897,7 +1897,7 @@ scrapy crawl spiderName # 执行爬虫文件
 
 ```
 
-- 数据解析
+#### 数据解析
 
 ```python
 # settings.py 配置文件
@@ -1938,146 +1938,409 @@ class FirstSpider(scrapy.Spider):
       return all_data
 ```
 
-- 持久化存储
+#### 持久化存储
 
-  - 命令行，终端指令
+- 命令行，终端指令
 
-     `scrapy crawl first -o ./qiubai.csv`
+   `scrapy crawl first -o ./qiubai.csv`
 
-    ​	中文乱码问题： 在settings中添加  *FEED_EXPORT_ENCODING = 'utf-8-sig'*
+  ​	中文乱码问题： 在settings中添加  *FEED_EXPORT_ENCODING = 'utf-8-sig'*
 
-  - 基于管道：
+- 基于管道：
 
-    - 数据解析
-    - 在item类中定义相关的属性
-    - 将解析的数据封装到item类型的对象
-    - 将item类型的对象提交给管道进行持久化的操作
-    - 在管道类的process_item中要将其接收到的item对象中存储的数据进行持久化存储操作
-    - 在配置文件中开启管道
+  - 数据解析
+  - 在item类中定义相关的属性
+  - 将解析的数据封装到item类型的对象
+  - 将item类型的对象提交给管道进行持久化的操作
+  - 在管道类的process_item中要将其接收到的item对象中存储的数据进行持久化存储操作
+  - 在配置文件中开启管道
 
-  ```python
-  # items.py
-  import scrapy
-  
-  class FirstbloodItem(scrapy.Item):
-      # define the fields for your item here like:
-      # name = scrapy.Field()
-      author = scrapy.Field()
-      content = scrapy.Field()
-      pass
-  
-  # pipelines.py
-  from itemadapter import ItemAdapter
-  
-  class FirstbloodPipeline:
-      fp = None
-      # 重写父类方法 该方法只有在开始爬虫的时候调用一次
-      def open_spider(self,spider):
-          print('开始爬虫')
-          self.fp = open('./first.txt','w',encoding='utf-8')
-  
-      # 该方法每接到一次item就会被调用一次
-      def process_item(self, item, spider):
-          author = item['author']
-          content = item['content']
-          self.fp.write(author+':'+content+'\n')
-          return item
-  
-      def close_spider(self,spider):
-          print('结束爬虫')
-          self.fp.close()
-          
-  # settings.py
-  ITEM_PIPELINES = {
-     'firstBlood.pipelines.FirstbloodPipeline': 300,
-  }
-  
-  # first.py
-  import scrapy
-  from firstBlood.items import FirstbloodItem
-  
-  class FirstSpider(scrapy.Spider):
-      # 爬虫文件的名称：就是爬虫源文件的一个唯一标识
-      name = 'first'
-      # 允许的域名：用来限定start_urls列表中哪些url可以进行请求发送
-      # allowed_domains = ['www.baidu.com']
-  
-      # 起始的url列表：被scrapy自动发送请求
-      start_urls = ['https://www.qiushibaike.com/text/']
-  
-      # 用于解析数据
-      def parse(self, response):
-        # 解析：作者的名称+段子内容
-        # print(response)
-        div_list = response.xpath('//div[starts-with(@id,"qiushi_tag")]')
+```python
+# items.py
+import scrapy
+
+class FirstbloodItem(scrapy.Item):
+    # define the fields for your item here like:
+    # name = scrapy.Field()
+    author = scrapy.Field()
+    content = scrapy.Field()
+    pass
+
+# pipelines.py
+from itemadapter import ItemAdapter
+
+class FirstbloodPipeline:
+    fp = None
+    # 重写父类方法 该方法只有在开始爬虫的时候调用一次
+    def open_spider(self,spider):
+        print('开始爬虫')
+        self.fp = open('./first.txt','w',encoding='utf-8')
+
+    # 该方法每接到一次item就会被调用一次
+    def process_item(self, item, spider):
+        author = item['author']
+        content = item['content']
+        self.fp.write(author+':'+content+'\n')
+        return item
+
+    def close_spider(self,spider):
+        print('结束爬虫')
+        self.fp.close()
+        
+# settings.py
+ITEM_PIPELINES = {
+   'firstBlood.pipelines.FirstbloodPipeline': 300,
+}
+
+# first.py
+import scrapy
+from firstBlood.items import FirstbloodItem
+
+class FirstSpider(scrapy.Spider):
+    # 爬虫文件的名称：就是爬虫源文件的一个唯一标识
+    name = 'first'
+    # 允许的域名：用来限定start_urls列表中哪些url可以进行请求发送
+    # allowed_domains = ['www.baidu.com']
+
+    # 起始的url列表：被scrapy自动发送请求
+    start_urls = ['https://www.qiushibaike.com/text/']
+
+    # 用于解析数据
+    def parse(self, response):
+      # 解析：作者的名称+段子内容
+      # print(response)
+      div_list = response.xpath('//div[starts-with(@id,"qiushi_tag")]')
+      for div in div_list:
+        # xpath返回的是列表，但是列表元素一定是Selector类型的对象
+        # extract可以将Selector对象中data参数存储的字符串提取出来
+        author = div.xpath('./div[1]/a[2]/h2/text()')[0].extract()
+        content = div.xpath('./a[1]/div[@class="content"]//text()').extract()
+        content = ''.join(content)
+
+        item = FirstbloodItem()
+        item['author'] = author
+        item['content'] = content.strip()
+        yield item # 将item提交给管道
+```
+
+#### 保存数据库管道
+
+```python
+# pipelines.py
+from itemadapter import ItemAdapter
+import pymysql
+
+class FirstbloodPipeline:
+    fp = None
+    # 重写父类方法 该方法只有在开始爬虫的时候调用一次
+    def open_spider(self,spider):
+        print('开始爬虫')
+        self.fp = open('./first.txt','w',encoding='utf-8')
+
+    # 该方法每接到一次item就会被调用一次
+    def process_item(self, item, spider):
+        author = item['author']
+        content = item['content']
+        self.fp.write(author+':'+content+'\n')
+        return item  # 就会执行给下一个管道
+
+    def close_spider(self,spider):
+        print('结束爬虫')
+        self.fp.close()
+
+# 管道文件中一个管道类对应将一组数据存储到一个平台或载体中
+class mysqlPipeLine:
+    conn = None
+    cursor = None
+    def open_spider(self,spider):
+        self.conn = pymysql.Connect(host='127.0.0.1',port=3306,user='root',password='123456',db='scrapydb',charset='utf8')
+
+    def process_item(self, item, spider):
+        self.cursor = self.conn.cursor()
+        try:
+            sql = f'insert into qiubai (author,content) values("{item["author"]}","{item["content"]}")'
+            self.cursor.execute(sql)
+            self.conn.commit()
+        except Exception as e:
+            print(e)
+            self.conn.rollback()
+
+        return item 
+
+    def close_spider(self,spider):
+        self.cursor.close()
+        self.conn.close()
+
+# settings.py
+ITEM_PIPELINES = {
+   'firstBlood.pipelines.FirstbloodPipeline': 300,
+   'firstBlood.pipelines.mysqlPipeLine': 400,
+}
+```
+
+#### 全站数据爬取
+
+```python
+import scrapy
+
+class XiaohuaSpider(scrapy.Spider):
+    name = 'xiaohua'
+    start_urls = ['http://www.521609.com/meinvxiaohua/']
+
+    page_num = 2
+
+    def parse(self, response):
+        li_list = response.xpath('//div[@id="content"]/div[2]/div[2]/ul/li')
+        for li in li_list:
+            img_name = li.xpath('./a[2]/b/text() | ./a[2]/text()').extract_first()
+            print(img_name)
+        
+        if self.page_num <= 11:
+            new_url = f'http://www.521609.com/meinvxiaohua/list12{self.page_num}.html'
+            print('new_url',new_url)
+            self.page_num += 1
+            # 手动请求,callback专门用于回调解析函数
+            yield scrapy.Request(url=new_url,callback=self.parse)
+    
+```
+
+#### 五大核心组件
+
+![img](python.assets\1445976-20190224181147096-224267773.png)
+
+- Scrapy Engine(引擎)：Scrapy框架的核心部分，负责在Spider和itemPipeline、Downloader、Scheduler中间通信
+- Spider(爬虫)：用于从特定的网页中提取自己需要的信息，即所谓的实体(Item) 
+- Scheduler(调度器)：用来接受引擎发过来的请求，压入队列中，去重网址
+- Downloader(下载器)：用于下载网页内容，并将网页内容返回给Spider
+- Pipeline(项目管道)：主要功能是持久化实体，经过几个特定的次序处理数据
+
+#### 请求传参
+
+```python
+yield scrapy.Request(url,callback=self.parse_detail,meta={'item':item})
+
+```
+
+#### 图片爬取
+
+```python
+# img.py
+import scrapy
+from firstBlood.items import ImgsItem
+
+class ImgSpider(scrapy.Spider):
+    name = 'img'
+    # allowed_domains = ['www.xxx.com']
+    start_urls = ['http://sc.chinaz.com/tupian/']
+
+    def parse(self, response):
+        div_list = response.xpath('//div[@id="container"]/div')
         for div in div_list:
-          # xpath返回的是列表，但是列表元素一定是Selector类型的对象
-          # extract可以将Selector对象中data参数存储的字符串提取出来
-          author = div.xpath('./div[1]/a[2]/h2/text()')[0].extract()
-          content = div.xpath('./a[1]/div[@class="content"]//text()').extract()
-          content = ''.join(content)
-  
-          item = FirstbloodItem()
-          item['author'] = author
-          item['content'] = content.strip()
-          yield item # 将item提交给管道
-  ```
+            src = div.xpath('./div/a/img/@src2').extract_first()
+            item = ImgsItem()
+            item['src'] = f'https://{src}'
+            yield item  # 将item提交给管道
 
-  - 保存数据库管道
+# items.py
+class ImgsItem(scrapy.Item):
+    src = scrapy.Field()
 
-  ```python
-  # pipelines.py
-  from itemadapter import ItemAdapter
-  import pymysql
-  
-  class FirstbloodPipeline:
-      fp = None
-      # 重写父类方法 该方法只有在开始爬虫的时候调用一次
-      def open_spider(self,spider):
-          print('开始爬虫')
-          self.fp = open('./first.txt','w',encoding='utf-8')
-  
-      # 该方法每接到一次item就会被调用一次
-      def process_item(self, item, spider):
-          author = item['author']
-          content = item['content']
-          self.fp.write(author+':'+content+'\n')
-          return item  # 就会执行给下一个管道
-  
-      def close_spider(self,spider):
-          print('结束爬虫')
-          self.fp.close()
-  
-  # 管道文件中一个管道类对应将一组数据存储到一个平台或载体中
-  class mysqlPipeLine:
-      conn = None
-      cursor = None
-      def open_spider(self,spider):
-          self.conn = pymysql.Connect(host='127.0.0.1',port=3306,user='root',password='123456',db='scrapydb',charset='utf8')
-  
-      def process_item(self, item, spider):
-          self.cursor = self.conn.cursor()
-          try:
-              sql = f'insert into qiubai (author,content) values("{item["author"]}","{item["content"]}")'
-              self.cursor.execute(sql)
-              self.conn.commit()
-          except Exception as e:
-              print(e)
-              self.conn.rollback()
-  
-          return item 
-  
-      def close_spider(self,spider):
-          self.cursor.close()
-          self.conn.close()
-  
-  # settings.py
-  ITEM_PIPELINES = {
-     'firstBlood.pipelines.FirstbloodPipeline': 300,
-     'firstBlood.pipelines.mysqlPipeLine': 400,
-  }
-  ```
+# pipelines.py
+class imgsPipeLine(ImagesPipeline):
+    # 对item中的图片进行请求操作
+    def get_media_requests(self, item, info):
+        yield scrapy.Request(item['src'])
+    
+    # 定制图片名称
+    def file_path(self, request, response=None, info=None):
+        file_name = request.url.split('/')[-1]
+        return file_name
 
-  
+    def item_completed(self, results, item, info):
+        return item # 返回给下一个管道
 
-  
+# settings.py
+ITEM_PIPELINES = {
+   'firstBlood.pipelines.imgsPipeLine': 300,
+}
+IMAGES_STORE = './imgs' # 保存的路径
+```
+
+#### 中间件
+
+下载中间件
+
+爬虫中间件
+
+> 拦截器
+
+```python
+# middle.py  测试代理ip和UA伪装
+import scrapy
+
+class MiddleSpider(scrapy.Spider):
+    name = 'middle'
+    start_urls = ['http://www.baidu.com/s?wd=ip']
+
+    def parse(self, response):
+        page_text = response.text
+
+        with open('ip.html','w',encoding='utf-8') as fp:
+            fp.write(page_text)
+
+# middlewares.py
+
+from scrapy import signals
+
+from itemadapter import is_item, ItemAdapter
+import random
+
+class FirstbloodDownloaderMiddleware:
+    user_agents = [
+        'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36 OPR/26.0.1656.60',
+        'Opera/8.0 (Windows NT 5.1; U; en)',
+        'Mozilla/5.0 (Windows NT 5.1; U; en; rv:1.8.1) Gecko/20061208 Firefox/2.0.0 Opera 9.50',
+        'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; en) Opera 9.50',
+        'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0',
+        'Mozilla/5.0 (X11; U; Linux x86_64; zh-CN; rv:1.9.2.10) Gecko/20100922 Ubuntu/10.10 (maverick) Firefox/3.6.10',
+        'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.57.2 (KHTML, like Gecko) Version/5.1.7 Safari/534.57.2 ',
+        'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+        'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.133 Safari/534.16',
+        'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36',
+        'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
+        'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.11 TaoBrowser/2.0 Safari/536.11',
+        'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.71 Safari/537.1 LBBROWSER',
+        'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; QQDownload 732; .NET4.0C; .NET4.0E)',
+        'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.84 Safari/535.11 SE 2.X MetaSr 1.0',
+        'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; Trident/4.0; SV1; QQDownload 732; .NET4.0C; .NET4.0E; SE 2.X MetaSr 1.0) ',
+	  ]
+    # 参考列表
+    PROXY_http = [
+        '153.180.102.104:80',
+        '195.108.131.189:56055',
+    ]
+    PROXY_https = [
+        '120.83.49.90:9000',
+        '95.189.112.214:35508'
+    ]
+
+    # 拦截请求
+    def process_request(self, request, spider):
+        # UA伪装
+        print(request.url)
+        request.headers['User-Agent'] = random.choice(self.user_agents)
+        request.meta['proxy'] = 'http://60.216.20.214:8001' # 需要使用网上透明的代理
+        return None
+
+    # 拦截响应
+    def process_response(self, request, response, spider):
+       
+        return response
+
+    # 拦截异常
+    def process_exception(self, request, exception, spider):
+        # 代理
+        print('exception',exception)
+        if request.url.split(':')[0] == 'http':
+            request.meta['proxy'] = 'http://'+random.choice(self.PROXY_http)
+        else:
+            request.meta['proxy'] = 'https://'+random.choice(self.PROXY_https)
+        return request # 将修正之后的请求对象进行重新发送
+
+# settings.py
+DOWNLOADER_MIDDLEWARES = {
+   'firstBlood.middlewares.FirstbloodDownloaderMiddleware': 543,
+}
+```
+
+#### CrawlSpider
+
+> 全站数据爬取
+
+基于Spider：手动请求
+
+基于CrawlSpider
+
+
+
+创建爬虫类：`scrapy genspider -t crawl sun www.xxx.com`
+
+```python
+# sun.py
+import scrapy
+from scrapy.linkextractors import LinkExtractor
+from scrapy.spiders import CrawlSpider, Rule
+from sunPro.items import SunproItem
+
+class SunSpider(CrawlSpider):
+    name = 'sun'
+    start_urls = ['https://wz.sun0769.com/political/index/politicsNewest']
+
+    # 连接提取器
+    link = LinkExtractor(allow=r'id=1&page=\d+')
+
+    rules = (
+        # 规则解析器
+        # follow=True: 可以将链接提取器继续作用到连接提取到的url中，实现全栈爬取
+        Rule(link, callback='parse_item', follow=True),
+    )
+
+    def parse_item(self, response):
+        li_list= response.xpath('/html/body/div[2]/div[3]/ul[2]/li')
+        for li in li_list:
+            id = li.xpath('./span[1]/text()').extract_first()
+            state = li.xpath('./span[2]/text()').extract_first()
+            title = li.xpath('./span[3]/a/text()').extract_first()
+            time1 = li.xpath('./span[4]/text()').extract_first()
+            time2 = li.xpath('./span[5]/text()').extract_first()
+            item = SunproItem()
+            item['id'] = id.strip()
+            item['state'] = state.strip()
+            item['title'] = title.strip()
+            item['time1'] = time1.strip()
+            item['time2'] = time2.strip()
+            yield item
+
+# items.py
+import scrapy
+
+class SunproItem(scrapy.Item):
+    id = scrapy.Field()
+    state = scrapy.Field()
+    title = scrapy.Field()
+    time1 = scrapy.Field()
+    time2 = scrapy.Field()
+
+# pipelines.py
+from itemadapter import ItemAdapter
+
+
+class SunproPipeline:
+    fp = None
+    # 重写父类方法 该方法只有在开始爬虫的时候调用一次
+    def open_spider(self,spider):
+        print('开始爬虫')
+        self.fp = open('./sun.txt','w',encoding='utf-8')
+
+    # 该方法每接到一次item就会被调用一次
+    def process_item(self, item, spider):
+        id = item['id']
+        state = item['state']
+        title = item['title']
+        time1 = item['time1']
+        time2 = item['time2']
+        self.fp.write(id+','+state+','+title+','+time1+','+time2+'\n')
+        return item  # 就会执行给下一个管道
+
+    def close_spider(self,spider):
+        print('结束爬虫')
+        self.fp.close()
+
+# settings.py中开启管道
+```
+
+
+
+
+
