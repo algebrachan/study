@@ -84,11 +84,18 @@ Host github.com                                       HostName github.com       
  git checkout master # 不推荐
  
  git switch -c dev # 创建
+ 
+ # 合并基本操作
  git switch master
+ git merge dev
+ git push origin master
  
  git branch
 # 合并分支 merge用于合并指定分支到当前分支 使用--no-ff 删除分支之后不会丢掉分支信息
  git merge --no-ff -m "merge 信息" dev
+ 
+# 合并之后还要提交
+
 # 删除分支
  git branch -d dev
 # 合并存在冲突时，要解决冲突之后再提交

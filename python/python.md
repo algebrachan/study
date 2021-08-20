@@ -2326,7 +2326,7 @@ class SunproPipeline:
     # 该方法每接到一次item就会被调用一次
     def process_item(self, item, spider):
         id = item['id']
-        state = item['state']
+        state = item['state' 请求出]
         title = item['title']
         time1 = item['time1']
         time2 = item['time2']
@@ -2338,6 +2338,190 @@ class SunproPipeline:
         self.fp.close()
 
 # settings.py中开启管道
+```
+
+
+
+### 分布式爬虫
+
+> scrapy-redis
+
+可以给原生的scrapy框架提供可以被共享的管道和调度器
+
+- 步骤：
+  - 创建一个工程
+
+  - 创建基于Crawlspider的爬虫文件
+
+  - 修改爬虫文件：
+    - 导包 from scrapy_redis.spiders import RedisCrawlSpider
+    - 将start_urls和allowed_domains进行注释
+    - 添加一个新属性 redis_key = 'sun'
+    - 将爬虫的父类改为RedisCrawlSpider
+    
+  - 修改配置文件settings
+
+    ```python
+    # 指定Redis的主机名和端口
+    REDIS_HOST = 'localhost'
+    REDIS_PORT = 6379
+    # 指定管道
+    ITEM_PIPELINES = {
+       'scrapy_redis.pipelines.RedisPipeline': 400,
+    }
+    # 指定调度器
+    
+    # SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.PriorityQueue'
+    # 增加一个去重容器类的配置，作用是用Redis的set集合来存储请求的指纹数据，从而实现请求去重的持久化
+    DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
+    # 使用scrapy-redis组件自己的调度器
+    SCHEDULER = "scrapy_redis.scheduler.Scheduler"
+    # 配置调度器是否需要持久化，也就是爬虫结束，要不要清空Redis中请求对象和去重指纹的set
+    SCHEDULER_PERSIST = True
+    ```
+
+    
+
+  - 配置redis
+
+  - 执行工程
+
+  ```python
+  # sun.py
+  from scrapy.linkextractors import LinkExtractor
+  from scrapy.spiders import Rule
+  from scrapy_redis.spiders import RedisSpider
+  from sunPro.items import SunproItem
+  
+  class SunSpider(RedisSpider):
+      name = 'sun'
+      start_urls = ['https://wz.sun0769.com/political/index/politicsNewest']
+  
+      redis_key = 'sun'
+      # 连接提取器
+      link = LinkExtractor(allow=r'id=1&page=\d+')
+  
+      rules = (
+          # 规则解析器
+          # follow=True: 可以将链接提取器继续作用到连接提取到的url中，实现全栈爬取
+          Rule(link, callback='parse', follow=True),
+      )
+  
+      def parse(self, response):
+          li_list= response.xpath('/html/body/div[2]/div[3]/ul[2]/li')
+          for li in li_list:
+              id = li.xpath('./span[1]/text()').extract_first()
+              state = li.xpath('./span[2]/text()').extract_first()
+              title = li.xpath('./span[3]/a/text()').extract_first()
+              time1 = li.xpath('./span[4]/text()').extract_first()
+              time2 = li.xpath('./span[5]/text()').extract_first()
+              item = SunproItem()
+              item['id'] = id.strip()
+              item['state'] = state.strip()
+              item['title'] = title.strip()
+              item['time1'] = time1.strip()
+              item['time2'] = time2.strip()
+              print(item)
+              yield item
+   # redis中 lpush sun xxx.com
+  
+  ```
+
+  
+
+
+
+### 增量式爬虫
+
+核心：往redis的set数据集中增加url
+
+
+
+## 10.异步协程
+
+> 协程(Coroutine)
+
+微线程，是一种用户态的上下文切换技术。简而言之，其实就是通过一个线程实现代码块相互切换执行
+
+协程的意义：一个线程中遇到IO等待时间，需要利用空闲的时间做别的事情
+
+
+
+### greenlet
+
+```shell
+pip install greenlet
+```
+
+```python
+from greenlet import greenlet
+
+def func1():				
+    print(1)				# 第1步：输出 1
+    gr2.switch()			# 第3步：切换到 func2 函数
+    print(2)				# 第6步：输出 2
+    gr2.switch()			# 第7步：切换到 func2 函数，从上一次执行的位置上继续向后执行
+    
+def func2():
+    print(3)				# 第4步：输出 3
+    gr1.switch()			# 第5步：切换到 fuc1 函数，从上一次执行的位置继续向后执行
+    print(4)				# 第8步：输出4
+
+gr1 = greenlet(func1)
+gr2 = greenlet(func2)
+
+gr1.switch() 				# 第1步：去执行 func1 函数
+```
+
+
+
+### asyncio
+
+例子
+
+```python
+import asyncio
+
+@asyncio.coroutine
+def func1():
+    print(1)
+    yield from asyncio.sleep(2)
+    print(2)
+    
+@asyncio.coroutine
+def func2():
+    print(3)
+    yield from asyncio.sleep(2)
+    print(4)
+    
+task = [
+    asyncio.ensure_future(func1()),
+    asyncio.ensure_future(func2())
+]
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(asyncio.wait(tasks))
+
+# 使用 async&await关键字
+import asyncio
+
+async def func1():
+    print(1)
+    await asyncio.sleep(2)
+    print(2)
+    
+async def func2():
+    print(3)
+    await asyncio.sleep(2)
+    print(4)
+    
+tasks = [
+    asyncio.ensure_future(func1()),
+    asyncio.ensure_future(func2())
+]
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(asyncio.wait(tasks))
 ```
 
 
