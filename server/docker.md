@@ -409,7 +409,7 @@ mongodb://admin:123456@localhost/
 
 - 启动mongodb镜像
 
-  sudo docker run -d --name my-mongodb -p 27017:27017 -v /home/wangchen/docker/mongodb:/data/db --net mynet mongo --auth
+  sudo docker run -d --name my-mongodb -p 27018:27017 -v /home/wangchen/docker/mongodb:/data/db --net mynet mongo --auth
 
   docker exec -it my-mongodb mongo admin
 

@@ -1,5 +1,35 @@
 ## MongoDB
 
+### 0.安装卸载
+
+```shell
+sudo apt-get install mongodb
+mongo -version
+
+service mongodb start
+service mongodb stop
+
+sudo vi /etc/mongodb.conf
+auto = true
+
+use admin
+
+mongo
+
+# 卸载
+sudo apt-get purge mongodb
+sudo rm -r /var/log/mongodb
+sudo rm -r /var/lib/mongodb
+sudo rm -r /etc/mongodb.conf
+
+
+tar -zxvf xxx
+```
+
+
+
+
+
 ### 1.简介
 
 - MongoDB是由c++编写的，是一个基于分布式文件存储的开源数据库系统 
@@ -327,6 +357,8 @@ db.createUser({user:"admin",pwd:"123456",roles:["root"]})
 # 创建一个普通用户
 db.createUser({user:"fadmin",pwd:"furnace123456",roles:[{role:"root",db:"furnace"}]})
 db.auth("furnace","furnace123456")
+
+db.auth("admin","123456")
 
 #开启认证
 security:

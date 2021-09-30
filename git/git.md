@@ -147,3 +147,18 @@ Host github.com                                       HostName github.com       
 
 ```
 
+
+
+- 服务器地址更改
+
+```shell
+# 修改本地的remote地址
+git remote -v
+git remote remove origin
+git remote add origin zvisioner@10.60.120.120:wangchen/FurnaceServer.git
+# 推送本地版本为远程版本
+git push --set-upstream origin master
+
+
+```
+

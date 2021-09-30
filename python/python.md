@@ -65,6 +65,10 @@ pip freeze > requirements.txt
 # 当 clone一个项目的时候 只需安装 配置文件中的包
 
 pip install -r requirements.txt
+
+# 离线安装
+pip3 download -r requirements.txt -d /home/wangchen/packages 
+pip3 install -r requirements.txt --no-index --find-links=/home/wangchen/packages
 ```
 
 ## 2.python基本语法
@@ -978,6 +982,24 @@ format=%(asctime)s - %(name)s - %(levelname)s - %(message)s
     scheduler = BlockingScheduler(timezone="Asia/Shanghai")
     ```
 
+### 4.5 yaml
+
+`pip install pyyaml`
+
+```python
+with open(yamlPath,'r',encoding='utf-8') as f:
+    # print(f.read())
+    result = f.read()
+    x = yaml.load(result,Loader=yaml.FullLoader)
+
+with open(yamlPath,'w',encoding='utf-8') as w_f:
+    # 覆盖原先的配置文件
+    yaml.dump(x,w_f)
+    
+```
+
+
+
 
 
 
@@ -1215,6 +1237,15 @@ myquery = { "name": "Taobao" }
 mycol.delete_one(myquery)
 myquery = { "name": {"$regex": "^F"} }
 x = mycol.delete_many(myquery)
+
+# 以管道形式分组查找聚合
+pipeline = [
+	{'$match':{'date':{'$gte':datetime.today()-timedelta(days=31)},'mode':mode}},
+    {'$group':{'_id':"$date",'total_warn':{'$sum':"$warning_nums"},'total_error':{'$sum':"$error_nums"},'total_missed':{'$sum':"$missed_nums"}}},
+    {'$sort':{'_id':1}}
+]
+mg_data = mycol.aggregate(pipeline)
+
 ```
 
 

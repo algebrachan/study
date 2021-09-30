@@ -70,6 +70,8 @@ echo (password) | sudo -S (command)
 # 新增用户
 sudo useradd -s /bin/bash -d /home/wangchen -m wangchen
 sudo passwd <user_name> 
+
+chmod -R ugo+rwx dir1 # 开放权限
 ```
 
 
