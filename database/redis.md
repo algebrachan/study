@@ -417,6 +417,25 @@ redis-benchmark -h localhost -p 6379 -c 100 -n 10000
 
 
 
+### 1.5 redis在windows服务器上设置开机自启
+
+```shell
+# redis 安装目录下面 运行
+redis-server --service-install redis.windows-service.conf --loglevel verbose
+
+#卸载服务：
+redis-server --service-uninstall
+
+#开启服务：
+redis-server --service-start
+
+#停止服务：
+redis-server --service-stop
+
+```
+
+
+
 ## 2. 数据类型
 
 ###  2.1 String
