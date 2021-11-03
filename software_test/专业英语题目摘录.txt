@@ -1,0 +1,50 @@
+only when one writes do the gaps appear and the ( inconsistencies ) protrude. 不一致
+since his fundamental job is to keep everybody going in the ( same ) direction,his chief daily task will be communication. 
+fail to  capture the ( dynamics ) of the system`s behavior. 动力
+To a user,a program with just the right features presented through an intuitive and ( simple ) interface is beautiful.
+This way,even if the more ambitious research efforts should fail,there will be at least ( partial ) positive outcomes.
+The complexity of software is an ( essential ) property,not an accidental one. 
+the object constructed in the requirement analysis shows the ( static structure ) of the real-world system and organizes it into workable pieces.
+the elements interact with each other in some ( nonlinear ) fashion.
+they think that beauty is ( impractical ).
+Please planning is creating a game plan for your Web project ( outlining ) what you think you want your Web site to be.概述
+It also ( defines ) how long the project will take and how much it will cost. 
+The ( tree-structure ) allows distribution lists to be maintained by subtree,if that is desirable. 树形结构
+Once a ( standard ) has been established,many more groups and companies will adopt it.
+Although this may sound simple,the fact is that ( conventional ) requirement capture approaches.  依照惯例
+the data ( management ) includes the function of updating data on a database,and retrieving data from a database.
+( domain analysis ) focuses on realworld things whose semantics the application captures.
+But,like anything,use cases come with their own problems,and as useful as they are,they can be ( misapplied ) 误用
+control of the distribution of ( information )
+Software systems have orders of magnitude more ( states ) than computers do.
+we make the two similar parts into one,a ( subroutine ),open or closed. 子程序
+The three types of the analysis model are ( class model,interaction model and state model ).类模型、交互模型、状态模型
+ the ability to run a program or applicaiton
+Systems development is a team ( activity ),and the effectiveness of the team largely determines the ( quality ) of the engineering.
+you use a release plan to do an initial sanity check of the project`s ( feasibility ) and worthiness. 可行性
+this ( competition ) of ideas is a major driving force for scientific progress. 竞争
+Addon security packages can add to the ( automated ) access control capabilities of the OS.
+The infrastucture layer serves as the ( hardware ) for building the platform layer of the cloud.
+This small set of  critical documents ( decides ) much of the manager`s work.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
