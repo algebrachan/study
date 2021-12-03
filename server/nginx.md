@@ -610,7 +610,11 @@ server {
 }
 ```
 
+### 3.8 常见问题
 
+nginx在windows服务器上后台自启
+
+https://blog.csdn.net/qq_34515910/article/details/83107738
 
 
 

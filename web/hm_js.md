@@ -1,4 +1,4 @@
-# JavaScript
+JavaScript
 
 ## 1.基础语法
 
