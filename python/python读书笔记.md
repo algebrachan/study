@@ -309,7 +309,7 @@ next(I)
 # 迭代器有记录功能，一旦迭代了，上一条的数据不会重复,dict对象可用迭代器遍历
 # map zip filter迭代器,遍历一次，就用尽了,只支持一个迭代器
 
-# range()支持多个爹地阿奇
+# range()支持多个迭代
 
 # 字典视图迭代器 它返回连续的键，无需在环境中调用keys
 
@@ -1217,5 +1217,343 @@ class Singleton:
 
 
 
+## Python编程快速上手
 
+```ini
+评价:该书较为基础
+```
+
+
+
+### 1.python基础
+
+> 变量名
+
+只能是一个词；只能包含字母、数字、下划线；不能以数字开头。不允许空格、中划线
+
+> 常用函数
+
+print()、input()、len()、str()、int()、float()等
+
+### 2.控制流
+
+> 布尔操作符
+
+and  、 or  、 not 类似： 与 或 非 运算
+
+> 控制流语句
+
+if、else、elif、while
+
+break：跳出循环
+
+continue：结束本次循环到循环头部
+
+range() 开始，结束，步长：前闭后开
+
+sys.exit() 提前结束程序
+
+### 3.函数
+
+None是NoneType数据类型的唯一值
+
+global全局变量
+
+try... except... 来处理异常
+
+### 4.列表
+
+负数下标，从尾部开始计数-1为尾部第一个
+
+> 切片
+
+从列表中取多个值
+
+spam[1:4] 前闭后开 下标为1到3
+
+spam[0:-1] 下标0到倒数第二个
+
+spam[:2] 从头到下标为1
+
+spam[1:] 从下标1 到结尾
+
+spam[:] 整列
+
+del spam[2] 删除列表中的值
+
+列表用于循环 for in in range(4):
+
+in 和 not in 操作符 判断一个项是否在列表中
+
+index()方法在列表中查找值
+
+list.append() 在列尾 添加项
+
+list.insert(index,item) 插入项
+
+list.remove('str') 删除值，只删除出现的第一个，不存在会报错
+
+spam.sort(reverse=True,key) 排序 逆序 默认顺序false
+
+list() 与 tuple() 来进行元组和列表的转换
+
+列表复制要使用 copy.deepcopy()
+
+### 5.字典和结构化数据
+
+keys() 、 values() 、 items()
+
+in  not in 
+
+漂亮打印 pprint()
+
+### 6.字符串操作
+
+原始字符串 引号前加r 忽略所有转义
+
+字符串下标和切片
+
+upper() lower() isupper() islower()
+
+isX() 方法
+
+startswith()和 endswith() 判断字符串开头和结尾
+
+join()和 split() 
+
+ rjust()、ljust()和 center()方法对齐文本
+
+用 strip()、rstrip()和 lstrip()删除空白字符
+
+### 7.模式匹配与正则表达式
+
+用 sub()方法替换字符串
+
+### 8.读写文件
+
+ os.path.join() 来构建所有操作系统上都有效的路径
+
+ os.getcwd() 获取当前目录
+
+ os.makedirs()创建新文件夹
+
+ open()函数打开文件， File 对象的 read()方法
+
+### 9.组织文件
+
+shutil 在 Python 程序中复制、移动、改名和删除文件 ，相当于shell
+
+shutil.move(source, destination) 移动
+
+os.unlink(path)将删除 path 处的文件
+
+send2trash.send2trash() 函数来删除文件和文件夹，能恢复
+
+zipfile 模块压缩文件
+
+zipfile.ZipFile() 读取zip文件
+
+extractall()方法从 ZIP 文件中解压缩所有文件和文件夹，放到当前工作目录中
+
+newZip.write('spam.txt', compress_type=zipfile.ZIP_DEFLATED)
+
+### 10.调试
+
+抛出异常 raise Exception('This is the error message.')
+
+反向跟踪异常 traceback.format_exc()
+
+> 断言
+
+假定为true
+
+不要用 print()调试
+
+调试器，断点
+
+### 11.从web抓取信息
+
+使用爬虫替代
+
+### 12.处理Excel电子表格
+
+使用 scrpy替代
+
+openpyxl.load_ _workbook('example.xlsx') 读
+
+get_ _sheet_ _names()
+
+get_ _sheet_ _by_ _name('Sheet3')
+
+get_ _active_ _sheet()
+
+### 13.处理PDF和word文档
+
+### 14.处理CSV文件和JSON数据
+
+### 15.保持时间、计划任务和启动程序
+
+time.time()函数
+
+time.sleep()函数
+
+round() 四舍五入
+
+datetime 值表示一个特定的时刻
+
+timedelta 时间差
+
+ strftime(format)  datetime 对象转换为字符串 format为格式
+
+ strptime()  将字符串转换成 datetime 对象
+
+#### 从python启动其他程序
+
+利用内建的 subprocess 模块中的 Popen()函数，Python 程序可以启动计算机中的其他程序
+
+### 16.发送电子邮件和短信
+
+### 17.操作图像
+
+### 18.用GUI自动化控制键盘和鼠标
+
+
+
+## 流畅的python
+
+### 一、序幕
+
+> 特殊方法
+
+ __ x __ 双下划线为特殊方法
+
+len()		__ len __
+
+构造方法	 __ init __ 初始化的时候调用
+
+for i in x 使用的是迭代 iter(x) 该函数背后是 x.__ iter __()
+
+repr是python的内置函数，用字符串的形式print，若没有实现__ repr __ 则打印该对象的内存地址
+
++使用 __ add __ 来实现 * 使用 __ mul __ 来实现
+
+
+
+### 二、数据结构
+
+ * 运算符把一个可迭代对象拆开作为函数的参数
+
+函数用 *args 来获取不确定数量的参数
+
+> 切片
+
+为什么切片和区间会忽略最后一个元素：
+
+- 可以快速计算出区间长度
+- 利用任意一个下标来把序列分割成不重叠的两部分
+
+> 列表排序
+
+list.sort() 就地排序，不会生成新的列表，返回值为None
+
+sorted 生成新的列表
+
+- reverse 为True 降序排列
+- key 排序对比关键字
+
+
+
+如果在你的代码里，包含操作（比如检查一个元素是否出现在一个集合中）的频率很高，用 set（集合）会更合适。set 专为检查元素是否存在做过优化
+
+> 数组
+
+如果我们需要一个只包含数字的列表，那么 array.array 比 list 更高效
+
+NumPy 和 SciPy 提供的高阶数组和矩阵操作
+
+collections.deque 类（双向队列）是一个线程安全、可以快速从两端添加或者删除元素的数据类型。
+
+> 字典
+
+```python
+# 字典的不同 创建方式
+a = dict(one=1, two=2, three=3)
+b = {'one': 1, 'two': 2, 'three': 3}
+c = dict(zip(['one', 'two', 'three'], [1, 2, 3]))
+d = dict([('two', 2), ('one', 1), ('three', 3)])
+e = dict({'three': 3, 'one': 1, 'two': 2})
+a == b == c == d == e
+True
+```
+
+dict.get 并不是处理找不到的键的最好方法，setdefault
+
+defaultdict：处理找不到的键的一个选择
+
+```python
+if key not in my_dict:
+	my_dict[key] = []
+my_dict[key].append(new_value)
+# 等价于
+my_dict.setdefault(key, []).append(new_value)
+# 默认为值list的字典
+index = collections.defaultdict(list)
+```
+
+> 集合
+
+不能重复
+
+```python
+# needles 的元素在 haystack 里出现的次数，两个变量都是 set 类型
+found = len(needles & haystack)
+
+found = 0
+for n in needles:
+	if n in haystack:
+		found += 1
+```
+
+dict 和 set效率很高，使用散列存储
+
+> 散列
+
+散列其实是一个稀疏数组，总有空白元素
+
+散列表中的单元为表元，两个部分：对键的引用、对值的引用，表元大小一致，通过偏移量来读取某个表元
+
+确保三分之一为空，快到达阈值 -> 复制扩容
+
+hash值
+
+dict 的实现是典型的空间换时间：字典类型有着巨大的内存开销
+
+
+
+> 字符
+
+编码 s.encode('utf8')
+
+解码 b.decode('utf8')
+
+
+
+> 文本
+
+打开文本：fp = open('cafe.txt', 'w', encoding='utf_8')
+
+
+
+### 三、把函数视作对象
+
+函数的  __ doc __ 属性 """ 中的内容
+
+> 一等对象
+
+- 在运行时创建
+- 能赋值给变量或数据结构中的元素
+- 能作为参数传给函数
+- 能作为函数的返回结果
+
+整数、字符串、字典、函数都是一等对象
 
