@@ -218,6 +218,11 @@ db.col.dropIndex(index)
 # 聚合 类似 sql中的count*
 db.COLLECTION_NAME.aggregate(AGGREGATE_OPERATION)
 
+# 创建索引
+db.httpRequestLog.ensureIndex({"requestTime": 1},{expireAfterSeconds: 2592000});
+  
+# 删除索引
+db.httpRequestLog.dropIndex({"requestTime": 1});
 ```
 
 

@@ -65,7 +65,8 @@ pip freeze > requirements.txt
 # 当 clone一个项目的时候 只需安装 配置文件中的包
 
 pip install -r requirements.txt
-
+# 卸载
+pip uninstall -r requirements.txt -y
 # 离线安装
 pip3 download -r requirements.txt -d /home/wangchen/packages 
 pip3 install -r requirements.txt --no-index --find-links=/home/wangchen/packages
