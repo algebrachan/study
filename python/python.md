@@ -600,6 +600,30 @@ print('Main program waited until background was done.')
 
 ```
 
+> python 脚本操作文件
+
+```python
+# 批量执行 命令行操作
+import os
+
+def file_name(file_dir):   
+  for root, dirs, files in os.walk(file_dir):  
+    # print(root) 
+    # print(dirs)
+    # print(files)
+    for filename in files:
+      #windows下 mongodb数据库 导入文件
+      print(os.popen(f"mongorestore.exe --host 127.0.0.1 --port 27017 -d elm {filename}").read())
+
+
+if __name__ == '__main__':
+  file_name(os.getcwd())
+```
+
+
+
+
+
 
 
 ### 4.1 requests
@@ -997,6 +1021,16 @@ with open(yamlPath,'w',encoding='utf-8') as w_f:
     # 覆盖原先的配置文件
     yaml.dump(x,w_f)
     
+```
+
+### 4.6 pyinstaller
+
+`pip Install pyinstaller==4.3`
+
+```shell
+# 例
+pyinstaller -F -c .\datascreen_deploy.py
+
 ```
 
 

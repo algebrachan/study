@@ -364,7 +364,16 @@ const  tokenStr = jwt.sign({username:userinfo.username},secretKey,{expiresIn:'30
 app.use(expressJWT({secret:secretKey}).unless({path:[/^\/api\//]}))
 
 req.user // 获取解析出来的对象
+
+// 请求头Authorization 添加Bearer token字符串 
 ```
 
 ### 项目相关
 
+#### 遇到问题
+
+- mongoose中Schema数据类型定义问题，如何定义double类型数据？
+
+  Number类型包含int和double
+
+[mongoose中间件](https://mongoosejs.com/docs/index.html)

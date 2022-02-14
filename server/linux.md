@@ -47,6 +47,8 @@ tar -xvf # 解压缩文件 .tar后缀
 > access.log #清空文件
 
 mv angles /temp
+
+
 ```
 
 - 防火墙

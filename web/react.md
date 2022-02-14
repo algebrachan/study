@@ -734,6 +734,30 @@ this.setState(state => ({
 }));
 ```
 
+### 2.2 React测试
 
+https://www.cnblogs.com/testopsfeng/p/14265218.html
+
+执行 `npm test` 项目中所有 test.js为结尾的
+
+
+
+## 3.遇到的问题
+
+- react-router和react-router-dom的区别？
+
+  ```javascript
+  import {Swtich, Route, Router, HashHistory, Link} from 'react-router-dom';
+  
+  import {Switch, Route, Router} from 'react-router';
+  import {HashHistory, Link} from 'react-router-dom';
+  
+  // react-router: 实现了路由的核心功能
+  // react-router-dom: 基于react-router，加入了在浏览器运行环境下的一些功能，例如：Link组件，会渲染一个a标签，Link组件源码a标签行; BrowserRouter和HashRouter组件，前者使用pushState和popState事件构建路由，后者使用window.location.hash和hashchange事件构建路由。
+  
+  // 安装了react-router-dom，npm会解析并安装上述依赖包。可以看到，其中包括react-router。
+  ```
+
+  
 
 # Next.js

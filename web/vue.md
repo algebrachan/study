@@ -160,6 +160,7 @@
 
 <!-- v-bind绑定html 属性 -->
 <a v-bind:href="url"> ... </a>
+<a :href="url"> ... </a>
 <!-- 动态绑定 -->
 <a v-bind:[attributeName]="url"> ... </a>
 <!-- 绑定事件 -->
@@ -680,6 +681,7 @@ class和style都可以用v-bind处理他们
   })
   //provide 一些组件的实例 不起作用
   
+  ```
 ```
   
 - 动态组件&异步组件
@@ -691,7 +693,7 @@ class和style都可以用v-bind处理他们
   <keep-alive>
     <component :is="currentTabComponent"></component>
   </keep-alive>
-  ```
+```
 
   ```javascript
   // 异步组件 只在需要的时候才从服务器加载一个模块

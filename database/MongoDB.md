@@ -225,6 +225,14 @@ db.httpRequestLog.ensureIndex({"requestTime": 1},{expireAfterSeconds: 2592000});
 db.httpRequestLog.dropIndex({"requestTime": 1});
 ```
 
+- 运维命令行
+
+```shell
+mongorestore.exe --host 127.0.0.1 --port 27017 -d db_name file_name
+```
+
+
+
 
 
 ### 3.副本集
