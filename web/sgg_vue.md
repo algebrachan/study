@@ -1155,7 +1155,285 @@ this.$store.commit('countAbout/ADD',person)
 
 ### 5.vue-router
 
+单页面应用，使用路由route
+
+安装 `npm i vue-router`
+
+应用插件：Vue.use(VueRouter)
+
+编写配置项：
+
+```javascript
+// 引入VueRouter
+import VueRouter from 'vue-router',
+// 引入Luyou组件
+import About from '../components/About'
+
+// 创建router实例对象，去管理一组路由规则
+const router = new VueRouter({
+	routes:[
+        {
+            name:'about', // 路由命名
+            path:'/about',
+            component:About,
+        },
+        {
+            name:'detail', // 路由命名
+            path:'/detail/:id', // 路由传参 params
+            component:Detail,
+            // props的第一种写法，值为对象啊
+            // props:{},
+            // props的第二种 把该路由组件的所有params参数 都以props形式传给 Detail
+            // props:true,
+            // props第三种写法 值为函数
+            props($route){
+				return {id:$route.query.id},
+            }
+        }
+    ]
+})
+// 暴露router
+export default router
+
+/*
+<router-link active-class="active" to ="/about">About</router-link>
+<router-link active-class="active" to ="{name:'about'}">About</router-link> 使用命名路由去跳转
+<router-view></router-view> 指定展示位置
+*/
+
+```
+
+注意事项：
+
+- 路由组件通常存放在 pages 文件夹，一般组件通常存放在components 文件夹
+- 通过切换 隐藏了路由组件，默认是被销毁掉的，需要的时候再去挂载
+- 每个组件都有自己的 `$route` 属性，里面存放路由信息
+- 整个应用只有一个router，可以通过组件的 `$router` 属性获取到
+
+
+
+
+
+#### 嵌套(多级)路由
+
+```javascript
+import About from '../components/About'
+import News from '../components/News'
+
+// 创建router实例对象，去管理一组路由规则
+const router = new VueRouter({
+	routes:[
+        {
+            path:'/about',
+            component:About,
+            children:[
+                {
+                    path:'news',
+                    component:News,
+                }
+            ]
+        }
+    ]
+})
+/*
+<router-link active-class="active" to ="/about/news">About</router-link>
+*/
+```
+
+#### 路由传参
+
+```vue
+<!-- query参数 -->
+<router-link :to="
+                  {
+                  path:'/home/message/detail',
+                  query:{
+                   id:m.id,
+                   title:m.title,
+                  }
+                  }">
+
+</router-link>
+<div>
+{{$route.query.id}} 获取参数
+</div>
+<router-link :to="'/home/message/detail?id=${m.id}&title=${m.title}'"></router-link>
+
+
+<!-- params参数 -->
+<div>
+{{$route.params.id}} 获取参数
+</div>
+```
+
+
+
+> router-link
+
+浏览器存储历史页面，是用栈的形式，默认push: 追加历史记录
+
+也可以使用replace: 替换历史记录
+
+<router-link :replace="true" active-class="active" to ="/about">About</router-link>
+
+<router-link replace active-class="active" to ="/about">About</router-link>
+
+#### 编程式路由导航
+
+```vue
+<script>
+export default{
+    methods:{
+        pushShow(m){
+            this.$router.push({
+                name:'xiangqing',
+                query:{
+                    id:m.id
+                }
+            })
+        },
+        func(){
+            this.$router.replace()
+            this.$router.back()
+            this.$router.forward()
+            this.$router.go()
+        }
+    }
+}
+</script>
+
+```
+
+#### 缓存路由组件
+
+作用：让不展示的路由组件保持挂载，不被销毁
+
+```vue
+<keep-alive include="News"> // 缓存包含 news组件，组件名
+	<router-view></router-view>
+</keep-alive>
+
+```
+
+路由独有的生命周期
+
+- activated() 激活
+- deactivated() 失活
+
+#### 路由守卫
+
+```javascript
+const router = new VueRouter({
+    routes:[
+        {
+            name:'guanyu',
+            path:'/about',
+            component:About,
+            meta:{isAuth:true} // 路由元信息，可以存数据
+        }
+    ]
+    
+})
+// 全局前置路由守卫
+router.beforeEach((to,from,next)=>{
+    // 路由切换前调用
+    if(to.meta.isAuth){
+		if(localStorage.getItem('school')=='atguigu'){
+        next()
+    	}
+    }
+})
+// 全局后置守卫
+router.afterEach((to,from)=>{
+    // 修改 title
+    document.title = to.meta.title || '硅谷系统'
+})
+export default router
+
+
+// 独享路由守卫
+const router = new VueRouter({
+    mode:'history',
+    routes:[
+        {
+            name:'guanyu',
+            path:'/about',
+            component:About,
+            meta:{isAuth:true},
+            beforeEnter(to,from,next)=>{
+            	
+        	},
+        	
+        }
+    ]
+    
+})
+
+// 组件内路由守卫
+
+export default {
+	name:'About',
+    mounted(){},
+    // 通过路由规则，进入该组件时被调用
+    beforeRouteEnter(to,from,next){
+        
+    },
+    // 通过路由规则，离开该组件时被调用
+    beforeRouteLeave(to,from,next){
+        
+    }
+}
+
+```
+
+#### 路由工作模式
+
+- history模式：会存在刷新 404 问题，使用nginx代理
+- hash模式：路径里带有 #
+
+
+
 ### 6.element-ui
+
+常用ui组件库
+
+移动端
+
+- [Vant ](https://youzan.github.io/vant/)
+- [Cube-ui](https://didi.github.io/cube-ui/)
+- [Mint-ui](http://mint-ui.github.io/)
+
+pc端
+
+- [element-ui](https://element.eleme.cn/)
+- [iView](https://www.iviewui.com/)
+
+
+
+> element 按需引入
+
+安装
+
+`npm install babel-plugin-component -D` 安装开发依赖
+
+```javascript
+// vue.config.js中
+
+{
+  "presets": [["es2015", { "modules": false }]],
+  "plugins": [
+    [
+      "component",
+      {
+        "libraryName": "element-ui",
+        "styleLibraryName": "theme-chalk"
+      }
+    ]
+  ]
+}
+```
+
+
 
 ### 7.vue3
 
