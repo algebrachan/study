@@ -433,6 +433,8 @@
 
 - react-router-dom 
 
+  版本  "react-router-dom": "^5.1.0",
+  
   ```javascript
   import {BrowserRouter,Route,Switch,Link,NavLink,Redirect} from 'react-router-dom';
   
@@ -500,6 +502,12 @@
   import {withRouter} from 'react-router-dom';
   //withRouter可以加工一般组件，使一般组件具有 路由组件的api
   ```
+
+#### React Router 6
+
+
+
+
 
 
 ### 6. ReactUI组件库
@@ -734,3 +742,6 @@ componentDidCatch(){
     - dva
   - 4.conText
     - 生产者-消费者模式
+
+
+

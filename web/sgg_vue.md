@@ -684,7 +684,7 @@ beforeDestroy(){
 
 ```javascript
 // ./src/main.js 是项目入口文件
-
+// 引入Vue的构造函数
 import Vue from 'vue'
 import App from './App.vue'
 
@@ -1436,4 +1436,465 @@ pc端
 
 
 ### 7.vue3
+
+> 新特性
+
+打包大小减少、初次渲染加快、内存减少。源码升级
+
+
+
+#### 创建工程
+
+##### vue-cli
+
+```shell
+## 查看@vue/cli版本 确保在4.5.0 以上
+vue --version
+
+npm install -g @vue/cli
+## 创建
+vue create vue_test
+## 启动
+npm run serve
+```
+
+##### vite
+
+官方文档 https://cn.vitejs.dev/
+
+vite——新一代前端构建工具
+
+优势：
+
+- 开发环境中，无需打包操作，可快速冷启动
+- 轻量快速的热重载
+- 真正的按需编译，不再等待整个应用编译完成
+
+```shell
+npm init vite-app <project-name>
+npm install
+npm run dev
+```
+
+
+
+```javascript
+// 分析 vue3脚手架
+// main.js
+// 引入一个名为createApp的工厂函数
+import { createApp } from 'vue'
+import App from './App.vue'
+import './index.css'
+
+// 创建一个应用实例对象 app
+const app = createApp(app)
+app.mount('#app')
+
+// App.vue
+// template中可以没有根标签
+<template>
+  <img alt="Vue logo" src="./assets/logo.png">
+  <HelloWorld msg="Welcome to Your Vue.js App"/>
+</template>
+
+<script>
+import HelloWorld from './components/HelloWorld.vue'
+
+export default {
+  name: 'App',
+  components: {
+    HelloWorld
+  }
+}
+</script>
+
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>
+```
+
+
+
+#### 常用CompositionApi
+
+> setup
+
+vue新的配置项，值为函数
+
+setup中的函数，就是组合api
+
+注意：
+
+- 不要与Vue2.x配置混用
+- Vue2配置（data,methods,computed）中可以访问到setup中的属性、方法
+- setup中不能访问到 vue2配置
+- 不能重名，重名setup优先
+- setup不能是一个async函数，因为返回值不再是return的对象，而是promise，模板看不到return对象中的属性
+
+
+
+> ref函数
+
+```javascript
+// ref 通过 Object.defineProperty() 的get 和 set进行实现
+// 引入 响应式
+import {ref} from 'Vue'
+setup(props,context){
+    let name = ref('张三')
+    let age = ref(18)
+    let job = ref({
+        type:'前端',
+        salary:'20k'
+    })
+    
+    function changeInfo(){
+        name.value = '李四'
+        age.value = 48
+        job.value.type = '后端'
+        job.value.salary = '30k'
+    }
+    return {
+        name,
+        age,
+        job
+    }
+}
+```
+
+> reactive函数
+
+作用：定义一个对象类型的响应式数据（基本类型不要用它，要用ref函数）
+
+语法：const 代理对象 = reactive(源对象) 接收一个对象，返回一个代理对象(proxy对象)
+
+reactive定义的响应式数据是深层次的
+
+内部基于 ES6 的Proxy实现，通过代理对象操作源对象内部数据进行操作
+
+```javascript
+// 引入 响应式
+import {reactive} from 'Vue'
+setup(){
+    let name = ref('张三')
+    let age = ref(18)
+    let job = reactive({
+        type:'前端',
+        salary:'20k'
+    })
+    
+    function changeInfo(){
+        name.value = '李四'
+        age.value = 48
+        job.type = '后端'
+        job.salary = '30k'
+    }
+    return {
+        name,
+        age,
+        job
+    }
+}
+```
+
+> vue2.x的响应式原理
+
+- 实现原理
+  - 对象类型：通过 Object.defineProperty() 对属性的读取、修改进行拦截
+  - 数组类型：通过重写更新数组的一系列方法来实现拦截
+- 存在问题
+  - 新增属性、删除属性，界面不会更新
+  - 直接通过下标修改数组，界面不会自动更新
+
+> vue3.0的响应式原理
+
+实现原理
+
+- 通过Proxy代理：拦截对象中任意属性的变化，包括：属性值的读写、属性的添加、属性的删除
+- 通过Reflect反射：对被代理对象的属性进行操作
+
+```javascript
+const p = new Proxy(person,{
+    get(target,propName){
+        return target[propName]
+	},
+    set(target,propName,value){
+        target[propName] = value
+    },
+    deleteProperty(target,propName){
+        return delete target[propName]
+    }
+})
+
+Reflect.defineProperty(obj,'c',{
+    get(){},
+    set(){}
+})
+```
+
+
+
+##### setup
+
+- setup执行时机
+  - 在beforeCreate之前执行一次，this是undefined
+- setup参数
+  - props：值为对象，包含：组件外部传递过来，且组件内部声明接收了的属性
+  - context：上下文对象
+    - attrs：值为对象，包含：组件外部传递过来，但没有在props配置中声明的属性，相当于 `this.$attrs`
+    - slots：收到的插槽内容，相当于 `this.$slots`
+    - emit：分发自定义事件的函数，相当于 `this.$emit`
+
+> 计算属性 监视属性
+
+- watch的套路是：即要指明监视的属性，也要指明监视的回调
+- watchEffect的套路是：不用指明监视哪个属性，监视的回调中用到哪个属性就监视哪个属性
+- watchEffect有点像computed：
+  - computed注重计算出来的值，所以必须写返回值
+  - watchEffect注重过程，所以不用写返回值
+
+```javascript
+// 使用计算属性
+import {computed,watch,watchEffect} from 'vue'
+
+setup(){
+    let fullName = computed(()=>{})
+    watch(sum,(new,old)=>{
+        
+    },{immediate:true})
+    watchEffect(()=>{
+        const x1 = sum.value
+    })
+}
+```
+
+> 自定义hook对象
+
+什么是hook —— 本质是一个函数，把setup函数中使用的CompositionAPI进行了封装
+
+类似于vue2.x中的mixin
+
+自定义hook的优势，复用代码，让setup中的逻辑清楚易懂
+
+```javascript
+// ./hooks/usePoint.js
+
+import { reactive, onMounted, onBeforeUnmount } from 'vue'
+
+export default function () {
+  let point = reactive({
+    x: 0,
+    y: 0
+  })
+  function savePoint(e) {
+    point.x = e.pageX
+    point.y = e.pageY
+    console.log(e.pageX, e.pageY)
+  }
+
+  onMounted(() => {
+    window.addEventListener('click', savePoint)
+  })
+  onBeforeUnmount(() => {
+    window.removeEventListener('click', savePoint)
+  })
+  return point
+}
+
+```
+
+```vue
+<!-- ./components/Text.vue -->
+<template>
+  <h2>当前点击时鼠标的坐标为：x:{{ point.x }},y:{{ point.y }}</h2>
+</template>
+
+<script>
+import usePoint from "../hooks/usePoint";
+export default {
+  name: "Text",
+  setup() {
+    let point = usePoint();
+    return { point };
+  },
+};
+</script>
+
+<!-- App.vue -->
+<template>
+  <img alt="Vue logo" src="./assets/logo.png" />
+  <Text />
+</template>
+
+<script>
+import Text from "./components/Test.vue";
+
+export default {
+  name: "App",
+  components: {
+    Text,
+  },
+};
+</script>
+```
+
+> toRef
+
+作用：创建一个ref对象，其value值指向另一个对象中的某个属性值
+
+语法：`const name = toRef(person,'name')`
+
+应用：要将响应式对象中的某个属性单独提供给外部使用时
+
+扩展 toRefs 与 toRef 功能一致，但可以批量创建多个ref对象，语法 `toRefs(person)`
+
+```vue
+<!-- 为了响应式 -->
+<script>
+import {toRef,toRefs,reactive} from 'vue'
+export default {
+    setup(){
+        let person = reactive({
+            name:'zhangsan',
+            age:18,
+            job:{
+                j1:{
+                    salary:100
+                }
+            }
+        })
+        
+        return {
+            // name:toRef(person,'name')
+            ...toRefs(person)
+        }
+    }
+}
+</script>
+
+```
+
+
+
+
+
+#### vue3 生命周期
+
+![实例的生命周期](sgg_vue.assets\lifecycle.svg)
+
+#### 其他CompositionApi
+
+> shallowReactive 与 shallowRef
+
+shallowReactive 只处理对象最外层属性的响应式
+
+shallowRef 只处理基本数据类型的响应式 ，不进行对象的响应式处理
+
+什么时候使用？
+
+- 如果一个对象数据，结构比较深，但变化的只是外层属性 ===> shallowReactive
+- 如果一个对象数据，后续功能不会修改对象中的属性，而是生成新的对象来替换 ===> shallowRef
+
+> readonly shallowReadonly
+
+readonly： 让一个响应式数据变为 深只读
+
+shallowReadonly：让一个响应式数据变为 浅只读
+
+应用场景：不希望数据被修改时
+
+> toRaw 与 markRaw
+
+- toRaw
+  - 作用：讲一个由 `reactive` 生成的响应式对象 转为普通对象
+  - 使用场景：用于读取响应式对象对应的普通对象，对这个普通对象的所有操作，不会引起页面更新
+- markRaw
+  - 标记一个对象，使其永远不会再成为响应式对象
+  - 应用场景：
+    - 有些值不应被设置为响应式的，例如复杂的第三方类库
+    - 当渲染具有不可变数据源的大列表时，跳过响应式转换可以提高性能
+
+> customRef
+
+自定义ref
+
+
+
+> provide 与 inject
+
+实现祖孙间通信
+
+父组件有个provide来提供数据，子组件有一个inject 选项来开始使用这些数据
+
+```javascript
+// 祖组件
+setup(){
+    ...
+    let car = reactive({name:'奔驰',price:'40w'})
+    provide('car',car)
+    ...
+}
+// 孙组件
+setup(props,context){
+    const car = inject('car')
+    return {car}
+}
+```
+
+> 响应式数据的判断
+
+- isRef：检查一个值是否为一个 ref 对象
+- isReactive：检查一个对象是否是由 reactive 创建的响应式代理
+- isReadonly：检查一个对象是否是由 readonly 创建的只读代理
+- isProxy：检查一个对象是否是由 reactive 或者readonly 方法创建的代理
+
+
+
+#### CompositionAPI的优势
+
+> Options API 存在的问题
+
+使用传统OptionsAPI，新增或者修改一个需求，需要分别在 data，methods，computed里修改
+
+> CompositionAPI的优势
+
+可以更加优雅的组织我们的代码，函数，让相关功能的代码更加有序的组织在一起
+
+
+
+#### 常用新组件
+
+> Fragment
+
+- vue2.x中，组件必须有一个根标签
+- vue3中，组件可以没有根标签，内部会将多个标签包含在一个Fragment虚拟元素中
+- 减少标签层级，减小内存占用
+
+
+
+> Teleport
+
+`Teleport`  是一种能将我们的组件html结构 移动到指定位置的技术
+
+```vue
+<teleport to="">
+    <div v-if="isShow" class="mask">
+        <div class="dialog">
+            <h3>弹窗</h3>
+            <button @click="isShow = false">关闭弹窗</button>
+        </div>
+    </div>
+</teleport>
+
+```
+
+> Suspense
+
+等待异步组件时，渲染一些额外内容，*学习react*
 
