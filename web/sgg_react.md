@@ -438,6 +438,7 @@
   ```javascript
   import {BrowserRouter,Route,Switch,Link,NavLink,Redirect} from 'react-router-dom';
   
+  // NavLink 有高亮效果
   class AppStart extends React.Component{
       render(){
           return(
@@ -503,9 +504,84 @@
   //withRouter可以加工一般组件，使一般组件具有 路由组件的api
   ```
 
-#### React Router 6
+### React Router 6
+
+> 概述
+
+React Router 以三个不同的包发布到npm上，分别为
+
+- react-router 路由的核心库，提供了很多：组件、钩子
+- react-router-dom 包含react-router的所有内容，并添加一些专门用于DOM的组件 例如 <BrowserRouter>
+
+- react-router-native
+
+与5.x版本 改变了什么
+
+- 内置组件的变化，移除 <Switch /> 新增 <Routes />
+- 语法变化：component = {About } 变为 element ={ <About/>} 
+- 新增多个hook：useParams、useNavigate、useMatch
+- 官方明确推荐函数式组件
+
+必须使用Routes 包裹 Route
+
+```react
+<Routes>
+	<Route path="/about" element={<About/>}/>
+    <Route path="/" element={<Navigate to="/about"/>}/> // 重定向
+</Routes>
+
+const element = useRoutes([
+    {
+        path:'/about',
+        element:<About/>,
+        children:[
+            {
+                path:'news',
+                element:<News/>
+            }
+        ]
+    },
+    {
+        path:'/',
+        element:<Navigate to="/about"/>
+    }
+])
+
+```
 
 
+
+#### Component
+
+> #### BrowserRouter
+
+
+
+> #### HashRouter
+
+
+
+> #### Routes 与 Route
+
+
+
+> #### Link
+
+
+
+> #### NaviLink
+
+
+
+> #### Navigate
+
+
+
+> #### Outlet
+
+
+
+#### Hooks
 
 
 

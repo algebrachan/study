@@ -90,3 +90,238 @@
 > 共享内核
 
 在实践中，共享内核可以这样解释：我们用到 `TypeScript`，使用它的标准类型库，但我们不会把它们看作是一个依赖项。这是因为使用它们的模块互相不会产生影响并且可以保持解耦。
+
+
+
+### *2022-02-25*TypeScript 中 interface 和 type 的区别，你真的懂了吗？
+
+#### 类型别名 type
+
+类型别名用来给一个类型起个新名字，使用 `type` 创建类型别名，类型别名不仅可以用来表示基本类型，还可以用来表示对象类型、联合类型、元组和交集。
+
+```typescript
+type userName = string; // 基本类型
+type userId = string | number;
+type arr = number[];
+
+// 对象类型
+type Person = {
+  id: userId;
+  name: userName;
+  age: number;
+  gender: string;
+  isWebDev: boolean;
+};
+// 范型
+type Tree<T> = { value: T };
+
+const user: Person = {
+  id: "901",
+  name: "春",
+  age: 22,
+  gender: "女",
+  isWebDev: false,
+};
+
+const numbers: arr = [1, 2, 9];
+```
+
+#### 接口 interface
+
+接口是命名数据结构（例如对象）的另一种方式；与`type` 不同，`interface`仅限于描述对象类型。
+
+```typescript
+interface Person {
+    id: userId;
+    name: userName;
+    age: number;
+    gender: string;
+    isWebDev: boolean;
+}
+```
+
+#### interface和type的相似之处
+
+```typescript
+// 都可以描述 Object和Function
+
+type Point = {
+  x: number;
+  y: number;
+};
+
+type SetPoint = (x: number, y: number) => void;
+
+interface Point {
+  x: number;
+  y: number;
+}
+
+interface SetPoint {
+  (x: number, y: number): void;
+}
+
+// 二者都可以被继承
+interface Person{
+    name:string
+}
+type Person{
+    name:string
+}
+// interface继承 type和interface
+interface Student extends Person { stuNo: number }
+// type 继承 type和interface
+type Student = Person & { stuNo: number }
+
+// 实现implements
+interface ICat{
+    setName(name:string): void;
+}
+// type 
+type ICat = {
+    setName(name:string): void;
+}
+
+class Cat implements ICat{
+    setName(name:string):void{
+        // todo
+    }
+}
+
+
+// 类无法实现联合类型
+type Person = { name: string; } | { setName(name:string): void };
+
+// 无法对联合类型Person进行实现
+// error: A class can only implement an object type or intersection of object types with statically known members.
+class Student implements Person {
+  name= "张三";
+  setName(name:string):void{
+        // todo
+    }
+}
+
+```
+
+#### 二者区别
+
+- type可以定义基本类型别名
+- type可以申明联合类型
+- type可以声明 **元组类型**
+- interface可以声明合并
+- 索引签名问题
+
+```typescript
+type userName = string
+// 联合类型
+type Student = {stuNo: number} | {classId: number}
+// 元组类型
+type Data = [number, string];
+// 声明合并
+interface Person { name: string }
+interface Person { age: number }
+
+let user: Person = {
+    name: "Tolu",
+    age: 0,
+};
+
+```
+
+### *2022-02-28*前端性能优化 - React.memo 解决函数组件重复渲染
+
+使用 React Hooks 时函数组件应用的比较多，当遇到组件重复渲染问题不像类组件可以使用生命周期函数 `shouldComponentUpdate` 或 `extends React.PureComponent` 解决重复渲染问题。
+
+函数组件中的解决方案是使用 React.memo() 函数，将需要优化的函数组件传入即可。
+
+```javascript
+import React, { useEffect, useState } from "react";
+
+// 未使用 memo：const List = ({ dataList }) => {
+const List = React.memo(({ dataList }) => {
+  console.log("List 渲染");
+
+  return (
+    <div>
+      {dataList.map((item) => (
+        <h2 key={item.id}> {item.title} </h2>
+      ))}
+    </div>
+  );
+});
+
+const Home = () => {
+  const [count, setCount] = useState(0);
+  const [dataList, setDataList] = useState([]);
+
+  useEffect(() => {
+    const list = [
+      { title: "React 性能优化", id: 1 },
+      { title: "Node.js 性能优化", id: 2 },
+    ];
+    setDataList(list);
+  }, []);
+
+  return (
+    <div>
+      <button type="button" onClick={() => setCount(count + 1)}>
+        count: {count}
+      </button>
+      <List dataList={dataList} />
+    </div>
+  );
+};
+
+export default Home;
+
+// React.memo() 的 TypeScript 类型描述
+// 函数React.memo() 还提供了第二个参数 propsAreEqual，用来自定义控制对比过程
+function memo<T extends ComponentType<any>>(
+  Component: T,
+  propsAreEqual?: (
+    prevProps: Readonly<ComponentProps<T>>,
+    nextProps: Readonly<ComponentProps<T>>
+  ) => boolean
+): MemoExoticComponent<T>;
+```
+
+> React.memo 无效情况
+
+**一是 React.memo 对普通的引用类型是无效**的。例如，在 List 组件增加 user 属性，即使使用了 React.memo() ，每次点击 count， List 组件还会重复渲染。
+
+```javascript
+const Home = () => {
+  const user = {name: '哈哈'};
+  return (
+    <div>
+      <List dataList={dataList} user={user} />
+    </div>
+  );
+};
+const user = useMemo(() => ({ name: "哈哈" }), []);
+const [user] = useState({ name: "哈哈" });
+```
+
+还有一种情况是**函数组中包括了一些 Hooks 例如 useState、useContext，当上下文发生变化时，组件也同样会重新渲染，React.memo 在这里仅比较 props**。上面例子中，如果把 button 组件放到 List 组件里，每次点击，List 也还是会被重新渲染。
+
+```javascript
+const List = React.memo(({ dataList }) => {
+  console.log("List 渲染");
+  const [count, setCount] = useState(0);
+
+  return (
+    <div>
+      <button type="button" onClick={() => setCount(count + 1)}>
+        List count: {count}
+      </button>
+      {dataList.map((item) => (
+        <h2 key={item.id}> {item.title} </h2>
+      ))}
+    </div>
+  );
+});
+```
+
+> 总结
+
+React.memo() 是一个高阶组件，接收一个组件并返回一个新组件。它会记忆组件上次的 Props，同下次需要更新的 Props 做 “浅对比”，如果相同就不做更新，只有在不同时才会重新渲染。如果你的组件存在一些耗时的计算，每次重新渲染对页面性能显然是糟糕的，这时 React.memo() 对你来说也许是一个好的选择。并不是所有的组件都要引入 React.memo()，自身浅对比这个过程也会有一些消耗，如果没有特殊需求，也不一定非要使用。

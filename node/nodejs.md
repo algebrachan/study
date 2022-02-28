@@ -10,6 +10,13 @@
 
 运行命令 `node xxx.js`
 
+`ts-node xxx.ts`
+
+```shell
+# 安装 ts文件执行环境
+npm install ts-node -g --save  --unsafe-perm=true --allow-root
+```
+
 node中没有DOM和BOM
 
 ```javascript
@@ -70,6 +77,15 @@ server.listen(3005, () => {
 - http
 - path
 - os
+
+#### 特殊语法
+
+```javascript
+// 新建一个 n个对象的空数组
+new Array(n).fill({})
+```
+
+
 
 ### 模块化
 

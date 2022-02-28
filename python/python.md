@@ -72,6 +72,16 @@ pip3 download -r requirements.txt -d /home/wangchen/packages
 pip3 install -r requirements.txt --no-index --find-links=/home/wangchen/packages
 ```
 
+### 1.4 pip
+
+```shell
+pip install applicationName==version # 安装特定版本
+```
+
+
+
+
+
 ## 2.python基本语法
 
 - [python3中文手册](https://docs.pythontab.com/python/python3.5/appetite.html)
