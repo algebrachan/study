@@ -69,7 +69,7 @@
 |    字体    | font-size：px<br />font-family：字体<br />font-weight：字体粗细 bold 100-900 (没有单位)<br />font-style：字体风格 | font: italic 700 20px "微软雅黑"                             |
 |  外观属性  | color：文本颜色 rgb/#16进制/颜色英文<br />text-align：文本水平对齐<br />line-height：行间距<br />text-indent：首行缩进<br />text-decoration：none\|underline 用于a标签去掉下划线 | #000 黑色 #fff 白色<br />FSCapture<br />**行高等于盒子的高度就能水平居中** |
 |  display   | block、inline、inline-block                                  | 块级元素、行内元素、行内块元素                               |
-| background | -color<br />-image：url(...)<br />-repeat：默认平铺<br />-position：x坐标 y坐标<br />-attachment:fiexd 背景固定滚动<br />rgab(0,0,0,.3) 背景半透明 | background：#ccc url(images/sms.jpg) no-repeat fixed center top; |
+| background | -color<br />-image：url(...)<br />-repeat：默认平铺<br />-position：x坐标 y坐标<br />-attachment:fiexd 背景固定滚动<br />rgba(0,0,0,.3) 背景半透明 | background：#ccc url(images/sms.jpg) no-repeat fixed center top; |
 
 ### 1.4 盒子模型
 
@@ -526,4 +526,36 @@
   }
   ```
 
+- 选项框给border宽度 选择的时候文字便宜问题
+
+  ```css
   
+   .item {
+        cursor: pointer;
+        width: 84px;
+        height: 36px;
+        margin-top: 2px;
+        border: 1px solid transparent; // 添加透明宽度
+        background: rgba(65, 158, 254, 0.2);
+        text-align: center;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 30px;
+      }
+      .item:hover,
+      .checked {
+        border: 1px solid;
+        border-image: linear-gradient(
+            180deg,
+            rgba(66, 239, 255, 1),
+            rgba(3, 6, 9, 1),
+            rgba(31, 59, 87, 1),
+            rgba(66, 239, 255, 1)
+          )
+          1 1;
+      }
+    }
+  ```
+
+  ![image-20220308102758519](hm_css.assets\image-20220308102758519.png)

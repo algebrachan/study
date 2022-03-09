@@ -76,6 +76,8 @@ pip3 install -r requirements.txt --no-index --find-links=/home/wangchen/packages
 
 ```shell
 pip install applicationName==version # 安装特定版本
+pip show streamlit
+pip list
 ```
 
 

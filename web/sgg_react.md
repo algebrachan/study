@@ -748,6 +748,8 @@ function Demo(){
     
     const myRef =React.useRef()
     
+    const history = React.useHistory()
+    
     function add(){ // 修改state
         setCount(99)
         setCount(count=>return{count+1})
