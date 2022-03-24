@@ -7,7 +7,7 @@
 
 
 
-### *2022-01-18*前端领域架构模式：“干净架构”
+### *2022-01-18* 前端领域架构模式：“干净架构”
 
 > 什么是干净架构
 
@@ -228,7 +228,7 @@ let user: Person = {
 
 ```
 
-### *2022-02-28*前端性能优化 - React.memo 解决函数组件重复渲染
+### *2022-02-28* 前端性能优化 - React.memo 解决函数组件重复渲染
 
 使用 React Hooks 时函数组件应用的比较多，当遇到组件重复渲染问题不像类组件可以使用生命周期函数 `shouldComponentUpdate` 或 `extends React.PureComponent` 解决重复渲染问题。
 
@@ -325,3 +325,210 @@ const List = React.memo(({ dataList }) => {
 > 总结
 
 React.memo() 是一个高阶组件，接收一个组件并返回一个新组件。它会记忆组件上次的 Props，同下次需要更新的 Props 做 “浅对比”，如果相同就不做更新，只有在不同时才会重新渲染。如果你的组件存在一些耗时的计算，每次重新渲染对页面性能显然是糟糕的，这时 React.memo() 对你来说也许是一个好的选择。并不是所有的组件都要引入 React.memo()，自身浅对比这个过程也会有一些消耗，如果没有特殊需求，也不一定非要使用。
+
+
+
+### *2022-03-24* React 状态管理 - useState 和 useReducer 如何选择？
+
+#### 类组件 State
+
+类组件将组件内所有的状态放在一个state中管理： `this.state` 获取状态数据、`this.setState()`更新状态数据
+
+```react
+import React from 'react';
+
+class State extends React.Component {
+  constructor() {
+    super();
+    this.state = {
+      count: 0,
+    }
+  }
+
+  render() {
+    return <div>
+      <p>count: {this.state.count}</p>
+      <button onClick={() => 
+        this.setState({ count: this.state.count + 1 })
+      }> 类组件计数 </button>
+    </div>
+  }
+}
+export default State;
+```
+
+#### 函数组件 useState
+
+React16.8之后，常用函数式组件使用hooks 组件状态使用 useState() 函数，相比类组件 拆分的更细并且每次更新状态变量都是替换而不是合并
+
+```react
+import { useState } from 'react';
+const State = () => {
+  const [count, setCount] = useState(0); // useState()中是初始值，
+
+  return <div>
+    <p>计数器 count: {count}</p>
+    <button onClick={() => setCount(count + 1)}> 增 </button>
+    <button onClick={() => setCount(preCount => preCount - 1)}> 减 </button>
+    <button onClick={() => setCount(0)}> 重置 </button>
+  </div>
+}
+export default State;
+```
+
+#### 函数组件 useReducer
+
+useReducer是useState的替代方案，用来处理逻辑比较复杂的state或下一个state依赖于前一个state等
+
+```react
+import { useReducer } from "react"
+
+const COUNT_INCREMENT = 'COUNT_INCREMENT';
+const COUNT_DECREMENT = 'COUNT_DECREMENT';
+const COUNT_RESET = 'COUNT_RESET';
+
+const initialState = {
+  count: 0,
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case COUNT_INCREMENT:
+      return { count: state.count + 1 };
+    case COUNT_DECREMENT:
+      return { count: state.count - 1 };
+    case COUNT_RESET:
+      return { count: initialState.count };
+    default:
+      return state;
+  }
+};
+
+const State = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return <div>
+    <p>计数器 count: {state.count}</p>
+    <button onClick={() => dispatch({ type: COUNT_INCREMENT })}> 增 </button>
+    <button onClick={() => dispatch({ type: COUNT_DECREMENT })}> 减 </button>
+    <button onClick={() => dispatch({ type: COUNT_RESET })}> 重置 </button>
+  </div>
+}
+
+export default State;
+```
+
+
+
+#### useReducer实现Todos
+
+```react
+// src/reducers/todos-reducer.jsx
+export const TODO_LIST_ADD = 'TODO_LIST_ADD';
+export const TODO_LIST_EDIT = 'TODO_LIST_EDIT';
+export const TODO_LIST_REMOVE = 'TODO_LIST_REMOVE';
+
+const randomID = () => Math.floor(Math.random() * 10000);
+export const initialState = {
+  todos: [{ id: randomID(), content: 'todo list' }],
+};
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case TODO_LIST_ADD: {
+      const newTodo = {
+        id: randomID(),
+        content: action.payload.content
+      };
+      return {
+        todos: [ ...state.todos, newTodo ],
+      }
+    }
+    case TODO_LIST_EDIT: {
+      return {
+        todos: state.todos.map(item => {
+          const newTodo = { ...item };
+          if (item.id === action.payload.id) {
+            newTodo.content = action.payload.content;
+          }
+          return newTodo;
+        })
+      }
+    }
+    case TODO_LIST_REMOVE: {
+      return {
+        todos: state.todos.filter(item => item.id !== action.payload.id),
+      }
+    }
+    default: return state;
+  }
+}
+
+export default reducer;
+```
+
+```react
+import { useReducer, useState } from "react";
+import reducer, { initialState, TODO_LIST_ADD, TODO_LIST_EDIT, TODO_LIST_REMOVE } from "../../reducers/todos-reducer";
+
+const TodoAdd = ({ dispatch }) => {
+  const [content, setContent] = useState('');
+
+  return <>
+    <input type="text" onChange={e => setContent(e.target.value)} />
+    <button onClick={() => {
+      dispatch({ type: TODO_LIST_ADD, payload: { content } })
+    }}>
+      添加
+    </button>
+  </>
+};
+
+const Todo = ({ todo, dispatch }) => {
+  const [isEdit, setIsEdit] = useState(false);
+  const [content, setContent] = useState(todo.content);
+
+  return <div>
+    {
+      !isEdit ? <>
+        <span>{todo.content}</span>
+        <button onClick={() => setIsEdit(true)}> 编辑 </button>
+        <button onClick={() => dispatch({ type: TODO_LIST_REMOVE, payload: { id: todo.id } })}> 删除 </button>
+      </> : <>
+        <input value={content} type="text" onChange={ e => setContent(e.target.value) } />
+        <button onClick={() => {
+          setIsEdit(false);
+          dispatch({ type: TODO_LIST_EDIT, payload: { id: todo.id, content } })
+        }}> 更新 </button>
+        <button onClick={() => setIsEdit(false)}> 取消 </button>
+      </>
+    }
+  </div>
+}
+
+const Todos = () => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  return <>
+    <TodoAdd dispatch={dispatch} />
+    {
+      state.todos.map(todo => <Todo
+        key={todo.id}
+        todo={todo}
+        dispatch={dispatch}
+      />)
+    }
+  </>
+}
+
+export default Todos;
+```
+
+> 总结
+
+如果状态是基本的数据类型（字符串、数值、布尔）可以选择useState,如果是数组或对象等其他复杂的类型或复杂逻辑，最好选择useReducer
+
+
+
+
+
