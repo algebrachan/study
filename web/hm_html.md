@@ -160,3 +160,26 @@
 
 ### 3.4 canvas画布
 
+
+
+## 4.页面问题
+
+> 窗口自动调整比例问题，用以适配不同的屏幕
+
+```html
+<head>
+    <script>
+        // head标签内添加适配代码
+        function bodyScale(){
+			var deviceWidth = document.documentElement.clientWidth;
+            var scale = deviceWidth/1920;
+            document.body.style.zoom = scale;
+        }
+        window.onload = window.onresize = function(){
+            bodyScale()
+        }
+    </script>
+</head>
+
+```
+
