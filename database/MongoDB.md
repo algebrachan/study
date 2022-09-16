@@ -10,7 +10,7 @@ service mongodb start
 service mongodb stop
 
 sudo vi /etc/mongodb.conf
-auto = true
+bind_ip = 0.0.0.0
 
 use admin
 

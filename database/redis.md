@@ -331,6 +331,9 @@ https://blog.csdn.net/erlian1992/article/details/54382443
   cd src
   ./redis-server
   # ./redis-server ../redis.conf #指定配置文件启动
+
+  sudo service redis-server restart
+
   ```
 
 - Ubuntu apt 安装

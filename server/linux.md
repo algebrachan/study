@@ -74,6 +74,13 @@ sudo useradd -s /bin/bash -d /home/wangchen -m wangchen
 sudo passwd <user_name> 
 
 chmod -R ugo+rwx dir1 # 开放权限
+# 赋于root权限 用于后台开启服务
+sudo vim /etc/sudoers
+# 新增
+wangchen ALL=(ALL:ALL) NOPASSWD: ALL
+
+#
+sudo usermod -g root wangchen
 ```
 
 
