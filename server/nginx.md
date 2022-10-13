@@ -615,6 +615,7 @@ server {
 nginx在windows服务器上后台自启
 
 https://blog.csdn.net/qq_34515910/article/details/83107738
+https://blog.csdn.net/qq_36664772/article/details/123142369
 
 
 

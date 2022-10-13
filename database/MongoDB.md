@@ -37,6 +37,7 @@ tar -zxvf xxx
 - NoSQL数据库 
 - [教程](https://www.runoob.com/mongodb/mongodb-tutorial.html)
 - compass客户端
+- 安装windows版本，添加 /bin目录到环境变量，cmd 输入mongo启动
 
 #### 业务应用场景
 
