@@ -27,5 +27,17 @@ electron-packager .
 
 ```
 
+> electron-forge 方案
 
+```shell
+npm init electron-app@latest my-app
+# 如果有别的版本的脚手架，建议先卸载
+npm uninstall -g create-electron-app
+
+# 启动
+npm start
+# 打包
+npm run package
+npm run make
+```
 
