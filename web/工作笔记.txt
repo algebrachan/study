@@ -1,17 +1,1 @@
-å‰ç«¯è§£æå¯¹è±¡ä¸ºå­—ç¬¦ä¸²ï¼Œå¹¶ä½œè‡ªå®šæ¢è¡Œæ–¹æ¡ˆï¼š
-divä¸­è®¾å®šæ ·å¼ white-space: pre-wrap;
-let str = JSON.stringify(obj, null, 2)
-
-å¤åˆ¶æ–¹æ¡ˆ
-import Clipboard from 'clipboard';
-<button class="btn" onClick={()=>this.copy()}></button>
-copy = () =>{
-  const { res } = this.state;
-  let clipboard = new Clipboard('.btn', {
-      text: () => res
-  });
-  clipboard.on('success', function (e) {
-      alert('å¤åˆ¶æˆåŠŸ')
-      clipboard.destroy()
-  })
-}
+Ç°¶Ë½âÎö¶ÔÏóÎª×Ö·û´®£¬²¢×÷×Ô¶¨»»ĞĞ·½°¸£ºdivÖĞÉè¶¨ÑùÊ½ white-space: pre-wrap;let str = JSON.stringify(obj, null, 2)¸´ÖÆ·½°¸import Clipboard from 'clipboard';<button class="btn" onClick={()=>this.copy()}></button>copy = () =>{  const { res } = this.state;  let clipboard = new Clipboard('.btn', {      text: () => res  });  clipboard.on('success', function (e) {      alert('¸´ÖÆ³É¹¦')      clipboard.destroy()  })}Ç¿ÖÆ°²×°ÒÀÀµnpm install --legacy-peer-deps

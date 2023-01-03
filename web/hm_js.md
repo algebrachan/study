@@ -1971,3 +1971,27 @@ vue init webpack my-project
  ws.send("123");
 ```
 
+
+
+## 7.前端问题总结
+
+- 前端解析对象为字符串，并作自定换行方案：
+  div中设定样式 white-space: pre-wrap;
+  let str = JSON.stringify(obj, null, 2)
+
+- 复制方案
+  import Clipboard from 'clipboard';
+  <button class="btn" onClick={()=>this.copy()}></button>
+  copy = () =>{
+    const { res } = this.state;
+    let clipboard = new Clipboard('.btn', {
+        text: () => res
+    });
+    clipboard.on('success', function (e) {
+        alert('复制成功')
+        clipboard.destroy()
+    })
+  }
+
+- 强制安装依赖
+  npm install --legacy-peer-deps
