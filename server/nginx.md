@@ -612,12 +612,14 @@ server {
 
 ### 3.8 常见问题
 
-nginx在windows服务器上后台自启
+- nginx在windows服务器上后台自启
 
 https://blog.csdn.net/qq_34515910/article/details/83107738
 https://blog.csdn.net/qq_36664772/article/details/123142369
 
-
+- ubuntu上nginx启动出现(13: Permission denied) 异常
+  - 修改nginx.conf中的 user root
+  - 重启 service nginx restart 
 
 ## 参考文献
 
